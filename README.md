@@ -1,5 +1,7 @@
 # Mealie Android
 
+> **Unofficial project.** This is an independent Android client for [Mealie](https://mealie.io) and is not affiliated with, endorsed by, or part of the official Mealie project.
+
 A native Android client for self-hosted [Mealie](https://mealie.io) instances.
 
 ## Why
