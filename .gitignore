@@ -1,0 +1,27 @@
+# Gradle
+.gradle/
+build/
+**/build/
+local.properties
+gradle/wrapper/gradle-wrapper.jar
+
+# Android Studio / IntelliJ
+*.iml
+.idea/
+captures/
+.externalNativeBuild/
+.cxx/
+*.ap_
+
+# Signing keystores - never commit these
+*.jks
+*.keystore
+keystore.properties
+release/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code assistant memory - personal, not project state
+.claude/
