@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UX Design Directions — mealie-android-unofficial</title>
+<style>
+  :root {
+    --orange: #E58325;
+    --orange-container: #FFDDB8;
+    --on-orange-container: #2D1600;
+    --surface: #FFF8F4;
+    --surface-low: #F5EDE4;
+    --surface-high: #EDE0D4;
+    --surface-highest: #E5D8CC;
+    --on-surface: #201A14;
+    --on-surface-variant: #52443A;
+    --outline: #847468;
+    --outline-variant: #D7C3B6;
+    --error: #BA1A1A;
+    --tertiary: #5E6000;
+    --tertiary-container: #E4E575;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Roboto', -apple-system, sans-serif;
+    background: #1A1A1A;
+    color: #E0E0E0;
+    padding: 24px;
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: 400;
+    color: #FFF;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 40px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 20px;
+    margin-top: 48px;
+  }
+
+  .directions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    max-width: 1200px;
+  }
+
+  .direction-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .direction-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #CCC;
+    letter-spacing: 0.3px;
+  }
+
+  .direction-desc {
+    font-size: 12px;
+    color: #777;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  /* Phone frame */
+  .phone {
+    width: 100%;
+    max-width: 320px;
+    background: var(--surface);
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    position: relative;
+  }
+
+  /* Status bar */
+  .status-bar {
+    height: 28px;
+    background: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-size: 11px;
+    color: var(--on-surface-variant);
+  }
+
+  /* Top app bar */
+  .top-bar {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  .top-bar-title {
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--on-surface);
+    flex: 1;
+  }
+
+  .top-bar-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--on-surface-variant);
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  /* Quick add field */
+  .quick-add {
+    height: 56px;
+    margin: 0 16px 8px;
+    background: var(--surface-highest);
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 12px;
+    font-size: 16px;
+    color: var(--on-surface-variant);
+  }
+
+  .quick-add-icon {
+    color: var(--orange);
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  /* Section header */
+  .section-header {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--on-surface-variant);
+    border-bottom: 1px solid var(--outline-variant);
+  }
+
+  /* List item - planning */
+  .list-item {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+    border-bottom: 1px solid var(--outline-variant);
+    background: var(--surface-low);
+    cursor: pointer;
+  }
+
+  .list-item:hover { background: var(--surface-high); }
+
+  .checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid var(--outline);
+    flex-shrink: 0;
+  }
+
+  .checkbox.checked {
+    background: var(--orange);
+    border-color: var(--orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFF;
+    font-size: 13px;
+  }
+
+  .item-text {
+    font-size: 16px;
+    color: var(--on-surface);
+    flex: 1;
+  }
+
+  .item-text.checked {
+    text-decoration: line-through;
+    color: var(--on-surface-variant);
+    opacity: 0.6;
+  }
+
+  .item-meta {
+    font-size: 12px;
+    color: var(--on-surface-variant);
+  }
+
+  .drag-handle {
+    color: var(--outline-variant);
+    font-size: 16px;
+    padding: 0 4px;
+  }
+
+  /* Sync badge */
+  .sync-badge {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tertiary);
+    flex-shrink: 0;
+  }
+
+  /* Start shopping button area */
+  .start-shopping-area {
+    padding: 12px 16px;
+    background: var(--surface);
+  }
+
+  .start-shopping-btn {
+    width: 100%;
+    height: 56px;
+    background: var(--orange);
+    color: #FFF;
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.1px;
+    cursor: pointer;
+    gap: 8px;
+  }
+
+  /* Bottom nav */
+  .bottom-nav {
+    height: 80px;
+    background: var(--surface);
+    border-top: 1px solid var(--outline-variant);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    padding: 8px 0;
+  }
+
+  .nav-icon {
+    font-size: 22px;
+  }
+
+  .nav-label {
+    font-size: 12px;
+    color: var(--on-surface-variant);
+  }
+
+  .nav-item.active .nav-icon,
+  .nav-item.active .nav-label {
+    color: var(--orange);
+  }
+
+  .nav-indicator {
+    width: 64px;
+    height: 32px;
+    background: var(--orange-container);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Shopping mode overlay */
+  .shopping-mode {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--surface-high);
+    border-radius: 28px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .drag-pill-container {
+    display: flex;
+    justify-content: center;
+    padding: 12px 0 4px;
+  }
+
+  .drag-pill {
+    width: 32px;
+    height: 4px;
+    background: var(--outline-variant);
+    border-radius: 2px;
+  }
+
+  .shopping-top-bar {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  .shopping-title {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--on-surface);
+    flex: 1;
+  }
+
+  .done-chip {
+    height: 32px;
+    padding: 0 16px;
+    background: var(--surface-highest);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    cursor: pointer;
+    gap: 6px;
+  }
+
+  .sort-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--surface-highest);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--on-surface-variant);
+    cursor: pointer;
+  }
+
+  /* Shopping item - larger */
+  .shopping-item {
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 20px;
+    border-bottom: 1px solid var(--outline-variant);
+    cursor: pointer;
+  }
+
+  .shopping-item:hover { background: var(--surface-highest); }
+
+  .shopping-checkbox {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 2px solid var(--outline);
+    flex-shrink: 0;
+  }
+
+  .shopping-checkbox.checked {
+    background: var(--orange);
+    border-color: var(--orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFF;
+    font-size: 15px;
+  }
+
+  .shopping-item-text {
+    font-size: 18px;
+    color: var(--on-surface);
+    flex: 1;
+    line-height: 1.3;
+  }
+
+  .shopping-item-text.checked {
+    text-decoration: line-through;
+    opacity: 0.4;
+    color: var(--on-surface-variant);
+  }
+
+  .shopping-item-meta {
+    font-size: 13px;
+    color: var(--on-surface-variant);
+  }
+
+  /* Quick add shopping */
+  .shopping-quick-add {
+    height: 56px;
+    margin: 8px 16px;
+    background: var(--surface-highest);
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 12px;
+    font-size: 16px;
+    color: var(--on-surface-variant);
+  }
+
+  /* Offline indicator */
+  .offline-indicator {
+    margin: 4px 16px;
+    height: 32px;
+    background: var(--surface-highest);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--on-surface-variant);
+  }
+
+  .offline-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tertiary);
+  }
+
+  /* ============================================================
+     DIRECTION-SPECIFIC OVERRIDES
+  ============================================================ */
+
+  /* Direction A — Restrained utility */
+  .dir-a .list-item { background: var(--surface); }
+  .dir-a .quick-add { background: var(--surface-high); border-radius: 8px; }
+  .dir-a .section-header { background: var(--surface); }
+  .dir-a .start-shopping-btn { border-radius: 8px; }
+
+  /* Direction B — Warm and confident */
+  .dir-b .quick-add {
+    background: var(--orange-container);
+    color: var(--on-orange-container);
+  }
+  .dir-b .quick-add-icon { color: var(--on-orange-container); }
+  .dir-b .section-header {
+    background: var(--orange-container);
+    color: var(--on-orange-container);
+    border-bottom: none;
+    font-weight: 600;
+  }
+  .dir-b .start-shopping-btn { border-radius: 12px; }
+  .dir-b .shopping-mode { background: #F0E6D8; }
+  .dir-b .shopping-quick-add { background: var(--orange-container); }
+
+  /* Direction C — High contrast execution */
+  .dir-c .list-item {
+    background: var(--surface);
+    border-bottom: none;
+  }
+  .dir-c .list-item + .list-item { border-top: 1px solid var(--outline-variant); }
+  .dir-c .item-text { font-weight: 500; }
+  .dir-c .shopping-mode { background: #EAD9C8; }
+  .dir-c .shopping-item-text { font-weight: 700; font-size: 20px; }
+  .dir-c .shopping-item { min-height: 80px; }
+  .dir-c .shopping-item-text.checked {
+    opacity: 0.25;
+    font-weight: 400;
+    font-size: 16px;
+  }
+  .dir-c .shopping-checkbox {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border-width: 2.5px;
+  }
+  .dir-c .shopping-checkbox.checked { border-radius: 50%; }
+  .dir-c .done-chip {
+    background: var(--orange);
+    color: #FFF;
+  }
+
+  /* Comparison table */
+  .compare-table {
+    width: 100%;
+    max-width: 900px;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 13px;
+  }
+
+  .compare-table th {
+    text-align: left;
+    padding: 10px 16px;
+    background: #2A2A2A;
+    color: #BBB;
+    font-weight: 500;
+    border-bottom: 1px solid #444;
+  }
+
+  .compare-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid #333;
+    color: #CCC;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .compare-table tr:hover td { background: #222; }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-right: 4px;
+  }
+  .tag-a { background: #2A3A2A; color: #7CCC7C; }
+  .tag-b { background: #3A2A1A; color: #FFAA55; }
+  .tag-c { background: #1A2A3A; color: #55AAFF; }
+
+  .footnote {
+    font-size: 12px;
+    color: #666;
+    margin-top: 48px;
+    line-height: 1.6;
+    max-width: 900px;
+  }
+
+  @media (max-width: 900px) {
+    .directions-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Design Directions — mealie-android-unofficial</h1>
+<p class="subtitle">Three visual directions for the Shopping List screen. All share the same foundation: Material 3, seed color #E58325, Roboto, adaptive density.</p>
+
+<!-- PLANNING MODE -->
+<div class="section-title">Planning Mode</div>
+<div class="directions-grid">
+
+  <!-- Direction A -->
+  <div class="direction-column">
+    <div class="direction-label">A — Restrained Utility</div>
+    <div class="direction-desc">Minimal visual weight. Orange used sparingly. Surfaces are clean and neutral. Feels like a well-designed notepad.</div>
+    <div class="phone dir-a">
+      <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+      <div class="top-bar">
+        <div class="top-bar-title">Weekly Shop</div>
+        <div class="top-bar-icon">⋮</div>
+      </div>
+      <div class="quick-add">
+        <span class="quick-add-icon">+</span>
+        <span>Add item…</span>
+      </div>
+      <div class="section-header">To buy · 5 items</div>
+      <div class="list-item">
+        <div class="checkbox"></div>
+        <div class="item-text">Oat milk</div>
+        <div class="item-meta">2 l</div>
+        <div class="drag-handle">⠿</div>
+      </div>
+      <div class="list-item">
+        <div class="checkbox"></div>
+        <div class="item-text">Sourdough bread</div>
+        <div class="drag-handle">⠿</div>
+      </div>
+      <div class="list-item">
+        <div class="checkbox"></div>
+        <div class="item-text">Cherry tomatoes</div>
+        <div class="item-meta">500 g</div>
+        <div class="sync-badge"></div>
+        <div class="drag-handle">⠿</div>
+      </div>
+      <div class="list-item">
+        <div class="checkbox"></div>
+        <div class="item-text">Parmesan</div>
+        <div class="drag-handle">⠿</div>
+      </div>
+      <div class="section-header">Done · 2 items</div>
+      <div class="list-item">
+        <div class="checkbox checked">✓</div>
+        <div class="item-text checked">Olive oil</div>
+      </div>
+      <div class="list-item">
+        <div class="checkbox checked">✓</div>
+        <div class="item-text checked">Pasta</div>
+        <div class="item-meta">500 g</div>
+      </div>
+      <div class="start-shopping-area">
+        <div class="start-shopping-btn">🛒 Start Shopping</div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active">
+          <div class="nav-indicator"><span class="nav-icon">🛒</span></div>
+          <div class="nav-label">Shopping</div>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">📖</span>
+          <div class="nav-label">Recipes</div>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">⚙️</span>
+          <div class="nav-label">Settings</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Direction B -->
+  <div class="direction-column">
+    <div class="direction-label">B — Warm and Confident</div>
+    <div class="direction-desc">Fuller use of amber-cream containers for headers and quick-add. More branded warmth throughout. Feels like a kitchen tool.</div>
+    <div class="phone dir-b">
+      <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+      <div class="top-bar">
+        <div class="top-bar-title">Weekly Shop</div>
+        <div class="top-bar-icon">⋮</div>
+      </div>
+      <div class="quick-add">
+        <span class="quick-add-icon">+</span>
+        <span>Add item…</span>
+      </div>
+      <div class="section-header">To buy · 5 items</div>
+      <div class="list-item">
+        <div class="checkbox"></div>
+        <div class="item-text">Oat milk</div>
+        <div class="item-meta">2 l</div>
+        <div class="drag-handle">⠿</div>
+      </div>
+      <div class="list-item">
+        <div class="checkbox"></div>
+        <div class="item-text">Sourdough bread</div>
+        <div class="drag-handle">⠿</div>
+      </div>
+      <div class="list-item">
+        <div class="checkbox"></div>
+        <div class="item-text">Cherry tomatoes</div>
+        <div class="item-meta">500 g</div>
+        <div class="sync-badge"></div>
+        <div class="drag-handle">⠿</div>
+      </div>
+      <div class="list-item">
+        <div class="checkbox"></div>
+        <div class="item-text">Parmesan</div>
+        <div class="drag-handle">⠿</div>
+      </div>
+      <div class="section-header">Done · 2 items</div>
+      <div class="list-item">
+        <div class="checkbox checked">✓</div>
+        <div class="item-text checked">Olive oil</div>
+      </div>
+      <div class="list-item">
+        <div class="checkbox checked">✓</div>
+        <div class="item-text checked">Pasta</div>
+        <div class="item-meta">500 g</div>
+      </div>
+      <div class="start-shopping-area">
+        <div class="start-shopping-btn">🛒 Start Shopping</div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active">
+          <div class="nav-indicator"><span class="nav-icon">🛒</span></div>
+          <div class="nav-label">Shopping</div>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">📖</span>
+          <div class="nav-label">Recipes</div>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">⚙️</span>
+          <div class="nav-label">Settings</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Direction C -->
+  <div class="direction-column">
+    <div class="direction-label">C — High Contrast Execution</div>
+    <div class="direction-desc">Bolder item weights in both modes. Planning is restrained; Shopping mode is the most visually distinct of the three.</div>
+    <div class="phone dir-c">
+      <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+      <div class="top-bar">
+        <div class="top-bar-title">Weekly Shop</div>
+        <div class="top-bar-icon">⋮</div>
+      </div>
+      <div class="quick-add">
+        <span class="quick-add-icon">+</span>
+        <span>Add item…</span>
+      </div>
+      <div class="section-header">To buy · 5 items</div>
+      <div class="list-item">
+        <div class="checkbox"></div>
+        <div class="item-text">Oat milk</div>
+        <div class="item-meta">2 l</div>
+        <div class="drag-handle">⠿</div>
+      </div>
+      <div class="list-item">
+        <div class="checkbox"></div>
+        <div class="item-text">Sourdough bread</div>
+        <div class="drag-handle">⠿</div>
+      </div>
+      <div class="list-item">
+        <div class="checkbox"></div>
+        <div class="item-text">Cherry tomatoes</div>
+        <div class="item-meta">500 g</div>
+        <div class="sync-badge"></div>
+        <div class="drag-handle">⠿</div>
+      </div>
+      <div class="list-item">
+        <div class="checkbox"></div>
+        <div class="item-text">Parmesan</div>
+        <div class="drag-handle">⠿</div>
+      </div>
+      <div class="section-header">Done · 2 items</div>
+      <div class="list-item">
+        <div class="checkbox checked">✓</div>
+        <div class="item-text checked">Olive oil</div>
+      </div>
+      <div class="list-item">
+        <div class="checkbox checked">✓</div>
+        <div class="item-text checked">Pasta</div>
+        <div class="item-meta">500 g</div>
+      </div>
+      <div class="start-shopping-area">
+        <div class="start-shopping-btn">🛒 Start Shopping</div>
+      </div>
+      <div class="bottom-nav">
+        <div class="nav-item active">
+          <div class="nav-indicator"><span class="nav-icon">🛒</span></div>
+          <div class="nav-label">Shopping</div>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">📖</span>
+          <div class="nav-label">Recipes</div>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">⚙️</span>
+          <div class="nav-label">Settings</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SHOPPING MODE -->
+<div class="section-title">Shopping Mode (overlay active)</div>
+<div class="directions-grid">
+
+  <!-- Direction A Shopping -->
+  <div class="direction-column">
+    <div class="direction-label">A — Shopping mode</div>
+    <div class="direction-desc">Clean and calm. surfaceContainerHigh background signals the mode shift. Items readable at a glance.</div>
+    <div class="phone dir-a" style="position:relative; min-height: 580px;">
+      <!-- Planning underneath (blurred) -->
+      <div style="filter: blur(1px); opacity: 0.4;">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="top-bar"><div class="top-bar-title">Weekly Shop</div></div>
+        <div class="list-item"><div class="checkbox"></div><div class="item-text">Oat milk</div></div>
+        <div class="list-item"><div class="checkbox"></div><div class="item-text">Sourdough bread</div></div>
+      </div>
+      <!-- Shopping mode sheet -->
+      <div class="shopping-mode dir-a">
+        <div class="drag-pill-container"><div class="drag-pill"></div></div>
+        <div class="shopping-top-bar">
+          <div class="shopping-title">Weekly Shop</div>
+          <div class="sort-btn">⇅</div>
+          <div class="done-chip">✓ Done</div>
+        </div>
+        <div class="shopping-quick-add">
+          <span class="quick-add-icon" style="color:var(--orange)">+</span>
+          <span>Add item…</span>
+        </div>
+        <div class="offline-indicator">
+          <div class="offline-dot"></div>
+          <span>Changes saved locally</span>
+        </div>
+        <div class="shopping-item">
+          <div class="shopping-checkbox"></div>
+          <div class="shopping-item-text">Oat milk</div>
+          <div class="shopping-item-meta">2 l</div>
+        </div>
+        <div class="shopping-item">
+          <div class="shopping-checkbox"></div>
+          <div class="shopping-item-text">Sourdough bread</div>
+        </div>
+        <div class="shopping-item">
+          <div class="shopping-checkbox checked">✓</div>
+          <div class="shopping-item-text checked">Cherry tomatoes</div>
+        </div>
+        <div class="shopping-item">
+          <div class="shopping-checkbox checked">✓</div>
+          <div class="shopping-item-text checked">Parmesan</div>
+        </div>
+        <div class="shopping-item">
+          <div class="shopping-checkbox"></div>
+          <div class="shopping-item-text">Olive oil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Direction B Shopping -->
+  <div class="direction-column">
+    <div class="direction-label">B — Shopping mode</div>
+    <div class="direction-desc">Warmer surface tones carry through into Shopping mode. Quick-add retains the amber-cream identity.</div>
+    <div class="phone dir-b" style="position:relative; min-height: 580px;">
+      <div style="filter: blur(1px); opacity: 0.4;">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="top-bar"><div class="top-bar-title">Weekly Shop</div></div>
+        <div class="list-item"><div class="checkbox"></div><div class="item-text">Oat milk</div></div>
+        <div class="list-item"><div class="checkbox"></div><div class="item-text">Sourdough bread</div></div>
+      </div>
+      <div class="shopping-mode dir-b">
+        <div class="drag-pill-container"><div class="drag-pill"></div></div>
+        <div class="shopping-top-bar">
+          <div class="shopping-title">Weekly Shop</div>
+          <div class="sort-btn">⇅</div>
+          <div class="done-chip">✓ Done</div>
+        </div>
+        <div class="shopping-quick-add">
+          <span class="quick-add-icon" style="color:var(--on-orange-container)">+</span>
+          <span style="color:var(--on-orange-container)">Add item…</span>
+        </div>
+        <div class="offline-indicator">
+          <div class="offline-dot"></div>
+          <span>Changes saved locally</span>
+        </div>
+        <div class="shopping-item">
+          <div class="shopping-checkbox"></div>
+          <div class="shopping-item-text">Oat milk</div>
+          <div class="shopping-item-meta">2 l</div>
+        </div>
+        <div class="shopping-item">
+          <div class="shopping-checkbox"></div>
+          <div class="shopping-item-text">Sourdough bread</div>
+        </div>
+        <div class="shopping-item">
+          <div class="shopping-checkbox checked">✓</div>
+          <div class="shopping-item-text checked">Cherry tomatoes</div>
+        </div>
+        <div class="shopping-item">
+          <div class="shopping-checkbox checked">✓</div>
+          <div class="shopping-item-text checked">Parmesan</div>
+        </div>
+        <div class="shopping-item">
+          <div class="shopping-checkbox"></div>
+          <div class="shopping-item-text">Olive oil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Direction C Shopping -->
+  <div class="direction-column">
+    <div class="direction-label">C — Shopping mode</div>
+    <div class="direction-desc">Maximum legibility. Bold weights, round checkboxes, orange "Done" chip, strong fade on checked items. The most distinct mode shift.</div>
+    <div class="phone dir-c" style="position:relative; min-height: 580px;">
+      <div style="filter: blur(1px); opacity: 0.4;">
+        <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+        <div class="top-bar"><div class="top-bar-title">Weekly Shop</div></div>
+        <div class="list-item"><div class="checkbox"></div><div class="item-text">Oat milk</div></div>
+        <div class="list-item"><div class="checkbox"></div><div class="item-text">Sourdough bread</div></div>
+      </div>
+      <div class="shopping-mode dir-c">
+        <div class="drag-pill-container"><div class="drag-pill"></div></div>
+        <div class="shopping-top-bar">
+          <div class="shopping-title">Weekly Shop</div>
+          <div class="sort-btn">⇅</div>
+          <div class="done-chip">✓ Done</div>
+        </div>
+        <div class="shopping-quick-add">
+          <span class="quick-add-icon" style="color:var(--orange)">+</span>
+          <span>Add item…</span>
+        </div>
+        <div class="offline-indicator">
+          <div class="offline-dot"></div>
+          <span>Changes saved locally</span>
+        </div>
+        <div class="shopping-item">
+          <div class="shopping-checkbox"></div>
+          <div class="shopping-item-text">Oat milk</div>
+          <div class="shopping-item-meta">2 l</div>
+        </div>
+        <div class="shopping-item">
+          <div class="shopping-checkbox"></div>
+          <div class="shopping-item-text">Sourdough bread</div>
+        </div>
+        <div class="shopping-item">
+          <div class="shopping-checkbox checked">✓</div>
+          <div class="shopping-item-text checked">Cherry tomatoes</div>
+        </div>
+        <div class="shopping-item">
+          <div class="shopping-checkbox checked">✓</div>
+          <div class="shopping-item-text checked">Parmesan</div>
+        </div>
+        <div class="shopping-item">
+          <div class="shopping-checkbox"></div>
+          <div class="shopping-item-text">Olive oil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Comparison table -->
+<div class="section-title">Direction Comparison</div>
+<table class="compare-table">
+  <tr>
+    <th>Dimension</th>
+    <th><span class="tag tag-a">A</span> Restrained Utility</th>
+    <th><span class="tag tag-b">B</span> Warm and Confident</th>
+    <th><span class="tag tag-c">C</span> High Contrast Execution</th>
+  </tr>
+  <tr>
+    <td>Visual warmth</td>
+    <td>Low — neutral surfaces, orange as accent only</td>
+    <td>High — amber-cream in headers and quick-add</td>
+    <td>Low in Planning, pronounced shift in Shopping</td>
+  </tr>
+  <tr>
+    <td>Mode distinction</td>
+    <td>Subtle — surface elevation change only</td>
+    <td>Moderate — warmer Shopping surface</td>
+    <td>Strong — bolder weights, round checkboxes, orange Done chip</td>
+  </tr>
+  <tr>
+    <td>Brand alignment</td>
+    <td>Quiet — orange present but not leading</td>
+    <td>Prominent — orange family throughout</td>
+    <td>Functional — orange reserved for action and completion</td>
+  </tr>
+  <tr>
+    <td>Calm confidence feel</td>
+    <td>Strongest — minimal visual noise</td>
+    <td>Good — warmth reads as welcoming, not anxious</td>
+    <td>Good in Planning; Shopping mode is energetic by design</td>
+  </tr>
+  <tr>
+    <td>Supermarket legibility</td>
+    <td>Good — clean, adequate size</td>
+    <td>Good — same layout as A</td>
+    <td>Strongest — bolder weights, larger items, maximum fade contrast</td>
+  </tr>
+  <tr>
+    <td>Complexity to implement</td>
+    <td>Lowest — stock M3 with minimal overrides</td>
+    <td>Low — container color overrides for key components</td>
+    <td>Moderate — custom weights and checkbox shape in Shopping mode</td>
+  </tr>
+  <tr>
+    <td>Best for</td>
+    <td>Users who value simplicity; closest to Mealie web aesthetic</td>
+    <td>Users who want the app to feel warm and kitchen-native</td>
+    <td>Users who prioritize Shopping mode legibility above all</td>
+  </tr>
+</table>
+
+<p class="footnote">
+  These mockups are HTML approximations of Android UI — proportions and spacing are representative, not pixel-perfect. Actual Jetpack Compose implementation will use Material 3 tokens throughout. All three directions use the same seed color (#E58325), the same type scale (Roboto), and the same adaptive density rules. The choice is about emphasis and personality, not about core functionality.
+</p>
+
+</body>
+</html>
