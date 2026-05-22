@@ -15,11 +15,13 @@ This PRD is for the project maintainer (developer/PM), downstream UX and archite
 
 ## 1. Vision
 
-Mealie is a powerful self-hosted recipe manager with a household Shopping List feature. Its PWA wrapper on Android fails at the two moments that matter most: it silently logs users out on every server update, and it returns a blank screen anywhere mobile data is unreliable. These are not edge cases - they are the core use cases.
+Mealie is a powerful self-hosted recipe manager with a household Shopping List feature. Its PWA wrapper on Android fails at the two moments that matter most: it silently logs users out when the auth token expires — the default lifetime is 48 hours, so infrequent users face a login screen without warning — and it returns a blank screen anywhere mobile data is unreliable. These are not edge cases - they are the core use cases.
+
+The token lifetime is a deliberate Mealie security design. The app does not extend it. Instead, it stores credentials securely on-device so that when the token expires, re-authentication happens silently in the background — the user never sees a login screen.
 
 Mealie Android is a native Android shopping list app that uses a self-hosted Mealie instance as its backend. It is not a general Mealie client - it is a focused tool for one job: a shopping list that is simply there when you need it. Authentication happens once: credentials are stored securely on-device and token refresh runs silently in the background. Offline is not a special mode - the Shopping List is fully editable without signal, changes queue locally, and sync happens automatically when connectivity returns. Recipe browsing is post-v1.
 
-The design north star: the app should feel like the most reliable shopping list you have ever used. It is there in the supermarket basement with no signal. It is there the morning after a server update without a login prompt. It is there on the first tap of the day, already showing the right list. That reliability is invisible when everything works, and total when it does not.
+The design north star: the app should feel like the most reliable shopping list you have ever used. It is there in the supermarket basement with no signal. It is there after a week of not opening the app without a login prompt. It is there on the first tap of the day, already showing the right list. That reliability is invisible when everything works, and total when it does not.
 
 The app is open source and built for the Android Mealie community. The near-term audience is small - people who already run Mealie and have felt these frustrations - but the aspiration is to become the endorsed Android shopping companion the Mealie project can point to. Not because it was planned that way, but because it solved a real problem well enough that the community made it their own.
 
@@ -29,7 +31,7 @@ The app is open source and built for the Android Mealie community. The near-term
 
 ### 2.1 Primary Persona
 
-**Mealie Household Users** - people who use a self-hosted Mealie instance as part of their household's shopping workflow. They are comfortable with self-hosted software, use Android, and have experienced both the auth interruption (silent logout after a server update) and the offline failure (blank screen in the supermarket). They do not want to think about their app's infrastructure - they want their list when they need it.
+**Mealie Household Users** - people who use a self-hosted Mealie instance as part of their household's shopping workflow. They are comfortable with self-hosted software, use Android, and have experienced both the auth interruption (silent logout after days of not opening the app, when the short-lived token expires) and the offline failure (blank screen in the supermarket). They do not want to think about their app's infrastructure - they want their list when they need it.
 
 Two sub-types share identical ongoing needs but have different setup paths:
 - **Operator** - runs the Mealie server, configures the app themselves.
@@ -38,7 +40,7 @@ Two sub-types share identical ongoing needs but have different setup paths:
 ### 2.2 Jobs To Be Done
 
 - Open the Shopping List in the supermarket and trust it will be there, even without signal.
-- Use the app after a server update without being forced through a login flow.
+- Open the app after days of not using it without being forced through a login flow.
 - Add an item to the Shopping List that syncs to the rest of the household.
 - Get a new household member set up without explaining Mealie infrastructure.
 
@@ -58,13 +60,13 @@ Two sub-types share identical ongoing needs but have different setup paths:
 - **Resolution:** Stored Token and Stored Credentials persisted securely. Future launches skip setup entirely.
 - **Edge case:** Invalid URL or wrong credentials - inline error is shown; fields remain editable; no crash; no data loss.
 
-**UJ-2. Passenger opens the app after a server update.**
-- **Persona + context:** Sam (Alex's partner), unaware the server was updated; her current Stored Token may be expired.
-- **Entry state:** App previously configured; server updated since last use.
-- **Path:** (1) Opens app; (2) App calls `GET /api/auth/refresh` with the Stored Token; (3) Returns a fresh Access Token; (4) Content loads normally.
-- **Climax:** The app opens to content with no login screen visible - the update was invisible.
+**UJ-2. Passenger opens the app after the token has expired.**
+- **Persona + context:** Sam (Alex's partner), hasn't opened the app in a few days; her Stored Token has expired (Mealie's default token lifetime is 48 hours).
+- **Entry state:** App previously configured; Stored Token expired due to inactivity.
+- **Path:** (1) Opens app; (2) App calls `GET /api/auth/refresh` with the Stored Token; (3) Token is expired — app silently calls `POST /api/auth/token` with Stored Credentials; (4) Returns a fresh Access Token; (5) Content loads normally.
+- **Climax:** The app opens to content with no login screen visible - the token expiry was invisible.
 - **Resolution:** New Access Token in memory; Stored Token updated on disk; session continues uninterrupted.
-- **Edge case:** If the Stored Token is fully expired, the app silently re-authenticates using Stored Credentials. A manual prompt appears only if credentials are also invalid.
+- **Edge case:** A manual prompt appears only if Stored Credentials are also invalid (e.g. Sam changed her Mealie password). The 48-hour token lifetime is a deliberate Mealie security choice; the app does not extend it.
 
 **UJ-3. Passenger uses the Shopping List in the supermarket (no signal).**
 - **Persona + context:** Sam, in a supermarket basement with no mobile data.
@@ -432,7 +434,7 @@ The user can update the server URL and/or credentials from Settings without rein
 ## 7. Success Metrics
 
 **Primary**
-- **SM-1:** Post-server-update launch without login prompt - opening the app after a Mealie server update displays main content without showing a login screen. Target: 100% of launches on a device with a valid Stored Token or Stored Credentials. Validates FR-4, FR-5.
+- **SM-1:** Silent re-authentication on token expiry - opening the app after the Stored Token has expired displays main content without showing a login screen, using silent credential fallback. Target: 100% of launches on a device with valid Stored Credentials. Validates FR-4, FR-5.
 - **SM-2:** Shopping List accessible offline - opening a previously synced Shopping List with no connectivity succeeds. Target: 100% on any device where the list was synced at least once. Validates FR-11, FR-15.
 
 **Secondary**

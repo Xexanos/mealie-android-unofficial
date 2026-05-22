@@ -146,8 +146,9 @@ The following interactions must require zero conscious effort:
    Shopping mode is active from her last session. Her list appears immediately, large and
    readable, complete and correct. This is the moment the app earns permanent trust.
 
-2. **The first invisible server update.** Alex updates Mealie. Sam opens the app the next
-   day and lands directly on her content, no login prompt. That invisibility is the success.
+2. **The first invisible token refresh.** Sam hasn't opened the app in a few days; her token
+   has quietly expired. She opens the app and lands directly on her content, no login prompt.
+   The token expiry was handled silently. That invisibility is the success.
 
 3. **Setup completion for a Passenger.** Sam enters the server URL and credentials and
    reaches the main screen without confusion. Completable without Alex present to explain it.
@@ -192,7 +193,7 @@ invisible when it works and clear when it doesn't.
 | First launch (Alex) | Competent, in control | Setup is short, clear, and asks only what it needs |
 | First launch (Sam) | Not overwhelmed | Plain language, no technical jargon, one step at a time |
 | In the supermarket | Calm focus | Large readable list, one-tap check-off, nothing in the way |
-| After a server update | Nothing — invisible | No login prompt, no interruption, app just opens |
+| After days without opening the app | Nothing — invisible | No login prompt despite token expiry, app just opens |
 | Offline with list available | Mild reassurance | Indicator says "I've got this", not "something is wrong" |
 | Sync failure | Controlled concern | One clear message, one obvious action, user feels informed not helpless |
 
@@ -399,8 +400,9 @@ architectural and UX decision in this specification exists to make it happen.
 Users arrive with two mental models pulled from existing experience:
 
 **The PWA mental model (what they're leaving):**
-The Mealie PWA sometimes works and sometimes doesn't. After a server update it shows a
-login screen. Without signal it shows a blank screen. Users have learned to distrust it —
+The Mealie PWA sometimes works and sometimes doesn't. After a few days of not opening it,
+the short-lived auth token has expired and it shows a login screen. Without signal it shows
+a blank screen. Users have learned to distrust it —
 they keep the app open, avoid navigating away, hunt for signal before opening it. The
 mental model is: "this might not work."
 

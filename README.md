@@ -10,9 +10,9 @@ A focused shopping list app. Mealie is the sync backend — shared lists, househ
 
 ## Why
 
-Mealie's PWA on Android fails at the two moments that matter most: every server update silently logs you out, and the app shows a blank screen anywhere mobile data is unreliable. These are not edge cases — they are the core use cases.
+Mealie's PWA on Android fails at the two moments that matter most: if you haven't opened the app in a couple of days, the short-lived auth token expires and you get silently logged out; and anywhere mobile data is unreliable, the app shows a blank screen. These are not edge cases — they are the core use cases.
 
-Mealie Android fixes both. Authentication happens once and is maintained silently in the background. The shopping list is fully editable without signal, and changes sync automatically when connectivity returns.
+Mealie Android fixes both without compromising security. The token lifetime stays short — that's a deliberate Mealie design choice. Instead, credentials are stored securely on-device so that when the token expires, re-authentication happens silently in the background. You never see a login screen. The shopping list is fully editable without signal, and changes sync automatically when connectivity returns.
 
 ## Status
 
