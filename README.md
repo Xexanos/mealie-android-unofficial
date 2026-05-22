@@ -1,12 +1,16 @@
 # Mealie Android
 
-> **Unofficial project.** This is an independent Android client for [Mealie](https://mealie.io) and is not affiliated with, endorsed by, or part of the official Mealie project.
+> **Unofficial project.** This is an independent Android app and is not affiliated with, endorsed by, or part of the official Mealie project.
 
-A native Android client for self-hosted [Mealie](https://mealie.io) instances.
+A native Android shopping list app backed by self-hosted [Mealie](https://mealie.io) instances.
+
+## What it is
+
+A focused shopping list app. Mealie is the sync backend — shared lists, household sync, and authentication all come from your Mealie server. The app does one thing: give you a shopping list that is simply there when you need it, regardless of signal.
 
 ## Why
 
-Mealie's PWA on Android fails at the two moments that matter most: every server update silently logs you out, and the app shows a blank screen anywhere mobile data is unreliable. These are not edge cases - they are the core use cases.
+Mealie's PWA on Android fails at the two moments that matter most: every server update silently logs you out, and the app shows a blank screen anywhere mobile data is unreliable. These are not edge cases — they are the core use cases.
 
 Mealie Android fixes both. Authentication happens once and is maintained silently in the background. The shopping list is fully editable without signal, and changes sync automatically when connectivity returns.
 
@@ -18,7 +22,7 @@ Early development - not yet usable.
 
 - **Persistent authentication** - one-time setup, silent token refresh, no login prompts after server updates
 - **Offline shopping list** - full read/write access without connectivity, automatic sync on reconnect
-- **Recipe browsing** - browse and search your recipe library while connected
+- **Two-mode shopping** - Planning mode for building your list at home; Shopping mode optimised for one-handed use in the store
 - **Sync status** - unobtrusive offline indicator and per-item sync badges so you always know what is pending
 
 ## Tech Stack
@@ -37,6 +41,8 @@ Product requirements and all planning artifacts live in [`_bmad-output/planning-
 | Product Brief | [briefs/brief-mealie-android-2026-05-21/brief.md](_bmad-output/planning-artifacts/briefs/brief-mealie-android-2026-05-21/brief.md) |
 | PRD | [prds/prd-mealie-android-2026-05-21/prd.md](_bmad-output/planning-artifacts/prds/prd-mealie-android-2026-05-21/prd.md) |
 | PRD Decision Log | [prds/prd-mealie-android-2026-05-21/.decision-log.md](_bmad-output/planning-artifacts/prds/prd-mealie-android-2026-05-21/.decision-log.md) |
+| UX Design Specification | [ux-design-specification.md](_bmad-output/planning-artifacts/ux-design-specification.md) |
+| Design Direction Showcase | [ux-design-directions.html](_bmad-output/planning-artifacts/ux-design-directions.html) |
 
 ### BMad
 

@@ -510,10 +510,10 @@ single-developer utility app where legibility and zero maintenance overhead are 
 | Token | Size | Usage |
 | --- | --- | --- |
 | `displaySmall` | 36sp | App name on first-launch setup screen only |
-| `headlineMedium` | 28sp | Screen titles (Shopping List name, Recipe title) |
+| `headlineMedium` | 28sp | Screen titles (Shopping List name) |
 | `titleLarge` | 22sp | Section headers, list names in roster |
 | `titleMedium` | 16sp / 18sp | Shopping List item text (Planning / Shopping mode) |
-| `bodyLarge` | 16sp | Recipe body text, settings descriptions |
+| `bodyLarge` | 16sp | Settings descriptions, detail text |
 | `bodyMedium` | 14sp | Item metadata (quantity, unit, category) |
 | `labelLarge` | 14sp | Buttons, chips, navigation labels |
 | `labelSmall` | 11sp | Timestamps, sync status labels |
@@ -538,9 +538,9 @@ and letter spacing from the M3 token.
 The density shift reinforces the mode change tactilely — Shopping mode items feel like
 distinct pressable units rather than lines in a list.
 
-**Navigation:** Material 3 `NavigationBar` (bottom, compact screens) /
-`NavigationRail` (medium/expanded). Three destinations: Shopping, Recipes, Settings.
-Navigation hidden during Shopping mode (full-screen sheet).
+**Navigation:** No `NavigationBar` or `NavigationRail` in v1 — the app has one primary
+destination (Shopping List). Settings is accessible via `IconButton` in the `TopAppBar`.
+A `NavigationBar` is introduced in v2 when recipe browsing adds a second primary destination.
 
 **Safe areas:** `WindowInsets` via `Modifier.windowInsetsPadding` throughout.
 Shopping mode sheet uses `fillMaxSize` with inset handling to prevent Planning view
@@ -758,7 +758,9 @@ flowchart TD
 
 ---
 
-### UJ-4: Recipe Browsing
+### UJ-4: Recipe Browsing [POST-V1]
+
+> Recipe browsing is deferred to v2. This flow is retained for continuity with v2 planning.
 
 **Persona:** Alex at home on Wi-Fi, planning meals.
 
@@ -812,20 +814,19 @@ Material 3 Compose components used directly (theme-only customization, no struct
 
 | Component | Usage |
 | --- | --- |
-| `NavigationBar` / `NavigationRail` | Bottom nav (compact screens) / side rail (medium+); hidden during Shopping mode |
-| `MediumTopAppBar` | Shopping List Planning mode header |
-| `TopAppBar` (small) | Recipe detail, Settings |
+| `MediumTopAppBar` | Shopping List Planning mode header (with Settings `IconButton`) |
+| `TopAppBar` (small) | Settings screen header |
 | `ModalBottomSheet` | Shopping mode overlay (`skipPartiallyExpanded = true`, `surfaceContainerHigh`) |
 | `DragHandle` | Shopping mode sheet drag affordance |
 | `FilledButton` | Primary actions: Start Shopping, Done Shopping, Connect, Sign In |
 | `OutlinedButton` | Secondary actions: Cancel in dialogs |
 | `FilterChip` | Sort options in Shopping mode (Unsorted / Categorized / Alphabetical) |
-| `SearchBar` (docked) | Recipe search — expands inline on tap |
-| `ElevatedCard` | Recipe thumbnails in grid/list |
 | `SwipeToDismissBox` | Swipe-to-delete on Shopping List items (Planning mode only) |
 | `Snackbar` + `SnackbarHost` | Undo affordance after add/delete (5-second window) |
 | `CircularProgressIndicator` | Inline button loading state during network operations |
-| `LinearProgressIndicator` | Recipe list initial page load |
+
+**Post-v1 additions** (introduced with recipe browsing in v2): `NavigationBar`, `NavigationRail`,
+`SearchBar`, `ElevatedCard`, `LinearProgressIndicator`.
 
 ### Custom Components
 
@@ -912,9 +913,10 @@ fun OfflineIndicator(
 7. `OfflineIndicator` error variant
 8. List-level aggregate sync indicator
 
-**Phase 3 — Recipe surface:**
-9. `ElevatedCard` recipe layout (title, thumbnail, metadata)
-10. `SearchBar` integration with pagination
+**Phase 3 — Post-v1 (recipe surface, v2):**
+9. `NavigationBar` / `NavigationRail` with Shopping + Recipes + Settings destinations
+10. `ElevatedCard` recipe layout (title, thumbnail, metadata)
+11. `SearchBar` integration with pagination
 
 ---
 
@@ -998,7 +1000,6 @@ DataStore writes are `suspend` functions. Do not use `runBlocking` or `GlobalSco
 | Invalid URL format | Below URL field | "Enter a URL like http://192.168.1.100:9925" |
 | Server unreachable | Below URL field | "Can't reach this server. Check the address and your connection." |
 | Wrong credentials | Below password field | "Incorrect username or password" |
-| Recipe unavailable offline | Center of recipe detail | "This recipe isn't available offline yet." |
 | Sync error (list level) | `OfflineIndicator` strip | "Some changes couldn't sync" |
 
 **Confirmations — `Snackbar` with undo.** Item added and item deleted. 5-second timeout, Undo action.
@@ -1033,7 +1034,7 @@ a valid use case that should not require exiting Shopping mode.
 
 ### Navigation Patterns
 
-**Primary nav:** `NavigationBar` (compact) / `NavigationRail` (medium+). Hidden during Shopping mode.
+**Primary nav:** No `NavigationBar` or `NavigationRail` in v1. The Shopping List is the main screen. Settings is accessible via `IconButton` in the `TopAppBar`. These navigation components are introduced in v2 alongside recipe browsing.
 
 **Shopping mode:** Back gesture dismisses the sheet. No back stack inside the sheet.
 
@@ -1052,8 +1053,6 @@ drag disambiguation.
 | --- | --- |
 | Shopping List empty | "Your list is empty" + "Add something to get started" (quick-add always visible) |
 | Shopping List all checked | Checked section visible; no special state |
-| Recipe list first load | `LinearProgressIndicator` at top |
-| Recipe list offline, no cache | "Recipes aren't available offline" + "Connect to your Mealie server to browse recipes" |
 | Generic network error | "Something went wrong" + `OutlinedButton` "Try again" |
 
 ### Gesture Patterns
@@ -1080,55 +1079,51 @@ not in the ViewModel directly.
 Material 3 Compose defines three window width classes. Compact phone portrait is the primary
 design target; Medium and Expanded must be functional.
 
-| Class | Width | Typical device | Navigation |
+| Class | Width | Typical device | Navigation (v1) |
 | --- | --- | --- | --- |
-| `COMPACT` | < 600dp | Phone portrait | `NavigationBar` (bottom) |
-| `MEDIUM` | 600-840dp | Large phone landscape, small tablet | `NavigationRail` (side) |
-| `EXPANDED` | >= 840dp | Tablet landscape, foldable unfolded | `NavigationRail` (side) |
+| `COMPACT` | < 600dp | Phone portrait | `TopAppBar` + Settings icon |
+| `MEDIUM` | 600-840dp | Large phone landscape, small tablet | `TopAppBar` + Settings icon |
+| `EXPANDED` | >= 840dp | Tablet landscape, foldable unfolded | `TopAppBar` + Settings icon |
+
+Note: `NavigationBar` / `NavigationRail` are post-v1 — introduced alongside recipe browsing in v2.
 
 ### Responsive Strategy
 
 **Compact (primary target):**
-- Full-width `NavigationBar` at bottom
+- `TopAppBar` with Settings `IconButton`
 - Shopping List: single-column full-width list
-- Recipe list: single-column or 2-column grid
 - Shopping mode: `ModalBottomSheet` fills screen width
 
 **Medium:**
-- `NavigationRail` replaces `NavigationBar`
-- Shopping List layout unchanged — single column still appropriate
-- Shopping mode: rail hidden during Shopping mode; sheet fills full viewport width
-- Recipe list: 2-column grid
+- `TopAppBar` with Settings `IconButton` (unchanged from compact — no nav rail in v1)
+- Shopping List: single column, unchanged
+- Shopping mode: sheet fills full viewport width
 
 **Expanded:**
-- `NavigationRail` persistent
+- `TopAppBar` with Settings `IconButton`
 - Shopping List: single column, constrained width (`Modifier.widthIn(max = 600.dp)`) — full-width list on a 1000dp tablet is visually uncomfortable
-- Shopping mode: `ModalBottomSheet` with `Modifier.widthIn(max = 600.dp)` centered; full-width sheet on a tablet reads as a dialog, not a task overlay
-- Recipe list: two-pane layout (list + detail) deferred to post-v1
+- Shopping mode: `ModalBottomSheet` with `Modifier.widthIn(max = 600.dp)` centered
 
-**NavigationBar/Rail visibility in Shopping mode:** The navigation component is hidden in all size classes when Shopping mode is active. In Medium/Expanded, the rail slides off with `AnimatedVisibility`; the sheet fills the freed space.
+**v1 simplification:** With only one primary destination, all window size classes share the same navigation pattern. This significantly reduces responsive complexity. `NavigationBar` / `NavigationRail` adaptation is deferred to v2.
 
 ### Breakpoint Implementation
 
 ```kotlin
-val windowSizeClass = calculateWindowSizeClass(this) // in Activity
+// v1: no navigation bar/rail — window size class used only for content width capping
 
-@Composable
-fun AppNavigation(windowSizeClass: WindowSizeClass) {
-    when (windowSizeClass.widthSizeClass) {
-        WindowWidthSizeClass.COMPACT -> NavigationBar(...)
-        else -> NavigationRail(...)
-    }
+// Shopping List and Shopping mode content width cap (Medium/Expanded only)
+val windowSizeClass = calculateWindowSizeClass(this)
+val contentMaxWidth = when (windowSizeClass.widthSizeClass) {
+    WindowWidthSizeClass.COMPACT -> Dp.Unspecified
+    else -> 600.dp
 }
-
-// Shopping List and Shopping mode content width cap
-Modifier.widthIn(max = 600.dp).align(Alignment.CenterHorizontally)
+Modifier.widthIn(max = contentMaxWidth).align(Alignment.CenterHorizontally)
 ```
 
 ### Orientation
 
-The app does not lock rotation. In phone landscape (Medium class), `NavigationRail` replaces the
-bottom bar — standard M3 behavior requiring no additional design work. Shopping mode in landscape:
+The app does not lock rotation. In phone landscape (Medium class), the layout is unchanged from
+portrait — no navigation component to swap in v1. Shopping mode in landscape:
 `skipPartiallyExpanded = true` ensures the sheet opens fully despite the shorter viewport height.
 
 ### Accessibility Target

@@ -2,7 +2,7 @@
 title: "PRD: Mealie Android"
 status: final
 created: 2026-05-21
-updated: 2026-05-21
+updated: 2026-05-22
 ---
 
 # PRD: Mealie Android
@@ -15,13 +15,13 @@ This PRD is for the project maintainer (developer/PM), downstream UX and archite
 
 ## 1. Vision
 
-Mealie is a powerful self-hosted recipe manager. Its PWA wrapper on Android fails at the two moments that matter most: it silently logs users out on every server update, and it returns a blank screen anywhere mobile data is unreliable. These are not edge cases - they are the core use cases.
+Mealie is a powerful self-hosted recipe manager with a household Shopping List feature. Its PWA wrapper on Android fails at the two moments that matter most: it silently logs users out on every server update, and it returns a blank screen anywhere mobile data is unreliable. These are not edge cases - they are the core use cases.
 
-Mealie Android is a native Android client (Kotlin + Jetpack Compose, API 26+) that fixes both problems. Authentication happens once: credentials are stored securely on-device and token refresh runs silently in the background. Offline is not a special mode - the Shopping List is fully editable without signal, changes queue locally, and sync happens automatically when connectivity returns. When connected, users can browse and search their full recipe library. Offline recipe access follows in v2.
+Mealie Android is a native Android shopping list app that uses a self-hosted Mealie instance as its backend. It is not a general Mealie client - it is a focused tool for one job: a shopping list that is simply there when you need it. Authentication happens once: credentials are stored securely on-device and token refresh runs silently in the background. Offline is not a special mode - the Shopping List is fully editable without signal, changes queue locally, and sync happens automatically when connectivity returns. Recipe browsing is post-v1.
 
-The design north star: the app should feel exactly like Mealie's web interface, with one silent addition - connectivity is no longer a constraint. That difference is invisible when everything works, and total when it does not.
+The design north star: the app should feel like the most reliable shopping list you have ever used. It is there in the supermarket basement with no signal. It is there the morning after a server update without a login prompt. It is there on the first tap of the day, already showing the right list. That reliability is invisible when everything works, and total when it does not.
 
-The app is open source and built for the whole Android Mealie community. The near-term audience is small - people who already run Mealie and have felt these frustrations - but the aspiration is to become the endorsed Android client the Mealie project can point to, or eventually ship alongside. Not because it was planned that way, but because it solved a real problem well enough that the community made it their own.
+The app is open source and built for the Android Mealie community. The near-term audience is small - people who already run Mealie and have felt these frustrations - but the aspiration is to become the endorsed Android shopping companion the Mealie project can point to. Not because it was planned that way, but because it solved a real problem well enough that the community made it their own.
 
 ---
 
@@ -29,7 +29,7 @@ The app is open source and built for the whole Android Mealie community. The nea
 
 ### 2.1 Primary Persona
 
-**Mealie Household Users** - people who use a self-hosted Mealie instance as part of their household's recipe and shopping workflow. They are comfortable with self-hosted software, use Android, and have experienced both the auth interruption (silent logout after a server update) and the offline failure (blank screen in the supermarket). They do not want to think about their recipe app's infrastructure - they want their list when they need it.
+**Mealie Household Users** - people who use a self-hosted Mealie instance as part of their household's shopping workflow. They are comfortable with self-hosted software, use Android, and have experienced both the auth interruption (silent logout after a server update) and the offline failure (blank screen in the supermarket). They do not want to think about their app's infrastructure - they want their list when they need it.
 
 Two sub-types share identical ongoing needs but have different setup paths:
 - **Operator** - runs the Mealie server, configures the app themselves.
@@ -39,13 +39,12 @@ Two sub-types share identical ongoing needs but have different setup paths:
 
 - Open the Shopping List in the supermarket and trust it will be there, even without signal.
 - Use the app after a server update without being forced through a login flow.
-- Browse recipes while planning what to cook this week.
 - Add an item to the Shopping List that syncs to the rest of the household.
 - Get a new household member set up without explaining Mealie infrastructure.
 
 ### 2.3 Non-Users (v1)
 
-- People who do not already run a Mealie instance - the app is a client, not a standalone recipe manager.
+- People who do not already run a Mealie instance - the app requires an existing Mealie server for authentication and sync; it is not a standalone service.
 - iOS users.
 - Mealie admins managing server configuration - the app exposes no admin surface.
 
@@ -75,13 +74,14 @@ Two sub-types share identical ongoing needs but have different setup paths:
 - **Resolution:** Local Store and server are reconciled; Offline Indicator disappears; Sync Status Badges clear.
 - **Edge case:** If the same item was edited on two devices while offline, the change with the more recent `updated_at` timestamp wins; no data is silently dropped.
 
-**UJ-4. Operator browses recipes to plan the week.**
+**UJ-4. Operator browses recipes to plan the week. [POST-V1]**
 - **Persona + context:** Alex, at home on Wi-Fi, planning meals for the week.
 - **Entry state:** Authenticated and connected.
 - **Path:** (1) Opens app; (2) Navigates to Recipes; (3) Browses or searches list; (4) Taps a recipe to view details.
 - **Climax:** Full recipe detail is readable - title, ingredients, instructions, yield, timing.
 - **Resolution:** Alex decides what to cook. No further in-app action required in v1.
 - **Edge case:** If signal drops while on recipe detail, already-loaded content remains visible; navigating to a new recipe fails gracefully with a non-crashing error state.
+- **Note:** Recipe browsing is deferred to v2. This journey is documented here for continuity with the v2 product scope.
 
 ---
 
@@ -190,9 +190,11 @@ If both the Stored Token and Stored Credentials are invalid, the app shows a re-
 
 ---
 
-### 4.3 Recipe Browsing (Online)
+### 4.3 Recipe Browsing (Online) [POST-V1]
 
-**Description:** When connected, the user can browse the full recipe library of their Mealie Household and view recipe details. The list supports search. This is an online-only feature in v1; offline recipe caching is post-v1. Realizes UJ-4.
+> **This feature is out of scope for v1.** Recipe browsing is deferred to v2. FR-7, FR-8, and FR-9 are retained here as the v2 requirements baseline. Nothing in this section is built in v1.
+
+**Description:** When connected, the user can browse the full recipe library of their Mealie Household and view recipe details. The list supports search. Offline recipe caching is also post-v1. Realizes UJ-4.
 
 **Functional Requirements:**
 
@@ -383,7 +385,7 @@ The user can update the server URL and/or credentials from Settings without rein
 
 ## 5. Non-Goals (Explicit)
 
-- **No offline recipe browsing (v1)** - recipes require connectivity; full local caching is v2.
+- **No recipe browsing (v1)** - all recipe access (online and offline) is deferred to v2. The app ships as a shopping list tool; Mealie is the sync backend, not the content focus.
 - **No recipe URL import (v1)** - sharing a URL from another app to trigger recipe import is v2.
 - **No QR code / setup link onboarding (v1)** - first-launch setup requires manual URL and credential entry.
 - **No multi-server support (v1)** - one Mealie Instance per app install; server switching is post-v1.
@@ -405,7 +407,6 @@ The user can update the server URL and/or credentials from Settings without rein
 
 - First-launch setup: server URL entry and validation (with HTTP security warning), credential entry and initial authentication (FR-1, FR-2, FR-3)
 - Persistent authentication with silent token refresh and 401 interception (FR-4, FR-5, FR-6)
-- Recipe list, recipe search, and recipe detail view - online only (FR-7, FR-8, FR-9)
 - Shopping List roster (paginated), item view, check/uncheck, add, and delete - all offline-capable (FR-10 through FR-14)
 - Background Sync Queue flush via WorkManager with connectivity probe and `updated_at` conflict resolution (FR-15)
 - Offline Indicator and per-item Sync Status Badges (FR-16, FR-17)
@@ -414,7 +415,8 @@ The user can update the server URL and/or credentials from Settings without rein
 
 ### 6.2 Out of Scope for MVP
 
-- Offline recipe browsing - v2; requires full local recipe library caching. [NOTE FOR PM: described aspirationally in the product brief's executive summary - confirm alignment on v2 timeline]
+- Recipe browsing (FR-7, FR-8, FR-9) - v2; all recipe access is deferred. v1 ships as a focused shopping list tool.
+- Offline recipe browsing - v2; requires full local recipe library caching.
 - Recipe URL import via Android Share Intent - v2
 - QR code / setup link Passenger onboarding - v2
 - "Add recipe ingredients to Shopping List" action - v2; the natural bridge between the two main features
@@ -455,7 +457,6 @@ All assumptions have been resolved. No open assumptions remain.
 ### Performance
 - Cold start to interactive state: < 3 seconds on a mid-range Android device (API 26+).
 - All Local Store read operations: < 100 ms.
-- Recipe list first load: initial results visible within 2 seconds on typical home broadband.
 
 ### Security
 - Stored Token and Stored Credentials persisted using DataStore backed by Android Keystore encryption with `setUnlockedDeviceRequired(true)` - inaccessible while the device is locked.
@@ -495,10 +496,10 @@ All assumptions have been resolved. No open assumptions remain.
 
 ## Information Architecture (v1)
 
-Bottom navigation (or navigation rail on large screens - Material 3):
+No bottom navigation in v1. The Shopping List is the main screen. Settings is accessible via an icon in the TopAppBar.
 
-- **Shopping** (primary landing surface): Shopping List roster → Shopping List detail
-- **Recipes**: Recipe list (with search) → Recipe detail
-- **Settings**: Sync Network Mode, server re-configuration, credentials update, bug reporting, app version
+- **Shopping List** (main screen): Shopping List roster → Shopping List detail (with Planning and Shopping modes)
+- **Settings** (TopAppBar icon): Sync Network Mode, server re-configuration, credentials update, bug reporting, app version
 
 No deep-link or Share Intent handling in v1 (recipe URL import is post-v1).
+No NavigationBar or NavigationRail in v1 — these are introduced in v2 when recipe browsing adds a second primary destination.
