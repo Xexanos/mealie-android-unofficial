@@ -412,12 +412,14 @@ The user can update the server URL and/or credentials from Settings without rein
 - Shopping List roster (paginated), item view, check/uncheck, add, and delete - all offline-capable (FR-10 through FR-14)
 - Background Sync Queue flush via WorkManager with connectivity probe and `updated_at` conflict resolution (FR-15)
 - Offline Indicator and per-item Sync Status Badges (FR-16, FR-17)
-- App Settings: Sync Network Mode toggle, in-app bug reporting, credential and server URL update (FR-18, FR-19, FR-20)
+- App Settings: credential and server URL update (FR-20)
 - Monochrome adaptive icon (Android 13+ / API 33 `android:monochromeIcon`) using a derivative of the Mealie icon (AGPL-3.0)
 
 ### 6.2 Out of Scope for MVP
 
 - Recipe browsing (FR-7, FR-8, FR-9) - v2; all recipe access is deferred. v1 ships as a focused shopping list tool.
+- Sync Network Mode toggle (FR-18) - post-v1; the default All Networks mode covers the primary supermarket use case. Wi-Fi Only is a convenience for users whose instance is not publicly reachable, but the connectivity probe in FR-15 already prevents wasted sync attempts regardless.
+- In-app bug reporting (FR-19) - post-v1; users can report bugs via the GitHub repository directly. The pre-filled device context template adds convenience but is not essential for initial release.
 - Offline recipe browsing - v2; requires full local recipe library caching.
 - Recipe URL import via Android Share Intent - v2
 - QR code / setup link Passenger onboarding - v2
