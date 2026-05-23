@@ -137,17 +137,22 @@ Android Studio → New Project → Empty Activity
 
 ### Module Structure
 
-7-module split providing compile-time boundary enforcement without NiA-level complexity:
+Multi-module split providing compile-time boundary enforcement without NiA-level complexity:
 
 ```
 :app                → thin shell: MainActivity, NavHost, Koin module wiring
-:feature:auth       → setup screen, re-auth screen, auth ViewModels
-:feature:shopping   → shopping list screens, shopping ViewModels
+:feature:*          → one module per user-facing feature (screens + ViewModels + feature-local Use Cases)
 :core:data          → Room database, entities, DAOs, repositories, domain Use Cases
 :core:network       → OkHttp client, Retrofit, API service interfaces, Authenticator
 :core:sync          → WorkManager workers, sync queue logic
 :core:ui            → shared Compose components: OfflineIndicator, SyncStatusBadge, MealieTheme
 ```
+
+**`:feature:*` convention:** Each feature module owns its screens, ViewModels, UI models, and
+navigation graph extension. Adding a new feature means adding a new Gradle module under `feature/`
+with no structural changes to existing modules. Current v1 feature modules: `:feature:auth`,
+`:feature:shopping`, `:feature:settings`. Future additions (e.g. `:feature:recipe` in v2)
+follow the same pattern.
 
 **Boundary rules (enforced by Gradle dependency declarations):**
 - `:feature:*` modules depend on `:core:*` modules, never on each other
@@ -155,10 +160,9 @@ Android Studio → New Project → Empty Activity
 - `:core:sync` depends on `:core:data` (queue reads) and `:core:network` (API probe)
 - `:app` depends on all modules to wire the DI graph and NavHost
 
-**v2 expansion:** `:feature:recipe` is a new module added alongside `:feature:shopping` with no
-structural changes to existing modules. The bridge Use Case
-(`AddRecipeIngredientsToShoppingListUseCase`) lives in `:core:data` and is accessible to both
-feature modules.
+**Cross-feature communication:** Features never import each other. Shared domain logic (e.g.
+the v2 `AddRecipeIngredientsToShoppingListUseCase`) lives in `:core:data` and is accessible
+to any feature module. Cross-feature navigation flows through `NavigationManager` in `:core:ui`.
 
 ### Dependency Injection: Koin
 
@@ -474,25 +478,23 @@ viewModelScope.launch {
 
 ### Package Structure Within Modules
 
-**`:feature:shopping`:**
+**`:feature:*` (generic pattern - all feature modules follow this structure):**
 
 ```
-src/main/kotlin/dev/xexanos/mealie/feature/shopping/
+src/main/kotlin/dev/xexanos/mealie/feature/{feature-name}/
   ui/
-    ShoppingListScreen.kt
-    ShoppingListViewModel.kt
-    ShoppingUiState.kt
-    ShoppingUiEvent.kt
+    {Feature}Screen.kt
+    {Feature}ViewModel.kt
+    {Feature}UiState.kt
+    {Feature}UiEvent.kt
     components/
-      ShoppingListItem.kt
-      AddItemBottomSheet.kt
-      SyncErrorDialog.kt
+      ...feature-specific composables...
   domain/
-    AddItemToShoppingListUseCase.kt
-    CheckItemUseCase.kt
-    DeleteItemUseCase.kt
+    ...feature-local Use Cases (if any)...
   navigation/
-    ShoppingNavGraph.kt
+    {Feature}NavGraph.kt
+  di/
+    {Feature}FeatureModule.kt
 ```
 
 **`:core:data`:**
@@ -502,21 +504,16 @@ src/main/kotlin/dev/xexanos/mealie/core/data/
   database/
     MealieDatabase.kt
     entities/
-      ShoppingListEntity.kt
-      ShoppingItemEntity.kt
-      SyncQueueEntity.kt
     dao/
-      ShoppingListDao.kt
-      ShoppingItemDao.kt
-      SyncQueueDao.kt
     converters/
-      InstantConverter.kt
+  datastore/
+    TokenStore.kt
+    CredentialsStore.kt
+    AppPreferencesStore.kt
   domain/
-    ShoppingList.kt
-    ShoppingListItem.kt
+    ...domain model data classes...
   repository/
-    ShoppingRepository.kt
-    ShoppingRepositoryImpl.kt
+    ...Repository interfaces + Impl classes...
   di/
     DataModule.kt
 ```
@@ -526,18 +523,16 @@ src/main/kotlin/dev/xexanos/mealie/core/data/
 ```
 src/main/kotlin/dev/xexanos/mealie/core/network/
   api/
-    AuthService.kt
-    ShoppingService.kt
-    AppService.kt
+    ...Retrofit service interfaces...
   dto/
-    ShoppingListDto.kt
-    ShoppingListItemDto.kt
-    AuthDto.kt
+    ...API DTO classes (@Serializable)...
   auth/
     TokenManager.kt
     MealieAuthenticator.kt
   result/
     ApiResult.kt
+  connectivity/
+    ConnectivityMonitor.kt
   di/
     NetworkModule.kt
 ```
@@ -551,7 +546,7 @@ src/main/kotlin/dev/xexanos/mealie/core/network/
 | Server Setup & Auth (FR-1 to FR-6) | `:feature:auth`, `:core:network`, `:core:data` |
 | Shopping List CRUD (FR-10 to FR-15) | `:feature:shopping`, `:core:data`, `:core:sync` |
 | Connectivity Awareness (FR-16 to FR-17) | `:core:network`, `:core:ui`, `:core:data` |
-| App Settings (FR-18 to FR-20) | `:feature:shopping` (settings screen), `:core:data`, `:core:sync` |
+| App Settings (FR-18 to FR-20) | `:feature:settings`, `:core:data`, `:core:network` |
 | Cross-cutting: Auth token lifecycle | `:core:network` (TokenManager, Authenticator) |
 | Cross-cutting: Sync durability | `:core:sync` (SyncWorker + queue) |
 | Cross-cutting: Theme / shared UI | `:core:ui` |
@@ -587,54 +582,14 @@ mealie-android/
 │       │       ├── MainActivity.kt
 │       │       └── navigation/
 │       │           └── AppNavGraph.kt
-│       ├── debug/
-│       │   └── kotlin/dev/xexanos/mealie/
-│       │       └── DebugApplication.kt
 │       └── androidTest/
 │           └── kotlin/dev/xexanos/mealie/
 │               └── navigation/
 │                   └── NavGraphTest.kt
 ├── feature/
-│   ├── auth/
-│   │   ├── build.gradle.kts
-│   │   └── src/main/kotlin/dev/xexanos/mealie/feature/auth/
-│   │       ├── ui/
-│   │       │   ├── ServerSetupScreen.kt
-│   │       │   ├── ServerSetupViewModel.kt
-│   │       │   ├── AuthUiState.kt
-│   │       │   ├── AuthUiEvent.kt
-│   │       │   ├── ReAuthScreen.kt
-│   │       │   └── ReAuthViewModel.kt
-│   │       ├── navigation/
-│   │       │   └── AuthNavGraph.kt
-│   │       └── di/
-│   │           └── AuthFeatureModule.kt
-│   └── shopping/
-│       ├── build.gradle.kts
-│       └── src/
-│           ├── main/kotlin/dev/xexanos/mealie/feature/shopping/
-│           │   ├── ui/
-│           │   │   ├── ShoppingListScreen.kt
-│           │   │   ├── ShoppingListViewModel.kt
-│           │   │   ├── ShoppingUiState.kt
-│           │   │   ├── ShoppingUiEvent.kt
-│           │   │   └── components/
-│           │   │       ├── ShoppingListItem.kt
-│           │   │       ├── AddItemBottomSheet.kt
-│           │   │       ├── ShoppingModeOverlay.kt
-│           │   │       └── SyncErrorDialog.kt
-│           │   ├── domain/
-│           │   │   ├── AddItemToShoppingListUseCase.kt
-│           │   │   ├── CheckItemUseCase.kt
-│           │   │   └── DeleteItemUseCase.kt
-│           │   ├── navigation/
-│           │   │   └── ShoppingNavGraph.kt
-│           │   └── di/
-│           │       └── ShoppingFeatureModule.kt
-│           └── test/kotlin/dev/xexanos/mealie/feature/shopping/
-│               ├── ShoppingListViewModelTest.kt
-│               ├── AddItemUseCaseTest.kt
-│               └── CheckItemUseCaseTest.kt
+│   ├── auth/          (follows :feature:* package convention)
+│   ├── shopping/      (follows :feature:* package convention)
+│   └── settings/      (follows :feature:* package convention)
 ├── core/
 │   ├── data/
 │   │   ├── build.gradle.kts
@@ -643,47 +598,23 @@ mealie-android/
 │   │       │   ├── database/
 │   │       │   │   ├── MealieDatabase.kt
 │   │       │   │   ├── entities/
-│   │       │   │   │   ├── ShoppingListEntity.kt
-│   │       │   │   │   ├── ShoppingItemEntity.kt
-│   │       │   │   │   └── SyncQueueEntity.kt
 │   │       │   │   ├── dao/
-│   │       │   │   │   ├── ShoppingListDao.kt
-│   │       │   │   │   ├── ShoppingItemDao.kt
-│   │       │   │   │   └── SyncQueueDao.kt
 │   │       │   │   └── converters/
-│   │       │   │       └── InstantConverter.kt
 │   │       │   ├── datastore/
 │   │       │   │   ├── TokenStore.kt
 │   │       │   │   ├── CredentialsStore.kt
 │   │       │   │   └── AppPreferencesStore.kt
 │   │       │   ├── domain/
-│   │       │   │   ├── ShoppingList.kt
-│   │       │   │   ├── ShoppingListItem.kt
-│   │       │   │   └── SyncQueueEntry.kt
 │   │       │   ├── repository/
-│   │       │   │   ├── ShoppingRepository.kt
-│   │       │   │   ├── ShoppingRepositoryImpl.kt
-│   │       │   │   ├── AuthRepository.kt
-│   │       │   │   └── AuthRepositoryImpl.kt
 │   │       │   └── di/
 │   │       │       └── DataModule.kt
 │   │       └── test/kotlin/dev/xexanos/mealie/core/data/
-│   │           ├── repository/
-│   │           │   └── ShoppingRepositoryImplTest.kt
-│   │           └── dao/
-│   │               └── ShoppingItemDaoTest.kt
 │   ├── network/
 │   │   ├── build.gradle.kts
 │   │   └── src/
 │   │       ├── main/kotlin/dev/xexanos/mealie/core/network/
 │   │       │   ├── api/
-│   │       │   │   ├── AuthService.kt
-│   │       │   │   ├── ShoppingService.kt
-│   │       │   │   └── AppService.kt
 │   │       │   ├── dto/
-│   │       │   │   ├── ShoppingListDto.kt
-│   │       │   │   ├── ShoppingListItemDto.kt
-│   │       │   │   └── AuthDto.kt
 │   │       │   ├── auth/
 │   │       │   │   ├── TokenManager.kt
 │   │       │   │   └── MealieAuthenticator.kt
@@ -694,11 +625,7 @@ mealie-android/
 │   │       │   └── di/
 │   │       │       └── NetworkModule.kt
 │   │       └── test/kotlin/dev/xexanos/mealie/core/network/
-│   │           ├── fixtures/
-│   │           │   ├── shopping_list.json
-│   │           │   └── auth_token.json
-│   │           ├── ShoppingServiceTest.kt
-│   │           └── TokenManagerTest.kt
+│   │           └── fixtures/
 │   ├── sync/
 │   │   ├── build.gradle.kts
 │   │   └── src/
@@ -708,7 +635,6 @@ mealie-android/
 │   │       │   └── di/
 │   │       │       └── SyncModule.kt
 │   │       └── test/kotlin/dev/xexanos/mealie/core/sync/
-│   │           └── SyncWorkerTest.kt
 │   └── ui/
 │       ├── build.gradle.kts
 │       └── src/main/kotlin/dev/xexanos/mealie/core/ui/
@@ -733,15 +659,16 @@ mealie-android/
 
 ```
 :app                 depends on all modules
-:feature:auth        depends on :core:data, :core:network, :core:ui
-:feature:shopping    depends on :core:data, :core:network, :core:ui, :core:sync
+:feature:*           depends on :core:* modules only (never on other feature modules)
 :core:data           depends on :core:network
 :core:sync           depends on :core:data, :core:network
 :core:ui             no core dependencies
 :core:network        no core dependencies (leaf module)
 ```
 
-Features never depend on each other. Cross-feature navigation flows through `NavigationManager` in `:core:ui`.
+Individual `:feature:*` modules declare only the `:core:*` dependencies they actually use.
+For example, `:feature:shopping` depends on `:core:sync` for sync status, while
+`:feature:settings` does not.
 
 **Data boundaries:**
 
@@ -807,10 +734,10 @@ Add `kotlinx-datetime = "0.6.x"` to `libs.versions.toml` reference versions tabl
 `DebugTree` can be planted in `MealieApplication` with the same gate. Remove `DebugApplication.kt`
 from the `debug/` sourceset; use a single `MealieApplication.kt`.
 
-**GAP-5 (Minor - Resolved): Settings screen missing from project structure**
+**GAP-5 (Minor - Resolved): Settings screen module**
 
-FR-18 to FR-20 have no corresponding screen file. Add `SettingsScreen.kt` + `SettingsViewModel.kt`
-to `:feature:shopping/ui/` and a settings route to `ShoppingNavGraph.kt`.
+FR-18 to FR-20 are handled by a dedicated `:feature:settings` module (split out from
+`:feature:shopping` during epic planning). Follows the standard `:feature:*` package convention.
 
 ### Architecture Completeness Checklist
 
