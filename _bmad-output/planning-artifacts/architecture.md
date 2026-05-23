@@ -225,6 +225,16 @@ Repository interfaces, ViewModel setup, Koin modules) is established in the firs
 
 ### Authentication & Security
 
+**Mealie Token Model:** Mealie uses a single token, not an OAuth2-style access+refresh token pair.
+- `POST /api/auth/token` (credentials) returns one token; that same token is used as a bearer
+  token on all API calls and as the bearer token when calling `GET /api/auth/refresh`
+- `GET /api/auth/refresh` exchanges the current token for a new one - it does not use a separate
+  refresh token; the Stored Token serves both roles
+- Tokens expire after TOKEN_TIME (1-9,600 hours, configured per Mealie instance); there is no
+  server-side revocation or rotation - expiry is the only reason a valid token becomes invalid
+- Consequence for `TokenManager`: one token field, not two; `updateToken()` replaces the single
+  Stored Token regardless of whether it came from a credentials login or a refresh call
+
 **Keystore Encryption:** `androidx.datastore:datastore-tink` with `AeadSerializer`
 - `security-crypto` (`MasterKey`) fully deprecated (1.1.0, July 2025) - not used
 - `datastore-tink` (`1.3.0-alpha09`) accepted as a dependency; actively developed Google
