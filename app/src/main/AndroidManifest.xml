@@ -5,7 +5,7 @@
         android:name=".MealieApplication"
         android:allowBackup="true"
         android:label="Mealie"
-        android:theme="@style/Theme.AppCompat">
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
 
         <activity
             android:name=".MainActivity"
