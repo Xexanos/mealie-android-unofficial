@@ -1,0 +1,18 @@
+build:
+  maxIssues: 0
+
+style:
+  MagicNumber:
+    active: true
+    ignorePropertyDeclaration: true
+    ignoreAnnotation: true
+    ignoreEnums: true
+    ignoreCompanionObjectPropertyDeclaration: true
+  MaxLineLength:
+    maxLineLength: 120
+  WildcardImport:
+    active: true
+
+complexity:
+  LongMethod:
+    threshold: 60

@@ -3,7 +3,6 @@
 build/
 **/build/
 local.properties
-gradle/wrapper/gradle-wrapper.jar
 
 # Android Studio / IntelliJ
 *.iml
@@ -22,6 +21,9 @@ release/
 # OS
 .DS_Store
 Thumbs.db
+
+# JVM heap dumps
+*.hprof
 
 # Claude Code assistant memory - personal, not project state
 .claude/

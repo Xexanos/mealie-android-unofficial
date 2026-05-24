@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Disable checks that are too strict for early development -->
+    <issue id="GoogleAppIndexingWarning" severity="ignore" />
+</lint>
