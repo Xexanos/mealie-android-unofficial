@@ -30,8 +30,9 @@ GitHub Issue and Project Sync Steps:
 6. Update the story's status to "In Progress" in GitHub Projects via Bash:
    `gh project item-edit --id <item-node-id> --field-id <status-field-node-id> --project-id <project-node-id> --single-select-value <in-progress-option-id>`
 
-7. Create the PR via Bash:
-   `gh pr create --title "{story-title}" --body "Closes #{issue-number}" --base main --head {story-branch} --repo Xexanos/mealie-android-unofficial`
+7. Strip the story number prefix from the story title (e.g. "Story 1.2: create login-screen" becomes
+   "create login-screen"). Create the PR with the descriptive title only via Bash:
+   `gh pr create --title "{story-title-without-number}" --body "Closes #{issue-number}" --base main --head {story-branch} --repo Xexanos/mealie-android-unofficial`
    Capture the PR URL.
 
 8. Add the PR to the epic's GitHub Project via Bash:
