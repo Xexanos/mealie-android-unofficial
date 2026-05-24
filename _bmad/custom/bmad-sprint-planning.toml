@@ -8,12 +8,33 @@ Read epics.md to extract all epics and their stories. Process each epic in order
    Capture the returned project number. Then link it to the repository:
    `gh project link <project-number> --owner Xexanos --repo mealie-android-unofficial`
 
-2. For each story in the epic: create a GitHub issue using mcp__github__issue_write
+2. Configure the Status field for the project via Bash:
+   a. Retrieve project fields: `gh project field-list <project-number> --owner Xexanos --format json`
+      Check if a "Status" field exists. If not, create it:
+      `gh project field-create <project-number> --owner Xexanos --name "Status" --field-type "SINGLE_SELECT"`
+
+   b. Ensure the Status field has these exact options (in order):
+      - "Todo" (maps to BMAD ready-for-dev)
+      - "In Progress" (maps to BMAD in-progress)
+      - "In Review" (maps to BMAD review)
+      - "Done" (maps to BMAD done)
+      Add or reorder options via GitHub web UI if needed (currently no gh CLI command).
+
+3. Create a board view and set it as default:
+   a. Create a board view: `gh project view-create <project-number> --owner Xexanos --title "Epic Board" --view-type "BOARD_LAYOUT" --group-by "Status"`
+      Capture the returned view ID.
+
+   b. Set as default view: `gh project view-update <project-number> <view-id> --owner Xexanos --default`
+
+   c. Output the board link for column reordering: `https://github.com/users/Xexanos/projects/<project-number>`
+      User should click this link and manually reorder the columns (Todo, In Progress, In Review, Done) as needed.
+
+4. For each story in the epic: create a GitHub issue using mcp__github__issue_write
    (method 'create') with:
    - title: story title without number prefix
    - body: 1-2 sentence plain-English description of what the story delivers.
 
-3. Add each story issue to the epic's GitHub Project via Bash using the gh CLI:
+5. Add each story issue to the epic's GitHub Project via Bash using the gh CLI:
    `gh project item-add <project-number> --owner Xexanos --url <issue-url>`
 
 If any step fails, report what was created and what remains so the user can complete it manually.
