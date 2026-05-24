@@ -26,5 +26,10 @@ on_complete = """
 5. Update the item's Status to "Todo" via Bash:
    `gh project item-edit --id <item-node-id> --field-id <status-field-node-id> --project-id <project-node-id> --single-select-value <todo-option-id>`
 
+6. Derive the story branch name from the story key (the story file name without .md,
+   e.g. "1-2-login-screen"). Create and push the branch from main via Bash:
+   `git checkout -b {story-key} main && git push -u origin {story-key}`
+   Skip silently if the branch already exists.
+
 If any step fails, report what was updated and what remains so the user can complete it manually.
 """

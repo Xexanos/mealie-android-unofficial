@@ -1,0 +1,21 @@
+[workflow]
+
+on_complete = """
+Create a GitHub PR for the completed story:
+
+1. Derive the story branch name from the story key (the story file name without .md,
+   e.g. "1-2-login-screen").
+
+2. Find the GitHub issue for this story in Xexanos/mealie-android-unofficial using
+   mcp__github__search_issues with the story title. Note the issue number.
+
+3. Create the PR via Bash:
+   `gh pr create --title "{story-title}" --body "Closes #{issue-number}" --base main --head {story-branch} --repo Xexanos/mealie-android-unofficial`
+
+4. Add the PR to the epic's GitHub Project via Bash:
+   `gh project item-add <project-number> --owner Xexanos --url <pr-url>`
+   Find the project number by matching the epic title:
+   `gh project list --owner Xexanos --format json`
+
+If any step fails, report what was done and what remains so the user can complete it manually.
+"""
