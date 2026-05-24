@@ -293,7 +293,7 @@ ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 
 **Critical notes on dependencies:**
 - `retrofit2-kotlinx-serialization-converter` (JakeWharton, archived at 1.0.0): still the correct adapter for Retrofit 3.0.0 + kotlinx-serialization. Do not substitute with a hand-rolled solution.
-- `datastore-tink 1.2.1`: This is the latest stable. Architecture.md references `1.3.0-alpha09` (an older alpha). Use `1.2.1` stable. The alpha API is unstable and the stable version covers the same `AeadSerializer` functionality.
+- `datastore-tink 1.3.0-alpha09`: Use this version per architecture.md. The `androidx.datastore:datastore-tink` artifact does NOT exist at 1.2.x stable - only the alpha line is published. The `1.2.1` entry in this spec was wrong. Architecture.md is authoritative: use `1.3.0-alpha09`.
 - Compose BOM handles versions for all `androidx.compose.*` libraries - do NOT specify versions on individual Compose libraries.
 - KSP version must match the Kotlin version exactly (format: `<kotlin-version>-<ksp-version>`).
 
