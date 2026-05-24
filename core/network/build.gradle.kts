@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.koin.android)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.mockk)

@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":core:network"))
 
     implementation(libs.workmanager.ktx)
+    implementation(libs.koin.android)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.mockk)
