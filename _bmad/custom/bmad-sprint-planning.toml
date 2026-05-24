@@ -1,0 +1,20 @@
+[workflow]
+
+on_complete = """
+Read epics.md to extract all epics and their stories. Process each epic in order:
+
+1. Create a GitHub Project for the epic via Bash using the gh CLI:
+   `gh project create --owner Xexanos --title '<Title>'`
+   Capture the returned project number. Then link it to the repository:
+   `gh project link <project-number> --owner Xexanos --repo mealie-android-unofficial`
+
+2. For each story in the epic: create a GitHub issue using mcp__github__issue_write
+   (method 'create') with:
+   - title: story title without number prefix
+   - body: 1-2 sentence plain-English description of what the story delivers.
+
+3. Add each story issue to the epic's GitHub Project via Bash using the gh CLI:
+   `gh project item-add <project-number> --owner Xexanos --url <issue-url>`
+
+If any step fails, report what was created and what remains so the user can complete it manually.
+"""
