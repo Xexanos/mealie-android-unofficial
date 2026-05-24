@@ -3,7 +3,11 @@ build:
 
 style:
   MagicNumber:
-    active: false
+    active: true
+    ignorePropertyDeclaration: true
+    ignoreAnnotation: true
+    ignoreEnums: true
+    ignoreCompanionObjectPropertyDeclaration: true
   MaxLineLength:
     maxLineLength: 120
   WildcardImport:
