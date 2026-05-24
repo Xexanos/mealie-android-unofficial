@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import dev.xexanos.mealie.core.ui.navigation.NavigationManager
 import dev.xexanos.mealie.feature.auth.navigation.AuthGraph
 import dev.xexanos.mealie.feature.auth.navigation.authGraph
+import kotlinx.coroutines.flow.collect
 import org.koin.compose.koinInject
 
 @Composable
