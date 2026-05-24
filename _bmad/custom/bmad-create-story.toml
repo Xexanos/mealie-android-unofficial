@@ -1,6 +1,12 @@
 [workflow]
 
 on_complete = """
+BMAD Status to GitHub Projects Status Mapping:
+- ready-for-dev -> Todo
+- in-progress -> In Progress
+- review -> In Review
+- done -> Done
+
 1. Find the existing GitHub issue in Xexanos/mealie-android-unofficial for this story using
    mcp__github__search_issues with the story title as the query. If found, update it using
    mcp__github__issue_write (method 'update') with the full acceptance criteria from the story
@@ -15,15 +21,18 @@ on_complete = """
 
 3. Get the project's node ID and Status field details via Bash:
    `gh project field-list <project-number> --owner Xexanos --format json`
-   Extract: the Status field node ID, and the option ID for "Todo"
-   (BMAD "ready-for-dev" maps to GitHub Projects "Todo").
+   Extract: the Status field node ID (PVTSSF_...), and extract all option IDs:
+   - "Todo" option ID (maps to BMAD "ready-for-dev")
+   - "In Progress" option ID (maps to BMAD "in-progress")
+   - "In Review" option ID (maps to BMAD "review")
+   - "Done" option ID (maps to BMAD "done")
 
 4. Find the story's item node ID in the project via Bash:
    `gh project item-list <project-number> --owner Xexanos --format json`
    Match the item by the issue URL or title from step 1.
    Also extract the project node ID from this output.
 
-5. Update the item's Status to "Todo" via Bash:
+5. Set the initial status to "Todo" (BMAD "ready-for-dev" state) via Bash:
    `gh project item-edit --id <item-node-id> --field-id <status-field-node-id> --project-id <project-node-id> --single-select-value <todo-option-id>`
 
 6. Derive the story branch name from the story key (the story file name without .md,

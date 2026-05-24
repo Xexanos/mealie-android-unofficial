@@ -1,21 +1,45 @@
 [workflow]
 
 on_complete = """
-Create a GitHub PR for the completed story:
+Create a GitHub PR for the completed story and sync status to GitHub Projects.
 
-1. Derive the story branch name from the story key (the story file name without .md,
-   e.g. "1-2-login-screen").
+BMAD Status Mapping for this workflow:
+- Story in "in-progress" state: GitHub Projects -> "In Progress"
+- Story moves to "review" state (after PR created): GitHub Projects -> "In Review"
+
+GitHub Issue and Project Sync Steps:
+
+1. Derive the story branch name from the story key (e.g. "1-2-login-screen").
 
 2. Find the GitHub issue for this story in Xexanos/mealie-android-unofficial using
-   mcp__github__search_issues with the story title. Note the issue number.
+   mcp__github__search_issues with the story title. Note the issue number and URL.
 
-3. Create the PR via Bash:
-   `gh pr create --title "{story-title}" --body "Closes #{issue-number}" --base main --head {story-branch} --repo Xexanos/mealie-android-unofficial`
-
-4. Add the PR to the epic's GitHub Project via Bash:
-   `gh project item-add <project-number> --owner Xexanos --url <pr-url>`
-   Find the project number by matching the epic title:
+3. Determine the epic number from the story ID (e.g. "1-3-..." belongs to epic 1).
+   Find the matching GitHub Project number via Bash:
    `gh project list --owner Xexanos --format json`
+   Match by epic title.
+
+4. Get the project's Status field node ID and option IDs via Bash:
+   `gh project field-list <project-number> --owner Xexanos --format json`
+   Extract: Status field node ID and option IDs for "In Progress", "In Review", "Done".
+
+5. Find or add the story's item node ID in the project via Bash:
+   `gh project item-list <project-number> --owner Xexanos --format json`
+   If not found, add it: `gh project item-add <project-number> --owner Xexanos --url <issue-url>`
+
+6. Update the story's status to "In Progress" in GitHub Projects via Bash:
+   `gh project item-edit --id <item-node-id> --field-id <status-field-node-id> --project-id <project-node-id> --single-select-value <in-progress-option-id>`
+
+7. Create the PR via Bash:
+   `gh pr create --title "{story-title}" --body "Closes #{issue-number}" --base main --head {story-branch} --repo Xexanos/mealie-android-unofficial`
+   Capture the PR URL.
+
+8. Add the PR to the epic's GitHub Project via Bash:
+   `gh project item-add <project-number> --owner Xexanos --url <pr-url>`
+
+9. Read sprint-status.yaml to check the current development_status. If it is "review",
+   update the story's GitHub Project status to "In Review" via Bash:
+   `gh project item-edit --id <item-node-id> --field-id <status-field-node-id> --project-id <project-node-id> --single-select-value <in-review-option-id>`
 
 If any step fails, report what was done and what remains so the user can complete it manually.
 """
