@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -15,7 +16,9 @@ dependencies {
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
     implementation(libs.datastore.preferences)
+    implementation(libs.datastore.tink)
     implementation(libs.kotlinx.datetime)
 
     testImplementation(libs.junit.jupiter)

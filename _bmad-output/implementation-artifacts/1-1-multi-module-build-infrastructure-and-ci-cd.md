@@ -1,6 +1,6 @@
 # Story 1.1: Multi-Module Build Infrastructure and CI/CD
 
-Status: review
+Status: in-progress
 
 ## Story
 
@@ -102,6 +102,26 @@ so that all subsequent feature stories can integrate cleanly and CI/CD gates cod
 - [x] Task 11: Verify CI passes (AC: 8)
   - [x] Push PR to trigger all 4 workflows
   - [x] Confirm all pass (green CI = story done)
+
+### Review Findings
+
+- [x] [Review][Decision] CI workflows consolidated into ci.yml — accepted: ci.yml + release.yml retained as documented deviation from AC4/5/6/8
+- [x] [Review][Decision] detekt MagicNumber active:true with ignore flags — accepted: nuanced config retained as improvement over spec
+- [x] [Review][Patch] JUnit Jupiter 6.1.0 — dismissed, version confirmed valid on Maven Central
+- [x] [Review][Patch] Room KSP processor missing from :core:data — fixed: ksp plugin + ksp(libs.room.compiler) + datastore.tink added [core/data/build.gradle.kts]
+- [x] [Review][Patch] Legacy manifest theme conflicts with Material3 — fixed: android:theme removed [app/src/main/AndroidManifest.xml]
+- [x] [Review][Patch] allowBackup=true on credential-storing app — fixed: set to false, AllowBackup lint suppressor removed [app/src/main/AndroidManifest.xml, app/lint.xml]
+- [x] [Review][Patch] Missing contents:write permission in release workflow — fixed [.github/workflows/release.yml]
+- [x] [Review][Patch] Keystore decoded with no cleanup — fixed: printf '%s' + if:always() rm step added [.github/workflows/release.yml]
+- [x] [Review][Patch] JakeWharton converter archived and incompatible with Retrofit 3 — fixed: replaced with com.squareup.retrofit2:converter-kotlinx-serialization [gradle/libs.versions.toml]
+- [x] [Review][Patch] ktlint plugin 14.2.0 — fixed: reverted to 12.2.0 per spec [gradle/libs.versions.toml]
+- [x] [Review][Patch] datastore-tink missing from :core:data — fixed (combined with Room KSP patch above)
+- [x] [Review][Patch] navigationCompose 2.9.8 — fixed: reverted to 2.8.9 per spec [gradle/libs.versions.toml]
+- [x] [Review][Patch] echo used to pipe base64 secret — fixed: printf '%s' [.github/workflows/release.yml]
+- [x] [Review][Defer] Timber as debugImplementation footgun — no current Timber calls; future risk when logging is added without an abstraction layer — deferred, pre-existing
+- [x] [Review][Defer] v* tag trigger has no branch or actor guard — any collaborator can trigger signed release from any branch — deferred, pre-existing
+- [x] [Review][Defer] CI needs:build sequential coupling causes full recompile per job — performance concern, not a correctness issue — deferred, pre-existing
+- [x] [Review][Defer] Missing secrets silently produce unsigned APK — acknowledged as expected in spec dev notes — deferred, pre-existing
 
 ## Dev Notes
 

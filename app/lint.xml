@@ -2,5 +2,4 @@
 <lint>
     <!-- Disable checks that are too strict for early development -->
     <issue id="GoogleAppIndexingWarning" severity="ignore" />
-    <issue id="AllowBackup" severity="ignore" />
 </lint>

@@ -3,9 +3,8 @@
 
     <application
         android:name=".MealieApplication"
-        android:allowBackup="true"
-        android:label="Mealie"
-        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        android:allowBackup="false"
+        android:label="Mealie">
 
         <activity
             android:name=".MainActivity"
