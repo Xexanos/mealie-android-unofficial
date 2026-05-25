@@ -77,83 +77,26 @@ lastSaved: '2026-05-25'
 
 ## Step 4: Coverage Plan & Execution Strategy
 
-### Coverage Matrix
+### Coverage Matrix (~48 tests, organized by feature area)
 
-#### P0 (Critical) - ~10 tests
+- **AUTH-***: 9 tests (token refresh, credential fallback, encryption, Authenticator, login)
+- **SETUP-***: 2 tests (URL validation, HTTP warning)
+- **SHOP-***: 11 tests (offline read, CRUD, modes, sort, performance)
+- **SYNC-***: 8 tests (queue persistence, flush, conflict resolution, retry, idempotency)
+- **CONN-***: 2 tests (offline indicator timing)
+- **SET-***: 2 tests (credential update, server URL change)
+- **DATA-***: 9 tests (Room DAO, mappers, API contract, timeouts, Koin, TypeConverter)
+- **APP-***: 5 tests (navigation, accessibility, benchmark, intent)
 
-| Test ID | Requirement | Test Level | Risk Link |
-| --- | --- | --- | --- |
-| P0-001 | Silent token refresh on launch (expired token) | Unit | R-01 |
-| P0-002 | Credential fallback when refresh fails | Unit | R-01, R-02 |
-| P0-003 | Encrypted DataStore read/write cycle | Instrumented | R-01, R-02 |
-| P0-004 | Encrypted DataStore decryption failure triggers re-auth | Instrumented | R-02 |
-| P0-005 | OkHttp Authenticator intercepts 401 and refreshes | Unit | - |
-| P0-006 | Shopping list loads from Room (offline read) | Unit | - |
-| P0-007 | Sync queue persists across process death | Integration | - |
-| P0-008 | SyncWorker flushes queue on connectivity | Integration | R-03 |
-| P0-009 | Conflict resolution (last-write-wins via updated_at) | Unit | R-04 |
-| P0-010 | No secrets in logcat (release build) | Instrumented | - |
-
-#### P1 (High) - ~20 tests
-
-| Test ID | Requirement | Test Level | Risk Link |
-| --- | --- | --- | --- |
-| P1-001 | Server URL validation (scheme, trailing slash, IPv6) | Unit | - |
-| P1-002 | HTTP security warning flow | Unit | - |
-| P1-003 | Login with valid credentials | Unit | - |
-| P1-004 | Login with invalid credentials shows error | Unit | - |
-| P1-005 | Shopping list items display in correct order | Unit | - |
-| P1-006 | Check/uncheck item (optimistic + sync) | Unit | - |
-| P1-007 | Add item (optimistic + sync) | Unit | - |
-| P1-008 | Delete item (optimistic + sync) | Unit | - |
-| P1-009 | Offline indicator appears within 3s of connectivity loss | Unit | R-03 |
-| P1-010 | Offline indicator disappears within 3s of restoration | Unit | R-03 |
-| P1-011 | Sync status badge shows pending/failed/synced per item | Unit | - |
-| P1-012 | SyncWorker respects Wi-Fi Only constraint | Unit | - |
-| P1-013 | SyncWorker retry with exponential backoff | Unit | - |
-| P1-014 | Concurrent token refresh safety (Mutex) | Unit | - |
-| P1-015 | Room DAO: insert, query, update, delete shopping items | Integration | - |
-| P1-016 | Repository maps Dto to Domain correctly | Unit | - |
-| P1-017 | API contract: MockWebServer fixture matches expected schema | Unit | R-08 |
-| P1-018 | Shopping mode persistence (DataStore) | Unit | - |
-| P1-019 | Settings: update credentials flow | Unit | - |
-| P1-020 | Settings: change server URL clears Local Store | Unit | - |
-
-#### P2 (Medium) - ~15 tests
-
-| Test ID | Requirement | Test Level | Risk Link |
-| --- | --- | --- | --- |
-| P2-001 | Large list performance (500+ items, no jank) | Benchmark | R-05 |
-| P2-002 | Multiple lists - switch between lists | Unit | - |
-| P2-003 | Sort preferences persistence per list | Unit | - |
-| P2-004 | Network timeout handling (10s connect, 30s read) | Unit | - |
-| P2-005 | Koin module graph validates (checkModules) | Unit | - |
-| P2-006 | Navigation graph smoke test (all routes reachable) | Instrumented | - |
-| P2-007 | Shopping mode auto-timeout | Unit | - |
-| P2-008 | Sync idempotency (duplicate delivery no side effect) | Integration | - |
-| P2-009 | Room TypeConverter Instant/Long round-trip | Unit | - |
-| P2-010 | Accessibility: TalkBack content descriptions | Instrumented | - |
-| P2-011 | Accessibility: contrast ratio (theme validation) | Unit | - |
-| P2-012 | Error state UI (sync failure overlay) | Unit | - |
-| P2-013 | Mid-sync network failure recovery | Integration | R-03 |
-| P2-014 | 422 validation error logging (not surfaced to user) | Unit | - |
-| P2-015 | Household info cached correctly | Unit | - |
-
-#### P3 (Low) - ~3 tests
-
-| Test ID | Requirement | Test Level | Risk Link |
-| --- | --- | --- | --- |
-| P3-001 | Cold start benchmark (< 3s target) | Benchmark | - |
-| P3-002 | Room auto-migration additive schema change | Integration | R-07 |
-| P3-003 | Bug report intent launches correctly | Instrumented | - |
+See `test-design-qa.md` for full test scenario tables.
 
 ### NFR Coverage and Evidence Plan
 
 | NFR Category | Planned Validation | Tool/Level | Evidence Artifact |
 | --- | --- | --- | --- |
-| Security | P0-003, P0-004, P0-010 + Timber log assertion | Instrumented + Unit | Test results + log scan report |
-| Performance | P3-001 cold start, P2-001 scroll benchmark | Macrobenchmark | Benchmark JSON output |
-| Reliability | P0-007, P0-008, P2-008, P2-013 | Integration | Test results |
+| Security | AUTH-003, AUTH-004, AUTH-007 + Timber log assertion | Instrumented + Unit | Test results + log scan report |
+| Performance | APP-004 cold start, SHOP-010 scroll benchmark | Macrobenchmark | Benchmark JSON output |
+| Reliability | SYNC-001, SYNC-002, SYNC-006, SYNC-007 | Integration | Test results |
 | Maintainability | JaCoCo coverage gates | CI | Coverage HTML/XML report |
 
 ### Execution Strategy
@@ -165,24 +108,22 @@ No nightly/weekly cadence needed - solo developer, small test suite, no expensiv
 
 ### Resource Estimates
 
-| Priority | Count | Effort Range |
+| Area | Count | Effort Range |
 | --- | --- | --- |
-| P0 | ~10 | ~15-25 hours |
-| P1 | ~20 | ~12-20 hours |
-| P2 | ~15 | ~8-12 hours |
-| P3 | ~3 | ~2-4 hours |
+| Authentication & Security | 9 | ~10-16 hours |
+| Shopping List | 11 | ~6-10 hours |
+| Sync & Offline | 8 | ~8-14 hours |
+| Data Layer & Infrastructure | 9 | ~5-8 hours |
+| Setup + Connectivity + Settings + App | 9 | ~6-10 hours |
 | **Total** | ~48 | **~35-56 hours (~1-1.5 weeks full-time)** |
 
 ### Quality Gates
 
 | Gate | Threshold | Enforcement |
 | --- | --- | --- |
-| P0 pass rate | 100% | CI blocks merge |
-| P1 pass rate | 100% | CI blocks merge |
-| P2 pass rate | 100% | CI blocks merge |
+| All tests pass | 100% | CI blocks merge |
 | Line coverage (:core:*) | >= 80% | CI reports; enforced before first release |
 | Line coverage (:feature:*) | >= 70% | CI reports; ViewModels are the coverage target |
 | High-risk mitigations (R-01, R-02) | Complete before release | Instrumented test suite passes on 3+ device configs |
-| ASR tests (ASR-1 through ASR-6) | All green | CI blocks merge |
 | No secrets in logs | Verified | Automated test in CI |
 | NFR validation evidence | Identified per category | Full PASS/CONCERNS/FAIL deferred to nfr-assess |

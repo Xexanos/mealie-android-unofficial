@@ -72,8 +72,8 @@ inputDocuments:
 1. **Test strategy**: Unit-heavy (JUnit 5 + MockK + Turbine), integration for Room/Sync, instrumented for security/UI
 2. **Tooling**: JUnit 5, MockK, Turbine, Room in-memory, MockWebServer, TestListenableWorkerBuilder, Macrobenchmark
 3. **Execution**: All unit/integration tests in CI on every PR (< 5 min); instrumented tests pre-release locally
-4. **Coverage**: ~48 test scenarios (10 P0, 20 P1, 15 P2, 3 P3) with risk-based classification
-5. **Quality gates**: 100% pass rate for P0/P1/P2; >= 80% line coverage on `:core:*`
+4. **Coverage**: ~48 test scenarios organized by feature area with risk links
+5. **Quality gates**: 100% pass rate; >= 80% line coverage on `:core:*`
 
 **What we need:** Acknowledge only.
 

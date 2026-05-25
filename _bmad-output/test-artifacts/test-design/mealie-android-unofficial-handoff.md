@@ -39,27 +39,27 @@ The following high-priority risks (score >= 6) should appear as epic-level quali
 
 | Epic | Recommended Quality Gate |
 | --- | --- |
-| Epic 1: Server Setup & Authentication | All P0 auth tests pass (P0-001 through P0-005); `CredentialStore` interface implemented; R-01/R-02 mitigations verified via instrumented tests |
-| Epic 2: Shopping List & Offline Sync | All P0 sync tests pass (P0-006 through P0-009); offline read/write cycle verified; conflict resolution proven via unit test |
+| Epic 1: Server Setup & Authentication | All AUTH-* and SETUP-* tests pass; `CredentialStore` interface implemented; R-01/R-02 mitigations verified via instrumented tests |
+| Epic 2: Shopping List & Offline Sync | All SHOP-*, SYNC-*, CONN-* tests pass; offline read/write cycle verified; conflict resolution proven via unit test |
 
 ## Story-Level Integration Guidance
 
-### P0/P1 Test Scenarios - Story Acceptance Criteria
+### Critical Test Scenarios - Story Acceptance Criteria
 
-These critical test scenarios MUST be acceptance criteria on corresponding stories:
+These test scenarios MUST be acceptance criteria on corresponding stories:
 
 | Test ID | Scenario | Recommended Story |
 | --- | --- | --- |
-| P0-001 | Silent token refresh on launch (expired token) | Story 1.4 (Token Refresh) |
-| P0-002 | Credential fallback when refresh fails | Story 1.4 (Token Refresh) |
-| P0-003 | Encrypted DataStore read/write cycle | Story 1.2 (Credential Storage) |
-| P0-004 | Decryption failure triggers re-auth | Story 1.2 (Credential Storage) |
-| P0-005 | OkHttp Authenticator intercepts 401 | Story 1.4 (Token Refresh) |
-| P0-006 | Shopping list loads from Room offline | Story 2.1 (Shopping List Display) |
-| P0-007 | Sync queue persists across process death | Story 2.4 (Sync Queue) |
-| P0-008 | SyncWorker flushes queue on connectivity | Story 2.4 (Sync Queue) |
-| P0-009 | Conflict resolution last-write-wins | Story 2.4 (Sync Queue) |
-| P0-010 | No secrets in logcat | Story 1.2 (Credential Storage) |
+| AUTH-001 | Silent token refresh on launch (expired token) | Story 1.4 (Token Refresh) |
+| AUTH-002 | Credential fallback when refresh fails | Story 1.4 (Token Refresh) |
+| AUTH-003 | Encrypted DataStore read/write cycle | Story 1.2 (Credential Storage) |
+| AUTH-004 | Decryption failure triggers re-auth | Story 1.2 (Credential Storage) |
+| AUTH-005 | OkHttp Authenticator intercepts 401 | Story 1.4 (Token Refresh) |
+| AUTH-007 | No secrets in logcat | Story 1.2 (Credential Storage) |
+| SHOP-001 | Shopping list loads from Room offline | Story 2.1 (Shopping List Display) |
+| SYNC-001 | Sync queue persists across process death | Story 2.4 (Sync Queue) |
+| SYNC-002 | SyncWorker flushes queue on connectivity | Story 2.4 (Sync Queue) |
+| SYNC-003 | Conflict resolution last-write-wins | Story 2.4 (Sync Queue) |
 
 ### Test Infrastructure Requirements
 
@@ -97,8 +97,8 @@ Stories should include these testability requirements in their acceptance criter
 
 | From Phase | To Phase | Gate Criteria |
 | --- | --- | --- |
-| Test Design | Epic/Story Creation | All P0 risks have mitigation strategy (DONE - R-01, R-02 mitigated) |
+| Test Design | Epic/Story Creation | All high-priority risks have mitigation strategy (DONE - R-01, R-02 mitigated) |
 | Epic/Story Creation | ATDD | Stories have acceptance criteria from test design |
-| ATDD | Implementation | Failing acceptance tests exist for all P0/P1 scenarios |
+| ATDD | Implementation | Failing acceptance tests exist for critical scenarios |
 | Implementation | Test Automation | All acceptance tests pass |
-| Test Automation | Release | Coverage >= 80% on `:core:*`; all P0/P1/P2 tests pass at 100% |
+| Test Automation | Release | Coverage >= 80% on `:core:*`; all tests pass at 100% |
