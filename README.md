@@ -64,4 +64,4 @@ Contributions are welcome. The project is in early development - read the [PRD](
 
 ## License
 
-TBD
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
