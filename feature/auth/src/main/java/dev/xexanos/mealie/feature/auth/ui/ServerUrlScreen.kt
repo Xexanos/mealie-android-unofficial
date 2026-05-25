@@ -19,7 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,7 +52,7 @@ fun ServerUrlScreen(
         return
     }
 
-    var urlText by remember { mutableStateOf("") }
+    var urlText by rememberSaveable { mutableStateOf("") }
     val probing = uiState as? ServerUrlUiState.Probing
     val isProbing = probing != null
     val inputError = uiState as? ServerUrlUiState.InputError
