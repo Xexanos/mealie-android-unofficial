@@ -92,6 +92,18 @@ class ServerUrlViewModelTest {
         assertEquals("https://example.com/apps/mealie", vm.normalizeUrl("https://example.com/apps/mealie/"))
     }
 
+    @Test
+    fun `normalizeUrl handles IPv6 address with port`() {
+        val vm = ServerUrlViewModel(FakeAuthRepository())
+        assertEquals("https://[::1]:9925", vm.normalizeUrl("[::1]:9925"))
+    }
+
+    @Test
+    fun `normalizeUrl returns null for port zero`() {
+        val vm = ServerUrlViewModel(FakeAuthRepository())
+        assertNull(vm.normalizeUrl("mealie.local:0"))
+    }
+
     // --- onConnect: malformed input ---
 
     @Test

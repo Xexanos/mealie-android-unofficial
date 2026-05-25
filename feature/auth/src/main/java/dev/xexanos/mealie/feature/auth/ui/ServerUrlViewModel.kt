@@ -80,6 +80,7 @@ class ServerUrlViewModel(private val authRepository: AuthRepository) : ViewModel
         return try {
             val uri = java.net.URI(stripped)
             if (uri.host.isNullOrBlank()) null
+            else if (uri.port == 0) null
             else buildString {
                 append(uri.scheme.lowercase())
                 append("://")
