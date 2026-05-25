@@ -77,8 +77,14 @@ class ServerUrlViewModel(private val authRepository: AuthRepository) : ViewModel
 
         return try {
             val uri = java.net.URI(stripped)
-            if (uri.host.isNullOrBlank()) null else stripped
-        } catch (e: Exception) {
+            if (uri.host.isNullOrBlank()) null
+            else buildString {
+                append(uri.scheme)
+                append("://")
+                append(uri.host)
+                if (uri.port != -1) append(":${uri.port}")
+            }
+        } catch (_: Exception) {
             null
         }
     }

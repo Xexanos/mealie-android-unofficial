@@ -35,11 +35,11 @@ class AuthRepositoryImpl(
                 .build()
             val service = retrofit.create(AppService::class.java)
             val about: AppAboutDto = service.getAppAbout()
-            if (about.version != null) UrlProbeResult.Success
+            if (about.version?.startsWith("3.") == true) UrlProbeResult.Success
             else UrlProbeResult.NotMealieServer
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             UrlProbeResult.NetworkError
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             UrlProbeResult.NotMealieServer
         }
     }
