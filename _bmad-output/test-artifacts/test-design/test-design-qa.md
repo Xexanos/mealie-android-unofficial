@@ -88,7 +88,7 @@ class ShoppingListViewModelTest {
     private val viewModel by lazy { ShoppingListViewModel(repository) }
 
     @Test
-    fun `loads items from repository on init`() = runTest {
+    fun `when viewmodel initialized then items loaded from repository`() = runTest {
         val items = listOf(aShoppingItem(), aShoppingItem())
         every { repository.observeItems(any()) } returns flowOf(items)
 
@@ -96,6 +96,29 @@ class ShoppingListViewModelTest {
             val state = awaitItem()
             assertEquals(items.size, state.items.size)
         }
+    }
+}
+```
+
+**Instrumented test pattern (JUnit 4 + @DisplayName):**
+
+```kotlin
+@RunWith(AndroidJUnit4::class)
+class EncryptedDataStoreTest {
+
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    @Test
+    @DisplayName("when credentials stored then readable after app restart")
+    fun whenCredentialsStoredThenReadableAfterRestart() {
+        // ...
+    }
+
+    @Test
+    @DisplayName("when datastore corrupted then re-auth triggered")
+    fun whenDatastoreCorruptedThenReAuthTriggered() {
+        // ...
     }
 }
 ```
@@ -315,16 +338,45 @@ Tests that require Android Keystore or Compose UI runtime:
 
 ---
 
-## Appendix A: Code Examples
+## Appendix A: Test Naming Convention & Code Examples
 
-**Example: Auth unit test (Kotlin + JUnit 5 + MockWebServer):**
+### Naming Convention: When-Then
+
+All test names follow **When-Then** structure: `when <trigger/precondition> then <expected outcome>`.
+
+**JVM tests (JUnit 5)** - use backtick syntax:
+
+```kotlin
+@Test
+fun `when token expired then refreshes silently`() = runTest { ... }
+
+@Test
+fun `when sync fails mid-request then retries with backoff`() = runTest { ... }
+
+@Test
+fun `when server url has trailing slash then normalized before storage`() { ... }
+```
+
+**Instrumented tests (JUnit 4)** - camelCase method + `@DisplayName` annotation:
+
+```kotlin
+@Test
+@DisplayName("when datastore corrupted then re-auth triggered")
+fun whenDatastoreCorruptedThenReAuthTriggered() { ... }
+
+@Test
+@DisplayName("when talkback active then all items have content description")
+fun whenTalkbackActiveThenAllItemsHaveContentDescription() { ... }
+```
+
+### Full Example: Auth Unit Test
 
 ```kotlin
 @ExtendWith(MainDispatcherExtension::class)
 class TokenRefreshTest {
 
     @Test
-    fun `refreshes expired token silently on launch`() = runTest {
+    fun `when token expired then refreshes using stored credentials`() = runTest {
         val fakeTokenStore = FakeTokenStore(storedToken = "expired-token")
         val mockServer = MockWebServer()
         mockServer.enqueue(MockResponse().setResponseCode(401))
@@ -339,6 +391,24 @@ class TokenRefreshTest {
 
         assertTrue(result is ApiResult.Success)
         assertEquals("new-token", fakeTokenStore.currentToken)
+    }
+}
+```
+
+### Full Example: Instrumented Test
+
+```kotlin
+@RunWith(AndroidJUnit4::class)
+class NavigationGraphTest {
+
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    @Test
+    @DisplayName("when app launched then all routes reachable from nav graph")
+    fun whenAppLaunchedThenAllRoutesReachableFromNavGraph() {
+        composeTestRule.onNodeWithTag("nav_host").assertExists()
+        // verify routes...
     }
 }
 ```
