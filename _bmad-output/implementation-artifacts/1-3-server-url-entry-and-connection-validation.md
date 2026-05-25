@@ -1,6 +1,6 @@
 # Story 1.3: Server URL Entry and Connection Validation
 
-Status: review
+Status: done
 
 ## Story
 
@@ -611,6 +611,17 @@ feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/testutil/MainDispatch
 feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/FakeAuthRepository.kt
 feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlViewModelTest.kt
 
+
+### Review Findings
+
+- [x] [Review][Decision] Version guard `startsWith("3.")` - RESOLVED: keep guard, only Mealie 3.x supported for now. Spec updated to match.
+- [x] [Review][Patch] URL path stripping too aggressive - strip known Mealie UI paths (login, dashboard, shopping-lists, etc.) but preserve other paths for reverse-proxy subpath support [ServerUrlViewModel.kt:81-85]
+- [x] [Review][Patch] CancellationException swallowed by broad `catch (_: Exception)` - breaks structured concurrency when ViewModel is cleared during active probe [AuthRepositoryImpl.kt:42]
+- [x] [Review][Patch] No guard against concurrent onConnect invocations - rapid double-tap can launch parallel probe coroutines [ServerUrlViewModel.kt:35]
+- [x] [Review][Patch] `remember` instead of `rememberSaveable` for URL text field - typed URL lost on configuration change [ServerUrlScreen.kt:55]
+- [x] [Review][Patch] Scheme detection is case-sensitive - `HTTP://` or `Https://` inputs get double-prefixed with `https://` [ServerUrlViewModel.kt:72-73]
+- [x] [Review][Patch] CircularProgressIndicator uses `height(24.dp)` instead of `size(24.dp)` - may render non-circular [ServerUrlScreen.kt:87]
+- [x] [Review][Defer] Test coverage gap for case-insensitive scheme, IPv6, invalid port edge cases [ServerUrlViewModelTest.kt] - deferred, not a bug in current code
 
 ## Change Log
 
