@@ -36,7 +36,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-24T00:00:00Z
-last_updated: 2026-05-25T12:00:00Z
+last_updated: 2026-05-25T00:00:00Z
+
 project: mealie-android-unofficial
 project_key: NOKEY
 tracking_system: file-system
@@ -47,7 +48,7 @@ development_status:
   epic-1: in-progress
   1-1-multi-module-build-infrastructure-and-ci-cd: done
   1-2-app-theme-navigation-shell-and-application-class: done
-  1-3-server-url-entry-and-connection-validation: backlog
+  1-3-server-url-entry-and-connection-validation: done
   1-4-http-security-warning-for-non-https-urls: backlog
   1-5-credential-entry-and-encrypted-storage: backlog
   1-6-silent-token-refresh-on-app-launch: backlog
