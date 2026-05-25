@@ -40,5 +40,9 @@ BMAD Status to GitHub Projects Status Mapping:
    `git checkout -b {story-key} main && git push -u origin {story-key}`
    Skip silently if the branch already exists.
 
+7. On the story branch, stage and commit the story file and the updated sprint-status.yaml,
+   then push via Bash:
+   `git add _bmad-output/implementation-artifacts/{story-key}.md _bmad-output/implementation-artifacts/sprint-status.yaml && git commit -m "Add story {story-key} and mark ready-for-dev in sprint status" && git push`
+
 If any step fails, report what was updated and what remains so the user can complete it manually.
 """
