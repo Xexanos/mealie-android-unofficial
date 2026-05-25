@@ -1,6 +1,6 @@
 # Story 1.2: App Theme, Navigation Shell, and Application Class
 
-Status: review
+Status: in-progress
 
 ## Story
 
@@ -71,6 +71,14 @@ so that all subsequent feature stories can wire into a consistent foundation.
   - [x] `./gradlew assembleDebug` - BUILD SUCCESSFUL
   - [x] `./gradlew :core:ui:test` - NavigationManagerTest passes
   - [x] `./gradlew ktlintCheck detekt lint` - all pass
+
+### Review Findings
+
+- [x] [Review][Patch] Missing XML theme causes white flash on cold start [app/src/main/AndroidManifest.xml:4]
+- [x] [Review][Patch] Missing `enableEdgeToEdge()` in MainActivity [app/src/main/java/dev/xexanos/mealie/MainActivity.kt:11]
+- [x] [Review][Patch] No `Surface` composable wrapping NavHost content [app/src/main/java/dev/xexanos/mealie/MainActivity.kt:13]
+- [x] [Review][Defer] `applicationScope` not registered in Koin DI [app/src/main/java/dev/xexanos/mealie/MealieApplication.kt] - deferred, no consumer in current story
+- [x] [Review][Defer] `core:ui` no explicit coroutines main dependency [core/ui/build.gradle.kts] - deferred, works via transitive through koin.android
 
 ## Dev Notes
 
