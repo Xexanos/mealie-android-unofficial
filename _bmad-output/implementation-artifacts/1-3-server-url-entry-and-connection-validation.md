@@ -1,6 +1,6 @@
 # Story 1.3: Server URL Entry and Connection Validation
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -50,50 +50,50 @@ so that I know the app can reach my server before I enter credentials.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create `ApiResult` sealed class in `:core:network` (AC: 5, 6, 7)
-  - [ ] Create `core/network/src/main/java/dev/xexanos/mealie/core/network/result/ApiResult.kt` with `Success<T>`, `NetworkError`, `AuthError`, `HttpError(code, detail)` variants (exact definition in Dev Notes)
+- [x] Task 1: Create `ApiResult` sealed class in `:core:network` (AC: 5, 6, 7)
+  - [x] Create `core/network/src/main/java/dev/xexanos/mealie/core/network/result/ApiResult.kt` with `Success<T>`, `NetworkError`, `AuthError`, `HttpError(code, detail)` variants (exact definition in Dev Notes)
 
-- [ ] Task 2: Create `AppAboutDto` and `AppService` in `:core:network` (AC: 5, 6, 7)
-  - [ ] Create `core/network/src/main/java/dev/xexanos/mealie/core/network/dto/AppAboutDto.kt`
-  - [ ] Create `core/network/src/main/java/dev/xexanos/mealie/core/network/api/AppService.kt`
+- [x] Task 2: Create `AppAboutDto` and `AppService` in `:core:network` (AC: 5, 6, 7)
+  - [x] Create `core/network/src/main/java/dev/xexanos/mealie/core/network/dto/AppAboutDto.kt`
+  - [x] Create `core/network/src/main/java/dev/xexanos/mealie/core/network/api/AppService.kt`
 
-- [ ] Task 3: Update `NetworkModule` to provide `OkHttpClient` and `Json` (AC: 5)
-  - [ ] Add `buildFeatures { buildConfig = true }` to `core/network/build.gradle.kts`
-  - [ ] Replace the empty `networkModule` in `NetworkModule.kt` with a real implementation providing `OkHttpClient` and `Json` (see Dev Notes for exact code)
+- [x] Task 3: Update `NetworkModule` to provide `OkHttpClient` and `Json` (AC: 5)
+  - [x] Add `buildFeatures { buildConfig = true }` to `core/network/build.gradle.kts`
+  - [x] Replace the empty `networkModule` in `NetworkModule.kt` with a real implementation providing `OkHttpClient` and `Json` (see Dev Notes for exact code)
 
-- [ ] Task 4: Create `AppPreferencesStore` in `:core:data` (AC: 6, 8)
-  - [ ] Create `core/data/src/main/java/dev/xexanos/mealie/core/data/datastore/AppPreferencesStore.kt`
+- [x] Task 4: Create `AppPreferencesStore` in `:core:data` (AC: 6, 8)
+  - [x] Create `core/data/src/main/java/dev/xexanos/mealie/core/data/datastore/AppPreferencesStore.kt`
     - Uses unencrypted `datastore-preferences` (not tink)
     - Keys: `SERVER_URL_KEY`, `HTTP_WARNING_ACK_URLS_KEY` (declare key now; read/write for HTTP ack in Story 1.4)
     - Methods: `fun getServerUrl(): Flow<String?>`, `suspend fun setServerUrl(url: String)`
-  - [ ] Update `DataModule.kt`: add `single { AppPreferencesStore(androidContext()) }`
+  - [x] Update `DataModule.kt`: add `single { AppPreferencesStore(androidContext()) }`
 
-- [ ] Task 5: Create `UrlProbeResult` and `AuthRepository` in `:core:data` (AC: 5, 6, 7, 8)
-  - [ ] Create `core/data/src/main/java/dev/xexanos/mealie/core/data/domain/UrlProbeResult.kt` (sealed class with `Success`, `NetworkError`, `NotMealieServer`)
-  - [ ] Create `core/data/src/main/java/dev/xexanos/mealie/core/data/repository/AuthRepository.kt` (interface — see Dev Notes)
-  - [ ] Create `core/data/src/main/java/dev/xexanos/mealie/core/data/repository/AuthRepositoryImpl.kt` (see Dev Notes for complete probe pattern)
-  - [ ] Update `DataModule.kt`: add `single<AuthRepository> { AuthRepositoryImpl(get(), get(), get()) }`
+- [x] Task 5: Create `UrlProbeResult` and `AuthRepository` in `:core:data` (AC: 5, 6, 7, 8)
+  - [x] Create `core/data/src/main/java/dev/xexanos/mealie/core/data/domain/UrlProbeResult.kt` (sealed class with `Success`, `NetworkError`, `NotMealieServer`)
+  - [x] Create `core/data/src/main/java/dev/xexanos/mealie/core/data/repository/AuthRepository.kt` (interface — see Dev Notes)
+  - [x] Create `core/data/src/main/java/dev/xexanos/mealie/core/data/repository/AuthRepositoryImpl.kt` (see Dev Notes for complete probe pattern)
+  - [x] Update `DataModule.kt`: add `single<AuthRepository> { AuthRepositoryImpl(get(), get(), get()) }`
 
-- [ ] Task 6: Create ViewModel, UiState, and UiEvent in `:feature:auth` (AC: 1–8)
-  - [ ] Add to `feature/auth/build.gradle.kts`: `lifecycle-viewmodel-compose`, `lifecycle-runtime-compose`, `testRuntimeOnly(libs.junit.platform.launcher)`, `testImplementation(kotlin("test"))`
-  - [ ] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlUiState.kt`
-  - [ ] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlUiEvent.kt`
-  - [ ] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlViewModel.kt` (see Dev Notes)
-  - [ ] Update `AuthFeatureModule.kt`: add `viewModel { ServerUrlViewModel(get()) }`
+- [x] Task 6: Create ViewModel, UiState, and UiEvent in `:feature:auth` (AC: 1–8)
+  - [x] Add to `feature/auth/build.gradle.kts`: `lifecycle-viewmodel-compose`, `lifecycle-runtime-compose`, `testRuntimeOnly(libs.junit.platform.launcher)`, `testImplementation(kotlin("test"))`
+  - [x] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlUiState.kt`
+  - [x] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlUiEvent.kt`
+  - [x] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlViewModel.kt` (see Dev Notes)
+  - [x] Update `AuthFeatureModule.kt`: add `viewModel { ServerUrlViewModel(get()) }`
 
-- [ ] Task 7: Create `ServerUrlScreen` composable in `:feature:auth` (AC: 1–8, UX-DR11)
-  - [ ] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlScreen.kt` (see Dev Notes for layout and UX requirements)
+- [x] Task 7: Create `ServerUrlScreen` composable in `:feature:auth` (AC: 1–8, UX-DR11)
+  - [x] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlScreen.kt` (see Dev Notes for layout and UX requirements)
 
-- [ ] Task 8: Update `AuthNavGraph` to wire `ServerUrlScreen` and declare `HttpWarningCheckRoute` (AC: 1, 6, 8)
-  - [ ] Delete `@Serializable object AuthPlaceholder` — replaced by `ServerUrlRoute`
-  - [ ] Add `@Serializable object ServerUrlRoute` and `@Serializable object HttpWarningCheckRoute`
-  - [ ] Update `authGraph()`: `startDestination = ServerUrlRoute`, wire `ServerUrlScreen`, add placeholder `composable<HttpWarningCheckRoute>` (Story 1.4 fills it in)
-  - [ ] Use `popUpTo(ServerUrlRoute) { inclusive = true }` when navigating forward so back does not return to URL screen
+- [x] Task 8: Update `AuthNavGraph` to wire `ServerUrlScreen` and declare `HttpWarningCheckRoute` (AC: 1, 6, 8)
+  - [x] Delete `@Serializable object AuthPlaceholder` — replaced by `ServerUrlRoute`
+  - [x] Add `@Serializable object ServerUrlRoute` and `@Serializable object HttpWarningCheckRoute`
+  - [x] Update `authGraph()`: `startDestination = ServerUrlRoute`, wire `ServerUrlScreen`, add placeholder `composable<HttpWarningCheckRoute>` (Story 1.4 fills it in)
+  - [x] Use `popUpTo(ServerUrlRoute) { inclusive = true }` when navigating forward so back does not return to URL screen
 
-- [ ] Task 9: Write unit tests for `ServerUrlViewModel` (AC: 2, 3, 4, 7, 8)
-  - [ ] Create `feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/testutil/MainDispatcherExtension.kt` (copy pattern from Story 1.2, do NOT import from `:core:ui`)
-  - [ ] Create `feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/FakeAuthRepository.kt`
-  - [ ] Create `feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlViewModelTest.kt`
+- [x] Task 9: Write unit tests for `ServerUrlViewModel` (AC: 2, 3, 4, 7, 8)
+  - [x] Create `feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/testutil/MainDispatcherExtension.kt` (copy pattern from Story 1.2, do NOT import from `:core:ui`)
+  - [x] Create `feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/FakeAuthRepository.kt`
+  - [x] Create `feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlViewModelTest.kt`
     - `normalizeUrl`: trailing slash stripped, bare IP gets `https://`, blank input returns null
     - malformed input → `InputError` state, `FakeAuthRepository.probeServerUrl` NOT called
     - `UrlProbeResult.Success` → `NavigateToNext` event emitted
@@ -101,10 +101,10 @@ so that I know the app can reach my server before I enter credentials.
     - `UrlProbeResult.NotMealieServer` → `InputError("Not a Mealie server")`
     - URL already stored on init → `NavigateToNext` event emitted without `onConnect` being called
 
-- [ ] Task 10: Verify build and tests pass
-  - [ ] `./gradlew assembleDebug` — BUILD SUCCESSFUL
-  - [ ] `./gradlew :feature:auth:test` — all tests pass
-  - [ ] `./gradlew ktlintCheck detekt lint` — all pass
+- [x] Task 10: Verify build and tests pass
+  - [x] `./gradlew assembleDebug` — BUILD SUCCESSFUL
+  - [x] `./gradlew :feature:auth:test` — all tests pass
+  - [x] `./gradlew ktlintCheck detekt lint` — all pass
 
 ## Dev Notes
 
@@ -579,6 +579,39 @@ claude-sonnet-4-6
 
 ### Debug Log References
 
+- Used `java.net.URI` instead of `android.net.Uri` in `normalizeUrl` - `android.net.Uri` is not available in JVM unit tests (host always null), breaking `normalizeUrl` tests and Turbine event assertions.
+- Added Retrofit, OkHttp, and kotlinx-serialization-json as explicit `implementation` dependencies to `core/data/build.gradle.kts` - these are declared as `implementation` (not `api`) in `:core:network`, so they are not transitively visible to `:core:data`.
+- Extracted OkHttp timeout values into named constants to satisfy detekt `MagicNumber` rule.
+
 ### Completion Notes List
 
+All 10 tasks and subtasks complete. 11 unit tests pass covering URL normalization, probe outcomes, and stored-URL init flow. `assembleDebug`, `test`, `ktlintCheck`, `detekt`, and `lint` all pass.
+
 ### File List
+
+core/network/build.gradle.kts
+core/network/src/main/java/dev/xexanos/mealie/core/network/result/ApiResult.kt
+core/network/src/main/java/dev/xexanos/mealie/core/network/dto/AppAboutDto.kt
+core/network/src/main/java/dev/xexanos/mealie/core/network/api/AppService.kt
+core/network/src/main/java/dev/xexanos/mealie/core/network/di/NetworkModule.kt
+core/data/build.gradle.kts
+core/data/src/main/java/dev/xexanos/mealie/core/data/datastore/AppPreferencesStore.kt
+core/data/src/main/java/dev/xexanos/mealie/core/data/domain/UrlProbeResult.kt
+core/data/src/main/java/dev/xexanos/mealie/core/data/repository/AuthRepository.kt
+core/data/src/main/java/dev/xexanos/mealie/core/data/repository/AuthRepositoryImpl.kt
+core/data/src/main/java/dev/xexanos/mealie/core/data/di/DataModule.kt
+feature/auth/build.gradle.kts
+feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlUiState.kt
+feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlUiEvent.kt
+feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlViewModel.kt
+feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlScreen.kt
+feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/di/AuthFeatureModule.kt
+feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/navigation/AuthNavGraph.kt
+feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/testutil/MainDispatcherExtension.kt
+feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/FakeAuthRepository.kt
+feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlViewModelTest.kt
+
+
+## Change Log
+
+- Implemented story 1.3: network layer (ApiResult, AppAboutDto, AppService, NetworkModule), data layer (AppPreferencesStore, UrlProbeResult, AuthRepository/Impl, DataModule), auth feature (ServerUrlViewModel, ServerUrlScreen, AuthNavGraph with ServerUrlRoute/HttpWarningCheckRoute), 11 unit tests (Date: 2026-05-25)

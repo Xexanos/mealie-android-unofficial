@@ -1,5 +1,38 @@
 package dev.xexanos.mealie.core.network.di
 
+import dev.xexanos.mealie.core.network.BuildConfig
+import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.dsl.module
+import java.util.concurrent.TimeUnit
 
-val networkModule = module { }
+val networkModule = module {
+    single {
+        Json {
+            ignoreUnknownKeys = true
+            coerceInputValues = true
+        }
+    }
+    single { buildOkHttpClient() }
+}
+
+private const val CONNECT_TIMEOUT_SECONDS = 10L
+private const val READ_TIMEOUT_SECONDS = 30L
+private const val WRITE_TIMEOUT_SECONDS = 15L
+
+private fun buildOkHttpClient(): OkHttpClient {
+    val builder = OkHttpClient.Builder()
+        .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .writeTimeout(WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+    if (BuildConfig.DEBUG) {
+        builder.addInterceptor(
+            HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+                redactHeader("Authorization")
+            }
+        )
+    }
+    return builder.build()
+}
