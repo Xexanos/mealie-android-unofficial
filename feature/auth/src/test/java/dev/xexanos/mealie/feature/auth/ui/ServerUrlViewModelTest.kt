@@ -62,6 +62,36 @@ class ServerUrlViewModelTest {
         assertEquals("https://mealie.example.com", vm.normalizeUrl("Https://mealie.example.com"))
     }
 
+    @Test
+    fun `normalizeUrl strips known Mealie UI path`() {
+        val vm = ServerUrlViewModel(FakeAuthRepository())
+        assertEquals("https://mealie.example.com", vm.normalizeUrl("https://mealie.example.com/dashboard"))
+    }
+
+    @Test
+    fun `normalizeUrl strips login path`() {
+        val vm = ServerUrlViewModel(FakeAuthRepository())
+        assertEquals("https://mealie.example.com", vm.normalizeUrl("https://mealie.example.com/login"))
+    }
+
+    @Test
+    fun `normalizeUrl strips api path`() {
+        val vm = ServerUrlViewModel(FakeAuthRepository())
+        assertEquals("https://mealie.example.com", vm.normalizeUrl("https://mealie.example.com/api/app/about"))
+    }
+
+    @Test
+    fun `normalizeUrl preserves non-Mealie subpath for reverse proxy`() {
+        val vm = ServerUrlViewModel(FakeAuthRepository())
+        assertEquals("https://example.com/mealie", vm.normalizeUrl("https://example.com/mealie"))
+    }
+
+    @Test
+    fun `normalizeUrl preserves custom subpath with trailing slash stripped`() {
+        val vm = ServerUrlViewModel(FakeAuthRepository())
+        assertEquals("https://example.com/apps/mealie", vm.normalizeUrl("https://example.com/apps/mealie/"))
+    }
+
     // --- onConnect: malformed input ---
 
     @Test

@@ -85,9 +85,36 @@ class ServerUrlViewModel(private val authRepository: AuthRepository) : ViewModel
                 append("://")
                 append(uri.host)
                 if (uri.port != -1) append(":${uri.port}")
+                val path = stripMealieUiPath(uri.path)
+                if (path.isNotEmpty()) append(path)
             }
         } catch (_: Exception) {
             null
         }
+    }
+
+    private fun stripMealieUiPath(path: String?): String {
+        if (path.isNullOrBlank() || path == "/") return ""
+        val firstSegment = path.trimStart('/').substringBefore('/')
+        return if (firstSegment.lowercase() in MEALIE_UI_PATHS) "" else path.trimEnd('/')
+    }
+
+    companion object {
+        private val MEALIE_UI_PATHS = setOf(
+            "login",
+            "register",
+            "forgot-password",
+            "admin",
+            "dashboard",
+            "g",
+            "r",
+            "shopping-lists",
+            "meal-plan",
+            "meal-planner",
+            "cookbooks",
+            "user",
+            "group",
+            "api",
+        )
     }
 }
