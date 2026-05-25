@@ -33,6 +33,7 @@ class ServerUrlViewModel(private val authRepository: AuthRepository) : ViewModel
     }
 
     fun onConnect(rawUrl: String) {
+        if (_uiState.value is ServerUrlUiState.Probing) return
         val normalized = normalizeUrl(rawUrl)
         if (normalized == null) {
             _uiState.value = ServerUrlUiState.InputError(
