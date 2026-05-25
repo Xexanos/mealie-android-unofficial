@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.datastore.preferences)
     implementation(libs.datastore.tink)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.koin.android)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.mockk)

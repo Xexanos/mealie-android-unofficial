@@ -58,6 +58,7 @@ dependencies {
     implementation(project(":core:network"))
     implementation(project(":core:sync"))
     implementation(project(":core:ui"))
+    implementation(project(":feature:auth"))
 
     implementation(libs.androidx.core.ktx)
     implementation(platform(libs.compose.bom))
@@ -70,7 +71,7 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
-    debugImplementation(libs.timber)
+    implementation(libs.timber)
     debugImplementation(libs.compose.ui.tooling)
 
     androidTestImplementation(platform(libs.compose.bom))

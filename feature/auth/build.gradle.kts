@@ -1,34 +1,32 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
-    namespace = "dev.xexanos.mealie.core.ui"
+    namespace = "dev.xexanos.mealie.feature.auth"
     compileSdk = 36
-    defaultConfig {
-        minSdk = 26
-    }
+    defaultConfig { minSdk = 26 }
     buildFeatures { compose = true }
-    lint { ignoreTestSources = true }
 }
 
 dependencies {
+    implementation(project(":core:data"))
+    implementation(project(":core:network"))
+    implementation(project(":core:ui"))
+
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
-    implementation(libs.compose.ui.tooling.preview)
     implementation(libs.compose.material3)
-    implementation(libs.compose.material.icons.extended)
+    implementation(libs.navigation.compose)
     implementation(libs.koin.android)
-
-    debugImplementation(libs.compose.ui.tooling)
+    implementation(libs.koin.androidx.compose)
 
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(kotlin("test"))
-    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.withType<Test> { useJUnitPlatform() }
