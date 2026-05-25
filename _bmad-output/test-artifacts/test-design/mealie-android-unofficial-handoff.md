@@ -97,7 +97,7 @@ Stories should include these testability requirements in their acceptance criter
 
 | From Phase | To Phase | Gate Criteria |
 | --- | --- | --- |
-| Test Design | Epic/Story Creation | All high-priority risks have mitigation strategy (DONE - R-01, R-02 mitigated) |
+| Test Design | Epic/Story Creation | All high-priority risks have mitigation strategy (DONE - R-01, R-02 mitigation plans defined) |
 | Epic/Story Creation | ATDD | Stories have acceptance criteria from test design |
 | ATDD | Implementation | Failing acceptance tests exist for critical scenarios |
 | Implementation | Test Automation | All acceptance tests pass |

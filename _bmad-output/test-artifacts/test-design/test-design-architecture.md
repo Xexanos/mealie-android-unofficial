@@ -81,7 +81,7 @@ inputDocuments:
 
 ## Risk Assessment
 
-**Total risks identified**: 8 (2 high-priority >= 6, 4 medium, 2 low)
+**Total risks identified**: 8 (2 high-priority >= 6, 5 medium, 1 low)
 
 ### High-Priority Risks (Score >= 6)
 
@@ -98,12 +98,12 @@ inputDocuments:
 | R-04 | DATA | Conflict resolution drops edits when device clocks are skewed | 2 | 2 | 4 | Source `updated_at` from server response only | Dev |
 | R-05 | PERF | Large shopping list (500+ items) causes UI jank | 2 | 2 | 4 | LazyColumn + benchmark test to catch regressions | Dev |
 | R-06 | OPS | No instrumented CI - regressions caught late | 2 | 2 | 4 | Local instrumented pass before merge; CI added when team grows | Dev |
+| R-07 | TECH | Room auto-migration fails on v2 schema addition | 1 | 3 | 3 | Manual migration test added for v2 transition | Dev |
 
 ### Low-Priority Risks (Score 1-2)
 
 | Risk ID | Category | Description | P | I | Score | Action |
 | --- | --- | --- | --- | --- | --- | --- |
-| R-07 | TECH | Room auto-migration fails on v2 schema addition | 1 | 3 | 3 | Manual migration test added for v2 transition |
 | R-08 | BUS | Mealie API changes break client silently | 1 | 2 | 2 | MockWebServer fixtures versioned; update on Mealie version bump |
 
 ---

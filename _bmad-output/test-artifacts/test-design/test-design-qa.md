@@ -31,7 +31,7 @@ inputDocuments:
 
 **Risk Summary:**
 
-- Total Risks: 8 (2 high-priority score >= 6, 4 medium, 2 low)
+- Total Risks: 8 (2 high-priority score >= 6, 5 medium, 1 low)
 - Critical Categories: SEC (encrypted storage), TECH (connectivity)
 
 **Coverage Summary:**
@@ -100,7 +100,7 @@ class ShoppingListViewModelTest {
 }
 ```
 
-**Instrumented test pattern (JUnit 4 + @DisplayName):**
+**Instrumented test pattern (JUnit 4 + descriptive camelCase):**
 
 ```kotlin
 @RunWith(AndroidJUnit4::class)
@@ -110,14 +110,12 @@ class EncryptedDataStoreTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @Test
-    @DisplayName("when credentials stored then readable after app restart")
-    fun whenCredentialsStoredThenReadableAfterRestart() {
+    fun whenCredentialsStored_thenReadableAfterAppRestart() {
         // ...
     }
 
     @Test
-    @DisplayName("when datastore corrupted then re-auth triggered")
-    fun whenDatastoreCorruptedThenReAuthTriggered() {
+    fun whenDatastoreCorrupted_thenReAuthTriggered() {
         // ...
     }
 }
@@ -357,16 +355,14 @@ fun `when sync fails mid-request then retries with backoff`() = runTest { ... }
 fun `when server url has trailing slash then normalized before storage`() { ... }
 ```
 
-**Instrumented tests (JUnit 4)** - camelCase method + `@DisplayName` annotation:
+**Instrumented tests (JUnit 4)** - camelCase with underscore separator between when/then:
 
 ```kotlin
 @Test
-@DisplayName("when datastore corrupted then re-auth triggered")
-fun whenDatastoreCorruptedThenReAuthTriggered() { ... }
+fun whenDatastoreCorrupted_thenReAuthTriggered() { ... }
 
 @Test
-@DisplayName("when talkback active then all items have content description")
-fun whenTalkbackActiveThenAllItemsHaveContentDescription() { ... }
+fun whenTalkbackActive_thenAllItemsHaveContentDescription() { ... }
 ```
 
 ### Full Example: Auth Unit Test
@@ -405,8 +401,7 @@ class NavigationGraphTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @Test
-    @DisplayName("when app launched then all routes reachable from nav graph")
-    fun whenAppLaunchedThenAllRoutesReachableFromNavGraph() {
+    fun whenAppLaunched_thenAllRoutesReachableFromNavGraph() {
         composeTestRule.onNodeWithTag("nav_host").assertExists()
         // verify routes...
     }
