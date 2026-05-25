@@ -50,6 +50,18 @@ class ServerUrlViewModelTest {
         assertNull(vm.normalizeUrl(""))
     }
 
+    @Test
+    fun `normalizeUrl handles uppercase HTTP scheme without double-prefixing`() {
+        val vm = ServerUrlViewModel(FakeAuthRepository())
+        assertEquals("http://mealie.example.com", vm.normalizeUrl("HTTP://mealie.example.com"))
+    }
+
+    @Test
+    fun `normalizeUrl handles mixed-case HTTPS scheme`() {
+        val vm = ServerUrlViewModel(FakeAuthRepository())
+        assertEquals("https://mealie.example.com", vm.normalizeUrl("Https://mealie.example.com"))
+    }
+
     // --- onConnect: malformed input ---
 
     @Test

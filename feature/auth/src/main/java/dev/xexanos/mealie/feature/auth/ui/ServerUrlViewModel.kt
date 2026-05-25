@@ -70,7 +70,8 @@ class ServerUrlViewModel(private val authRepository: AuthRepository) : ViewModel
         if (trimmed.isBlank()) return null
 
         val withScheme = when {
-            trimmed.startsWith("http://") || trimmed.startsWith("https://") -> trimmed
+            trimmed.startsWith("http://", ignoreCase = true) ||
+                trimmed.startsWith("https://", ignoreCase = true) -> trimmed
             else -> "https://$trimmed"
         }
 
@@ -80,7 +81,7 @@ class ServerUrlViewModel(private val authRepository: AuthRepository) : ViewModel
             val uri = java.net.URI(stripped)
             if (uri.host.isNullOrBlank()) null
             else buildString {
-                append(uri.scheme)
+                append(uri.scheme.lowercase())
                 append("://")
                 append(uri.host)
                 if (uri.port != -1) append(":${uri.port}")
