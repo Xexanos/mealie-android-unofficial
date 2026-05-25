@@ -39,7 +39,8 @@ class AuthRepositoryImpl(
             else UrlProbeResult.NotMealieServer
         } catch (_: IOException) {
             UrlProbeResult.NetworkError
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            if (e is kotlin.coroutines.cancellation.CancellationException) throw e
             UrlProbeResult.NotMealieServer
         }
     }
