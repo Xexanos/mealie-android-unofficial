@@ -4,7 +4,8 @@
     <application
         android:name=".MealieApplication"
         android:allowBackup="false"
-        android:label="Mealie">
+        android:label="Mealie"
+        android:theme="@style/Theme.Mealie">
 
         <activity
             android:name=".MainActivity"
