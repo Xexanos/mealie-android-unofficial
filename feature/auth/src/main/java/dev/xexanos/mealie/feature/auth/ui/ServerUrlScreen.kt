@@ -53,12 +53,14 @@ fun ServerUrlScreen(
     }
 
     var urlText by remember { mutableStateOf("") }
-    val isProbing = uiState is ServerUrlUiState.Probing
+    val probing = uiState as? ServerUrlUiState.Probing
+    val isProbing = probing != null
     val inputError = uiState as? ServerUrlUiState.InputError
 
-    LaunchedEffect(inputError) {
-        if (inputError != null && urlText.isBlank()) {
-            urlText = inputError.lastUrl
+    LaunchedEffect(probing?.normalizedUrl, inputError?.lastUrl) {
+        val stateUrl = probing?.normalizedUrl ?: inputError?.lastUrl
+        if (stateUrl != null && stateUrl != urlText) {
+            urlText = stateUrl
         }
     }
 
