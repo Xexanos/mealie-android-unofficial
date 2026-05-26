@@ -105,7 +105,7 @@ val wiremockStart by tasks.registering {
         wiremockProcess = ProcessBuilder(
             "java", "-jar", jar.absolutePath,
             "--port", "8080",
-            "--root-dir", rootDir.absolutePath
+            "--root-dir", rootDir.absolutePath,
         ).inheritIO().start()
 
         val deadlineNanos = System.nanoTime() + TimeUnit.SECONDS.toNanos(15)
@@ -130,7 +130,11 @@ val wiremockStop by tasks.registering {
             conn.connectTimeout = 2000
             conn.readTimeout = 2000
             conn.doOutput = false
-            try { conn.responseCode } finally { conn.disconnect() }
+            try {
+                conn.responseCode
+            } finally {
+                conn.disconnect()
+            }
         }
         wiremockProcess?.destroyForcibly()
         wiremockProcess = null
