@@ -23,9 +23,9 @@ class HttpWarningCheckViewModel(private val authRepository: AuthRepository) : Vi
     init {
         viewModelScope.launch {
             val serverUrl = authRepository.getStoredServerUrl().first() ?: return@launch
-            if (serverUrl.startsWith("https://", ignoreCase = true)) {
-                _events.send(HttpWarningCheckUiEvent.NavigateToCredentials)
-            } else if (authRepository.isHttpWarningAcknowledged(serverUrl)) {
+            if (serverUrl.startsWith("https://", ignoreCase = true) ||
+                authRepository.isHttpWarningAcknowledged(serverUrl)
+            ) {
                 _events.send(HttpWarningCheckUiEvent.NavigateToCredentials)
             } else {
                 _uiState.value = HttpWarningCheckUiState.ShowWarning(serverUrl)
