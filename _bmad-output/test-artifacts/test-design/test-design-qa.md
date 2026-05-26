@@ -344,8 +344,20 @@ val wiremockStart by tasks.registering {
             "--port", "8080",
             "--root-dir", "src/androidTest/resources/wiremock"
         ).inheritIO().start()
-        // Give WireMock a moment to bind the port before tests begin
-        Thread.sleep(2000)
+        // Poll for WireMock readiness instead of using a fixed sleep
+        val timeoutNanos = java.util.concurrent.TimeUnit.SECONDS.toNanos(10)
+        val deadline = System.nanoTime() + timeoutNanos
+        var ready = false
+        while (System.nanoTime() < deadline && !ready) {
+            ready = runCatching {
+                java.net.Socket("127.0.0.1", 8080).use { }
+                true
+            }.getOrDefault(false)
+            if (!ready) {
+                Thread.sleep(200)
+            }
+        }
+        check(ready) { "WireMock did not become ready on localhost:8080 within 10 seconds" }
     }
 }
 
