@@ -70,6 +70,7 @@ Stories should include these testability requirements in their acceptance criter
 | `CredentialStore` interface (not concrete class) | Stories 1.1-1.4 | Unit tests need fake without Keystore |
 | `ConnectivityMonitor` exposed as injectable interface | Stories 2.3-2.4 | Unit tests need controllable state |
 | Room entities with factory functions in test sources | Stories 2.1-2.4 | Integration tests need realistic test data |
+| WireMock stub files + Gradle lifecycle tasks | Story 1.3+ | E2E black-box tests need external mock server |
 
 ## Risk-to-Story Mapping
 

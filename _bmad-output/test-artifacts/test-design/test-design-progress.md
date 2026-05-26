@@ -77,7 +77,7 @@ lastSaved: '2026-05-25'
 
 ## Step 4: Coverage Plan & Execution Strategy
 
-### Coverage Matrix (~48 tests, organized by feature area)
+### Coverage Matrix (~53 tests, organized by feature area)
 
 - **AUTH-***: 9 tests (token refresh, credential fallback, encryption, Authenticator, login)
 - **SETUP-***: 2 tests (URL validation, HTTP warning)
@@ -87,6 +87,7 @@ lastSaved: '2026-05-25'
 - **SET-***: 2 tests (credential update, server URL change)
 - **DATA-***: 9 tests (Room DAO, mappers, API contract, timeouts, Koin, TypeConverter)
 - **APP-***: 5 tests (navigation, accessibility, benchmark, intent)
+- **E2E-***: 5 tests (setup flow, shopping list, offline - WireMock black-box)
 
 See `test-design-qa.md` for full test scenario tables.
 
@@ -115,7 +116,8 @@ No nightly/weekly cadence needed - solo developer, small test suite, no expensiv
 | Sync & Offline | 8 | ~8-14 hours |
 | Data Layer & Infrastructure | 9 | ~5-8 hours |
 | Setup + Connectivity + Settings + App | 9 | ~6-10 hours |
-| **Total** | ~48 | **~35-56 hours (~1-1.5 weeks full-time)** |
+| E2E (WireMock black-box) | 5 | ~6-10 hours |
+| **Total** | ~53 | **~41-68 hours (~1-2 weeks full-time)** |
 
 ### Quality Gates
 

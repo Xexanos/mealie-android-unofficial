@@ -40,7 +40,7 @@ inputDocuments:
 
 - **Total risks**: 8
 - **High-priority (score >= 6)**: 2 risks (R-01, R-02) - both in encrypted storage
-- **Test effort**: ~48 tests (~1-1.5 weeks for 1 developer)
+- **Test effort**: ~53 tests (~1-1.5 weeks for 1 developer)
 
 ---
 
@@ -72,7 +72,7 @@ inputDocuments:
 1. **Test strategy**: Unit-heavy (JUnit 5 + MockK + Turbine), integration for Room/Sync, instrumented for security/UI
 2. **Tooling**: JUnit 5, MockK, Turbine, Room in-memory, MockWebServer, TestListenableWorkerBuilder, Macrobenchmark
 3. **Execution**: All unit/integration tests in CI on every PR (< 5 min); instrumented tests pre-release locally
-4. **Coverage**: ~48 test scenarios organized by feature area with risk links
+4. **Coverage**: ~53 test scenarios organized by feature area with risk links
 5. **Quality gates**: 100% pass rate; >= 80% line coverage on `:core:*`
 
 **What we need:** Acknowledge only.

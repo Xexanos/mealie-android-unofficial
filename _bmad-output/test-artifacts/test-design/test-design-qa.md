@@ -36,7 +36,7 @@ inputDocuments:
 
 **Coverage Summary:**
 
-- ~48 tests organized by feature area
+- ~53 tests organized by feature area
 - All tests must pass (100%) before merge
 - **Total effort**: ~35-56 hours (~1-1.5 weeks with 1 developer)
 
@@ -77,6 +77,12 @@ inputDocuments:
    - `FakeCredentialStore` / `FakeTokenStore` - in-memory implementations
    - `FakeConnectivityMonitor` - controllable `StateFlow<ConnectivityState>`
    - MockWebServer base class with fixture loading helpers
+
+3. **E2E Infrastructure (WireMock)**
+   - WireMock standalone JAR added to a dedicated Gradle runner configuration (host-side only, not `androidTestImplementation`)
+   - Gradle start/stop tasks use that host-side dependency to manage the WireMock lifecycle
+   - JSON stub mappings under `src/androidTest/resources/wiremock/`
+   - Emulator accesses host via `http://10.0.2.2:8080`
 
 **Example test pattern (Kotlin + JUnit 5 + MockK + Turbine):**
 
@@ -270,7 +276,259 @@ Tests are organized by feature area. All tests carry equal weight - any failure 
 | **APP-004** | Cold start benchmark (< 3s target) | Benchmark | - | Macrobenchmark startup |
 | **APP-005** | Bug report intent launches correctly | Instrumented | - | Intent assertion |
 
-**Total:** ~48 tests
+### End-to-End (Black-Box)
+
+| Test ID | Scenario | Test Level | Risk Link | Notes |
+| --- | --- | --- | --- | --- |
+| **E2E-001** | Setup flow: valid server URL + credentials lands on shopping list | E2E | - | Full happy path through UI |
+| **E2E-002** | Setup flow: invalid credentials shows error | E2E | - | WireMock returns 401 |
+| **E2E-003** | Shopping list: check/uncheck item syncs to server | E2E | - | WireMock verifies PATCH received |
+| **E2E-004** | Shopping list: add item appears in list | E2E | - | WireMock returns updated list |
+| **E2E-005** | Offline: indicator shown when server unreachable | E2E | - | WireMock stopped mid-test |
+
+**Total:** ~53 tests
+
+---
+
+## E2E Testing Strategy: WireMock Black-Box
+
+### Philosophy
+
+E2E tests are true black-box tests from the **app's perspective** - no DI modification, no awareness of libraries used internally, no test-only build variants. The app runs exactly as it would for a real user.
+
+The **test harness** may use WireMock's admin API (`/__admin/requests`, `/__admin/scenarios`) to set up scenarios and verify server-side state. This is not a violation of the black-box principle: the admin API is a test infrastructure concern, not knowledge of app internals.
+
+### Architecture
+
+```mermaid
+graph LR
+    subgraph device["Android Emulator"]
+        direction BT
+        CT["Compose Test\n(UI interaction)"]:::artifact --> EMU["App under test"]
+    end
+
+    subgraph host["Host Machine"]
+        direction BT
+        STUBS["JSON stubs\n/wiremock/mappings/"]:::artifact --> WM["WireMock :8080"]
+    end
+
+    device <-->|"HTTP\n10.0.2.2:8080"| host
+
+    classDef artifact fill:#f0f0f0,stroke:#aaa,stroke-dasharray:4 4,color:#666
+```
+
+- **WireMock standalone** runs as a separate JVM process on the host machine
+- The Android emulator reaches the host via `10.0.2.2` (standard Android emulator loopback)
+- The app is driven only through Compose test semantics (`onNodeWithTag`, `performClick`, etc.)
+- Test code may call WireMock's admin API for scenario control and request verification
+- No test-only Koin modules, no fake implementations injected at runtime
+
+### WireMock Setup
+
+**Gradle integration** - WireMock starts before instrumented tests and stops after. WireMock must run as a background process so Gradle does not block waiting for it to exit. The recommended approach uses a Gradle build service or a simple `ProcessBuilder` fork:
+
+```kotlin
+// build.gradle.kts (:app)
+
+// Dedicated configuration - avoids pulling Android AAR deps into a host JVM process
+val wiremockRunner by configurations.creating
+
+dependencies {
+    wiremockRunner(libs.wiremock.standalone)
+}
+
+var wiremockProcess: Process? = null
+
+val wiremockStart by tasks.registering {
+    doLast {
+        wiremockProcess = ProcessBuilder(
+            "java", "-jar",
+            wiremockRunner.singleFile.absolutePath,
+            "--port", "8080",
+            "--root-dir", "src/androidTest/resources/wiremock"
+        ).inheritIO().start()
+        // Poll for WireMock readiness instead of using a fixed sleep
+        val timeoutNanos = java.util.concurrent.TimeUnit.SECONDS.toNanos(10)
+        val deadline = System.nanoTime() + timeoutNanos
+        var ready = false
+        while (System.nanoTime() < deadline && !ready) {
+            ready = runCatching {
+                java.net.Socket("127.0.0.1", 8080).use { }
+                true
+            }.getOrDefault(false)
+            if (!ready) {
+                Thread.sleep(200)
+            }
+        }
+        check(ready) { "WireMock did not become ready on localhost:8080 within 10 seconds" }
+    }
+}
+
+val wiremockStop by tasks.registering {
+    // Best-effort shutdown - ignore errors (WireMock may already be stopped by E2E-005)
+    doLast {
+        runCatching {
+            val connection = (java.net.URL("http://localhost:8080/__admin/shutdown")
+                .openConnection() as java.net.HttpURLConnection).apply {
+                requestMethod = "POST"
+                connectTimeout = 2000
+                readTimeout = 2000
+                doOutput = false
+            }
+            try {
+                val responseCode = connection.responseCode
+                check(responseCode in 200..299) {
+                    "WireMock shutdown failed with HTTP $responseCode"
+                }
+            } finally {
+                connection.disconnect()
+            }
+        }
+        wiremockProcess?.destroyForcibly()
+    }
+}
+
+tasks.named("connectedDebugAndroidTest") {
+    dependsOn(wiremockStart)
+    finalizedBy(wiremockStop)
+}
+```
+
+**Dependency** - add WireMock standalone to test classpath:
+
+```toml
+# gradle/libs.versions.toml
+[versions]
+wiremock = "3.6.0"
+
+[libraries]
+wiremock-standalone = { module = "org.wiremock:wiremock-standalone", version.ref = "wiremock" }
+```
+
+### Stub File Structure
+
+```
+src/androidTest/resources/wiremock/
+  mappings/
+    auth/
+      post-token.json           # POST /api/auth/token -> 200 + access_token
+      post-token-invalid.json   # POST /api/auth/token -> 401
+    shopping/
+      get-lists.json            # GET /api/households/shopping/lists -> list array
+      get-list-items.json       # GET /api/households/shopping/lists/{id} -> items
+      patch-item-check.json     # PATCH /api/households/shopping/items/{id} -> 200
+    setup/
+      get-app-about.json        # GET /api/app/about -> server info (validation)
+  __files/
+    responses/
+      token-success.json
+      shopping-lists.json
+      shopping-list-items.json
+      app-about.json
+```
+
+**Example stub** (`mappings/setup/get-app-about.json`):
+
+```json
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/api/app/about"
+  },
+  "response": {
+    "status": 200,
+    "bodyFileName": "responses/app-about.json",
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
+```
+
+### Example E2E Test
+
+```kotlin
+@RunWith(AndroidJUnit4::class)
+@LargeTest
+class SetupFlowE2ETest {
+
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    @Test
+    fun whenValidServerAndCredentials_thenLandsOnShoppingList() {
+        composeTestRule.onNodeWithTag("url_input")
+            .performTextInput("http://10.0.2.2:8080")
+
+        composeTestRule.onNodeWithTag("connect_button")
+            .performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onAllNodesWithText("Username")
+                .fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeTestRule.onNodeWithTag("username_input")
+            .performTextInput("test@example.com")
+
+        composeTestRule.onNodeWithTag("password_input")
+            .performTextInput("password123")
+
+        composeTestRule.onNodeWithTag("login_button")
+            .performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onAllNodesWithText("My Shopping List")
+                .fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeTestRule.onNodeWithText("My Shopping List")
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun whenInvalidCredentials_thenErrorShown() {
+        // WireMock serves post-token-invalid.json for this credential combo
+        composeTestRule.onNodeWithTag("url_input")
+            .performTextInput("http://10.0.2.2:8080")
+
+        composeTestRule.onNodeWithTag("connect_button")
+            .performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onAllNodesWithText("Username")
+                .fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeTestRule.onNodeWithTag("username_input")
+            .performTextInput("wrong@example.com")
+
+        composeTestRule.onNodeWithTag("password_input")
+            .performTextInput("wrongpassword")
+
+        composeTestRule.onNodeWithTag("login_button")
+            .performClick()
+
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onAllNodesWithText("Invalid credentials")
+                .fetchSemanticsNodes().isNotEmpty()
+        }
+
+        composeTestRule.onNodeWithText("Invalid credentials")
+            .assertIsDisplayed()
+    }
+}
+```
+
+### When to Write E2E Tests
+
+E2E tests cover critical user journeys - not every scenario. They complement unit/integration tests by validating the full stack works together. Write E2E tests for:
+
+- Happy-path flows that span multiple screens (setup, login, main feature use)
+- Flows where integration bugs are most likely (auth handshake, sync round-trip)
+- Regressions that unit tests cannot catch (navigation, real HTTP layer)
+
+**First story requiring E2E:** Story 1.3 (Server URL Entry) - the setup flow is the first complete user journey.
 
 ---
 
@@ -289,17 +547,24 @@ All tests that run on JVM without a device:
 
 **Why run in PRs:** Fast feedback, no device/emulator required
 
-### Pre-Release: Instrumented Tests (local, ~10 min)
+### Pre-Release: Instrumented + E2E Tests (local, ~15 min)
 
-Tests that require Android Keystore or Compose UI runtime:
+Tests that require Android Keystore, Compose UI runtime, or WireMock:
 
 - AUTH-003, AUTH-004, AUTH-007: Encrypted DataStore + log scan
 - APP-001: Navigation graph smoke test
 - APP-002: TalkBack accessibility
 - APP-005: Intent test
 - SHOP-010, APP-004: Benchmarks (scroll + cold start)
+- E2E-001 through E2E-005: Black-box WireMock tests (setup flow, shopping, offline)
 
-**Why defer:** Requires physical device or emulator; no emulator CI in v1
+**Why defer:** Requires physical device or emulator + WireMock process; no emulator CI in v1
+
+**Run E2E tests:**
+
+```bash
+./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e
+```
 
 ---
 
@@ -312,7 +577,8 @@ Tests that require Android Keystore or Compose UI runtime:
 | Sync & Offline | 8 | ~8-14 hours |
 | Data Layer & Infrastructure | 9 | ~5-8 hours |
 | Setup + Connectivity + Settings + App | 9 | ~6-10 hours |
-| **Total** | ~48 | **~35-56 hours (~1-1.5 weeks)** |
+| E2E (WireMock black-box) | 5 | ~6-10 hours |
+| **Total** | ~53 | **~41-68 hours (~1-2 weeks)** |
 
 **Assumptions:**
 
@@ -332,6 +598,7 @@ Tests that require Android Keystore or Compose UI runtime:
 | `FakeConnectivityMonitor` | Dev | After `ConnectivityMonitor` interface exists |
 | MockWebServer base class + fixtures | Dev | After `:core:network` API services defined |
 | Room test factory functions | Dev | After entity classes defined |
+| WireMock stub files + Gradle tasks | Dev | After Story 1.3 (Server URL Entry); first E2E target |
 | JaCoCo CI integration | Dev | After first tests exist; add to `test` CI job |
 
 ---
