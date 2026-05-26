@@ -79,8 +79,8 @@ inputDocuments:
    - MockWebServer base class with fixture loading helpers
 
 3. **E2E Infrastructure (WireMock)**
-   - WireMock standalone JAR on test classpath
-   - Gradle tasks for start/stop lifecycle
+   - WireMock standalone JAR added to a dedicated Gradle runner configuration (host-side only, not `androidTestImplementation`)
+   - Gradle start/stop tasks use that host-side dependency to manage the WireMock lifecycle
    - JSON stub mappings under `src/androidTest/resources/wiremock/`
    - Emulator accesses host via `http://10.0.2.2:8080`
 
