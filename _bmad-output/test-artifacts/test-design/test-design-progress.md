@@ -116,7 +116,8 @@ No nightly/weekly cadence needed - solo developer, small test suite, no expensiv
 | Sync & Offline | 8 | ~8-14 hours |
 | Data Layer & Infrastructure | 9 | ~5-8 hours |
 | Setup + Connectivity + Settings + App | 9 | ~6-10 hours |
-| **Total** | ~48 | **~35-56 hours (~1-1.5 weeks full-time)** |
+| E2E (WireMock black-box) | 5 | ~6-10 hours |
+| **Total** | ~53 | **~41-68 hours (~1-2 weeks full-time)** |
 
 ### Quality Gates
 

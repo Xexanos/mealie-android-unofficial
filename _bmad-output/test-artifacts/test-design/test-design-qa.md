@@ -317,24 +317,44 @@ E2E tests are true black-box tests. They have no knowledge of app internals - no
 
 ### WireMock Setup
 
-**Gradle integration** - WireMock starts before instrumented tests and stops after:
+**Gradle integration** - WireMock starts before instrumented tests and stops after. WireMock must run as a background process so Gradle does not block waiting for it to exit. The recommended approach uses a Gradle build service or a simple `ProcessBuilder` fork:
 
 ```kotlin
 // build.gradle.kts (:app)
-val wiremockStart by tasks.registering(JavaExec::class) {
-    classpath = configurations["androidTestRuntimeClasspath"]
-    mainClass.set("com.github.tomakehurst.wiremock.standalone.WireMockServerRunner")
-    args = listOf(
-        "--port", "8080",
-        "--root-dir", "src/androidTest/resources/wiremock"
-    )
-    // Runs in background; store PID for shutdown
+
+// Dedicated configuration - avoids pulling Android AAR deps into a host JVM process
+val wiremockRunner by configurations.creating
+
+dependencies {
+    wiremockRunner(libs.wiremock.standalone)
+}
+
+var wiremockProcess: Process? = null
+
+val wiremockStart by tasks.registering {
+    doLast {
+        wiremockProcess = ProcessBuilder(
+            "java", "-jar",
+            wiremockRunner.singleFile.absolutePath,
+            "--port", "8080",
+            "--root-dir", "src/androidTest/resources/wiremock"
+        ).inheritIO().start()
+        // Give WireMock a moment to bind the port before tests begin
+        Thread.sleep(2000)
+    }
 }
 
 val wiremockStop by tasks.registering {
-    // Sends shutdown request to WireMock admin API
+    // Best-effort shutdown - ignore errors (WireMock may already be stopped by E2E-005)
     doLast {
-        java.net.URL("http://localhost:8080/__admin/shutdown").readText()
+        runCatching {
+            java.net.URL("http://localhost:8080/__admin/shutdown")
+                .openConnection()
+                .apply { connectTimeout = 2000 }
+                .getInputStream()
+                .close()
+        }
+        wiremockProcess?.destroyForcibly()
     }
 }
 
@@ -513,7 +533,7 @@ Tests that require Android Keystore, Compose UI runtime, or WireMock:
 **Run E2E tests:**
 
 ```bash
-./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=dev.xexanos.mealie.e2e
+./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e
 ```
 
 ---
