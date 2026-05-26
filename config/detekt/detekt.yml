@@ -4,6 +4,7 @@ build:
 style:
   MagicNumber:
     active: true
+    excludes: ['**/test/**', '**/androidTest/**']
     ignorePropertyDeclaration: true
     ignoreAnnotation: true
     ignoreEnums: true
