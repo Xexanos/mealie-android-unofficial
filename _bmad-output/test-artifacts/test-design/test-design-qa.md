@@ -294,7 +294,9 @@ Tests are organized by feature area. All tests carry equal weight - any failure 
 
 ### Philosophy
 
-E2E tests are true black-box tests. They have no knowledge of app internals - no DI modification, no awareness of libraries used, no test-only build variants. The app runs exactly as it would for a real user.
+E2E tests are true black-box tests from the **app's perspective** - no DI modification, no awareness of libraries used internally, no test-only build variants. The app runs exactly as it would for a real user.
+
+The **test harness** may use WireMock's admin API (`/__admin/requests`, `/__admin/scenarios`) to set up scenarios and verify server-side state. This is not a violation of the black-box principle: the admin API is a test infrastructure concern, not knowledge of app internals.
 
 ### Architecture
 
@@ -317,7 +319,8 @@ graph LR
 
 - **WireMock standalone** runs as a separate JVM process on the host machine
 - The Android emulator reaches the host via `10.0.2.2` (standard Android emulator loopback)
-- Tests interact only through Compose test semantics (`onNodeWithTag`, `performClick`, etc.)
+- The app is driven only through Compose test semantics (`onNodeWithTag`, `performClick`, etc.)
+- Test code may call WireMock's admin API for scenario control and request verification
 - No test-only Koin modules, no fake implementations injected at runtime
 
 ### WireMock Setup
