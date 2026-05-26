@@ -64,3 +64,7 @@ All 4 planned tests generated and verified passing:
 **AuthRepositoryImplTest.kt:**
 - `when isHttpWarningAcknowledged called with unknown URL then returns false`
 - `when acknowledgeHttpWarning called then subsequent check returns true`
+
+**HttpWarningE2eTest.kt (NEW):**
+- `whenHttpServerValid_thenShowsWarningWithUrl`
+- `whenContinueClicked_thenNavigatesPastWarning`
