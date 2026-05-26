@@ -1,6 +1,6 @@
 # Story 1.4: HTTP Security Warning for Non-HTTPS URLs
 
-Status: review
+Status: done
 
 ## Story
 
@@ -513,3 +513,9 @@ feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckVi
 ## Change Log
 
 - 2026-05-26: Implemented HTTP security warning for non-HTTPS URLs (Story 1.4). Added pass-through gate screen that checks URL scheme and acknowledgement state, shows inline informational message for HTTP URLs, persists acknowledgement per-URL to DataStore.
+
+### Review Findings
+
+- [x] [Review][Patch] Double-tap on Continue sends duplicate NavigateToCredentials [HttpWarningCheckViewModel.kt:38] - FIXED: transition state to Loading before launching coroutine
+- [x] [Review][Defer] Hard-coded UI strings instead of string resources [HttpWarningCheckScreen.kt] - deferred, app not localized yet
+- [x] [Review][Defer] Unbounded growth of acknowledged URLs set [AppPreferencesStore.kt] - deferred, realistically 1-3 servers per user

@@ -36,6 +36,7 @@ class HttpWarningCheckViewModel(private val authRepository: AuthRepository) : Vi
     fun onContinue() {
         val state = _uiState.value
         if (state !is HttpWarningCheckUiState.ShowWarning) return
+        _uiState.value = HttpWarningCheckUiState.Loading
         viewModelScope.launch {
             authRepository.acknowledgeHttpWarning(state.serverUrl)
             _events.send(HttpWarningCheckUiEvent.NavigateToCredentials)
