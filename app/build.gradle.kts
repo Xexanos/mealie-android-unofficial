@@ -88,6 +88,14 @@ dependencies {
 
     wiremockRunner(libs.wiremock.standalone)
 
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.koin.test)
+    testImplementation(libs.koin.test.junit5)
+    testImplementation(libs.okhttp)
+    testImplementation(libs.kotlinx.serialization.json)
+    testImplementation(kotlin("test"))
+    testRuntimeOnly(libs.junit.platform.launcher)
+
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.test.runner)
@@ -156,3 +164,5 @@ afterEvaluate {
         finalizedBy(wiremockStop)
     }
 }
+
+tasks.withType<Test> { useJUnitPlatform() }
