@@ -300,14 +300,19 @@ E2E tests are true black-box tests. They have no knowledge of app internals - no
 
 ```mermaid
 graph LR
-    CT["Compose Test\n(UI interaction)"]
-    EMU["Android Emulator\n(app under test)"]
-    WM["WireMock\n(host JVM)"]
-    STUBS["JSON stub files\nsrc/androidTest/resources/wiremock/"]
+    subgraph device["Android Emulator"]
+        direction BT
+        CT["Compose Test\n(UI interaction)"]:::artifact --> EMU["App under test"]
+    end
 
-    CT -->|"Compose semantics\nonNodeWithTag / performClick"| EMU
-    EMU <-->|"HTTP\n10.0.2.2:8080"| WM
-    STUBS -->|"loaded at startup"| WM
+    subgraph host["Host Machine"]
+        direction BT
+        STUBS["JSON stubs\n/wiremock/mappings/"]:::artifact --> WM["WireMock :8080"]
+    end
+
+    device <-->|"HTTP\n10.0.2.2:8080"| host
+
+    classDef artifact fill:#f0f0f0,stroke:#aaa,stroke-dasharray:4 4,color:#666
 ```
 
 - **WireMock standalone** runs as a separate JVM process on the host machine
