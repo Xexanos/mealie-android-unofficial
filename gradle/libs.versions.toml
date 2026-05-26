@@ -21,6 +21,9 @@ junitJupiter = "6.1.0"
 mockk = "1.14.9"
 turbine = "1.2.1"
 coroutinesTest = "1.11.0"
+wiremock = "3.6.0"
+androidxTestRunner = "1.6.2"
+androidxTestOrchestrator = "1.5.1"
 detekt = "1.23.8"
 ktlint = "12.2.0"
 
@@ -88,6 +91,9 @@ okhttp-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver",
 # Android Instrumented Testing (for :app androidTest only)
 compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
+androidx-test-orchestrator = { group = "androidx.test", name = "orchestrator", version.ref = "androidxTestOrchestrator" }
+wiremock-standalone = { module = "org.wiremock:wiremock-standalone", version.ref = "wiremock" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

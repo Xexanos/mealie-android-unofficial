@@ -5,6 +5,7 @@
         android:name=".MealieApplication"
         android:allowBackup="false"
         android:label="Mealie"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/Theme.Mealie">
 
         <activity
