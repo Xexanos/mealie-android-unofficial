@@ -74,7 +74,17 @@ dependencies {
     implementation(libs.timber)
     debugImplementation(libs.compose.ui.tooling)
 
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.koin.test)
+    testImplementation(libs.koin.test.junit5)
+    testImplementation(libs.okhttp)
+    testImplementation(libs.kotlinx.serialization.json)
+    testImplementation(kotlin("test"))
+    testRuntimeOnly(libs.junit.platform.launcher)
+
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit4)
     debugImplementation(libs.compose.ui.test.manifest)
 }
+
+tasks.withType<Test> { useJUnitPlatform() }
