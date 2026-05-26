@@ -69,7 +69,7 @@ inputDocuments:
 | Test | AC | Status |
 |------|----|--------|
 | `when light scheme created then primary matches E58325 tonal palette` | 1.2-AC3 | PASS |
-| `when dark scheme created then primary is inverse of light` | 1.2-AC3 | PASS |
+| `when dark scheme created then primary matches E58325 tonal palette` | 1.2-AC3 | PASS |
 | `when light scheme created then not default Material 3 purple` | 1.2-AC3 | PASS |
 | `when dark scheme created then not default Material 3 purple` | 1.2-AC3 | PASS |
 | `when light scheme created then error color is standard M3 red` | 1.2-AC3 | PASS |
@@ -125,14 +125,16 @@ Added:
 # Run all tests (unit + integration)
 ./gradlew test
 
-# Run only integration tests
-./gradlew test -Pinclude.tags=integration
-
 # Run specific module
 ./gradlew :core:data:test
 ./gradlew :app:test
 ./gradlew :core:ui:test
 ```
+
+> **Note**: Integration tests use `@Tag("integration")` for documentation purposes.
+> JUnit 5 tag filtering can be enabled per-module by adding
+> `useJUnitPlatform { includeTags("integration") }` to the relevant
+> `tasks.withType<Test>` block when selective execution is needed.
 
 ---
 

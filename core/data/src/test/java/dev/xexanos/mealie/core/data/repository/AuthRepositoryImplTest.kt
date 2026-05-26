@@ -2,7 +2,6 @@ package dev.xexanos.mealie.core.data.repository
 
 import dev.xexanos.mealie.core.data.datastore.AppPreferencesStore
 import dev.xexanos.mealie.core.data.domain.UrlProbeResult
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
@@ -25,8 +24,9 @@ class AuthRepositoryImplTest {
     private val appPreferencesStore = mockk<AppPreferencesStore>(relaxed = true)
     private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
     private val okHttpClient = OkHttpClient.Builder()
-        .connectTimeout(5, TimeUnit.SECONDS)
-        .readTimeout(5, TimeUnit.SECONDS)
+        .connectTimeout(500, TimeUnit.MILLISECONDS)
+        .readTimeout(500, TimeUnit.MILLISECONDS)
+        .callTimeout(1, TimeUnit.SECONDS)
         .build()
 
     private lateinit var repository: AuthRepositoryImpl

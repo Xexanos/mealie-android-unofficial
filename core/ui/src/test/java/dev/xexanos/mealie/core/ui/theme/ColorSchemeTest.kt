@@ -13,7 +13,7 @@ class ColorSchemeTest {
     }
 
     @Test
-    fun `when dark scheme created then primary is inverse of light`() {
+    fun `when dark scheme created then primary matches E58325 tonal palette`() {
         assertEquals(Color(0xFFFFB95A), DarkColorScheme.primary)
     }
 
