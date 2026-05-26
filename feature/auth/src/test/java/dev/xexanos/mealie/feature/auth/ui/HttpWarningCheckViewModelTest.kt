@@ -65,4 +65,19 @@ class HttpWarningCheckViewModelTest {
         val state = vm.uiState.value
         assertTrue(state is HttpWarningCheckUiState.ShowWarning)
     }
+
+    @Test
+    fun `init with null stored URL stays in Loading state`() = runTest {
+        val fake = FakeAuthRepository(storedUrl = null)
+        val vm = HttpWarningCheckViewModel(fake)
+        assertEquals(HttpWarningCheckUiState.Loading, vm.uiState.value)
+    }
+
+    @Test
+    fun `onContinue is no-op when state is Loading`() = runTest {
+        val fake = FakeAuthRepository(storedUrl = null)
+        val vm = HttpWarningCheckViewModel(fake)
+        vm.onContinue()
+        assertEquals(HttpWarningCheckUiState.Loading, vm.uiState.value)
+    }
 }
