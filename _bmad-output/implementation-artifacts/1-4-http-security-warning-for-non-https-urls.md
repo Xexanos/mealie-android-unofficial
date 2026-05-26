@@ -1,6 +1,6 @@
 # Story 1.4: HTTP Security Warning for Non-HTTPS URLs
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -36,46 +36,46 @@ so that I can proceed confidently without being scared off by unnecessary warnin
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Add HTTP warning acknowledgement methods to `AppPreferencesStore` (AC: 3, 4, 5)
-  - [ ] Add `fun getHttpWarningAckedUrls(): Flow<Set<String>>` reading from `HTTP_WARNING_ACK_URLS_KEY`
-  - [ ] Add `suspend fun acknowledgeHttpWarning(url: String)` writing to `HTTP_WARNING_ACK_URLS_KEY`
+- [x] Task 1: Add HTTP warning acknowledgement methods to `AppPreferencesStore` (AC: 3, 4, 5)
+  - [x] Add `fun getHttpWarningAckedUrls(): Flow<Set<String>>` reading from `HTTP_WARNING_ACK_URLS_KEY`
+  - [x] Add `suspend fun acknowledgeHttpWarning(url: String)` writing to `HTTP_WARNING_ACK_URLS_KEY`
 
-- [ ] Task 2: Extend `AuthRepository` interface and implementation (AC: 3, 4, 5)
-  - [ ] Add `suspend fun isHttpWarningAcknowledged(url: String): Boolean` to `AuthRepository`
-  - [ ] Add `suspend fun acknowledgeHttpWarning(url: String)` to `AuthRepository`
-  - [ ] Implement both methods in `AuthRepositoryImpl`
+- [x] Task 2: Extend `AuthRepository` interface and implementation (AC: 3, 4, 5)
+  - [x] Add `suspend fun isHttpWarningAcknowledged(url: String): Boolean` to `AuthRepository`
+  - [x] Add `suspend fun acknowledgeHttpWarning(url: String)` to `AuthRepository`
+  - [x] Implement both methods in `AuthRepositoryImpl`
 
-- [ ] Task 3: Create `HttpWarningCheckViewModel` with UiState and UiEvent (AC: 1-5)
-  - [ ] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckUiState.kt`
-  - [ ] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckUiEvent.kt`
-  - [ ] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckViewModel.kt`
+- [x] Task 3: Create `HttpWarningCheckViewModel` with UiState and UiEvent (AC: 1-5)
+  - [x] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckUiState.kt`
+  - [x] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckUiEvent.kt`
+  - [x] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckViewModel.kt`
 
-- [ ] Task 4: Create `HttpWarningCheckScreen` composable (AC: 1-5, UX-DR12)
-  - [ ] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckScreen.kt`
-  - [ ] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckTestTags.kt`
+- [x] Task 4: Create `HttpWarningCheckScreen` composable (AC: 1-5, UX-DR12)
+  - [x] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckScreen.kt`
+  - [x] Create `feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckTestTags.kt`
 
-- [ ] Task 5: Update `AuthNavGraph` to wire the real screen and declare `CredentialRoute` (AC: 1, 3)
-  - [ ] Replace `Box(modifier = Modifier.fillMaxSize())` placeholder with `HttpWarningCheckScreen`
-  - [ ] Add `@Serializable object CredentialRoute` (Story 1.5 fills it in)
-  - [ ] Wire navigation: `HttpWarningCheckScreen` navigates to `CredentialRoute` on skip or continue
-  - [ ] Add placeholder composable for `CredentialRoute`
+- [x] Task 5: Update `AuthNavGraph` to wire the real screen and declare `CredentialRoute` (AC: 1, 3)
+  - [x] Replace `Box(modifier = Modifier.fillMaxSize())` placeholder with `HttpWarningCheckScreen`
+  - [x] Add `@Serializable object CredentialRoute` (Story 1.5 fills it in)
+  - [x] Wire navigation: `HttpWarningCheckScreen` navigates to `CredentialRoute` on skip or continue
+  - [x] Add placeholder composable for `CredentialRoute`
 
-- [ ] Task 6: Update `AuthFeatureModule` to register `HttpWarningCheckViewModel` (AC: all)
-  - [ ] Add `viewModel { HttpWarningCheckViewModel(get()) }` to `authFeatureModule`
+- [x] Task 6: Update `AuthFeatureModule` to register `HttpWarningCheckViewModel` (AC: all)
+  - [x] Add `viewModel { HttpWarningCheckViewModel(get()) }` to `authFeatureModule`
 
-- [ ] Task 7: Write unit tests for `HttpWarningCheckViewModel` (AC: 1-5)
-  - [ ] Update `FakeAuthRepository` with new methods
-  - [ ] Create `feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckViewModelTest.kt`
-  - [ ] Test: HTTPS URL on init emits NavigateToCredentials immediately
-  - [ ] Test: HTTP URL already acknowledged on init emits NavigateToCredentials immediately
-  - [ ] Test: HTTP URL not acknowledged on init transitions to ShowWarning state
-  - [ ] Test: onContinue acknowledges URL and emits NavigateToCredentials
-  - [ ] Test: Different HTTP URL after previous ack still shows warning
+- [x] Task 7: Write unit tests for `HttpWarningCheckViewModel` (AC: 1-5)
+  - [x] Update `FakeAuthRepository` with new methods
+  - [x] Create `feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckViewModelTest.kt`
+  - [x] Test: HTTPS URL on init emits NavigateToCredentials immediately
+  - [x] Test: HTTP URL already acknowledged on init emits NavigateToCredentials immediately
+  - [x] Test: HTTP URL not acknowledged on init transitions to ShowWarning state
+  - [x] Test: onContinue acknowledges URL and emits NavigateToCredentials
+  - [x] Test: Different HTTP URL after previous ack still shows warning
 
-- [ ] Task 8: Verify build and tests pass
-  - [ ] `./gradlew assembleDebug` - BUILD SUCCESSFUL
-  - [ ] `./gradlew :feature:auth:test` - all tests pass
-  - [ ] `./gradlew ktlintCheck detekt lint` - all pass
+- [x] Task 8: Verify build and tests pass
+  - [x] `./gradlew assembleDebug` - BUILD SUCCESSFUL
+  - [x] `./gradlew :feature:auth:test` - all tests pass
+  - [x] `./gradlew ktlintCheck detekt lint` - all pass
 
 ## Dev Notes
 
@@ -479,23 +479,37 @@ Check if `Spacing` constants exist in `:core:ui`. Story 1.2 created `MealieTheme
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.6
 
 ### Debug Log References
 
+No issues encountered during implementation.
+
 ### Completion Notes List
+
+- Added `getHttpWarningAckedUrls()` and `acknowledgeHttpWarning()` to AppPreferencesStore using existing `HTTP_WARNING_ACK_URLS_KEY`
+- Extended AuthRepository interface with `isHttpWarningAcknowledged()` and `acknowledgeHttpWarning()`; implemented in AuthRepositoryImpl using `Flow.first()`
+- Created HttpWarningCheckViewModel following existing MVI pattern: checks scheme on init, auto-navigates for HTTPS or previously-acked HTTP, shows inline warning otherwise
+- Created HttpWarningCheckScreen with informational (non-alarming) styling using `onSurfaceVariant` color per UX-DR12
+- Wired navigation: HttpWarningCheckRoute now renders real screen, added CredentialRoute placeholder for Story 1.5
+- 5 unit tests covering all ACs: HTTPS bypass, acked-HTTP bypass, unacked-HTTP shows warning, onContinue flow, different-URL re-warning
+- All builds, tests, and lint checks pass
 
 ### File List
 
-core/data/src/main/java/dev/xexanos/mealie/core/data/datastore/AppPreferencesStore.kt
-core/data/src/main/java/dev/xexanos/mealie/core/data/repository/AuthRepository.kt
-core/data/src/main/java/dev/xexanos/mealie/core/data/repository/AuthRepositoryImpl.kt
-feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckUiState.kt
-feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckUiEvent.kt
-feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckViewModel.kt
-feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckScreen.kt
-feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckTestTags.kt
-feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/navigation/AuthNavGraph.kt
-feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/di/AuthFeatureModule.kt
-feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/FakeAuthRepository.kt
-feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckViewModelTest.kt
+core/data/src/main/java/dev/xexanos/mealie/core/data/datastore/AppPreferencesStore.kt (modified)
+core/data/src/main/java/dev/xexanos/mealie/core/data/repository/AuthRepository.kt (modified)
+core/data/src/main/java/dev/xexanos/mealie/core/data/repository/AuthRepositoryImpl.kt (modified)
+feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckUiState.kt (new)
+feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckUiEvent.kt (new)
+feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckViewModel.kt (new)
+feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckScreen.kt (new)
+feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckTestTags.kt (new)
+feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/navigation/AuthNavGraph.kt (modified)
+feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/di/AuthFeatureModule.kt (modified)
+feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/FakeAuthRepository.kt (modified)
+feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckViewModelTest.kt (new)
+
+## Change Log
+
+- 2026-05-26: Implemented HTTP security warning for non-HTTPS URLs (Story 1.4). Added pass-through gate screen that checks URL scheme and acknowledgement state, shows inline informational message for HTTP URLs, persists acknowledgement per-URL to DataStore.

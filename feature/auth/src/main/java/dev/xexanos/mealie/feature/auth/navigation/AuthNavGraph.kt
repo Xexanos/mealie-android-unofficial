@@ -7,12 +7,14 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import dev.xexanos.mealie.feature.auth.ui.HttpWarningCheckScreen
 import dev.xexanos.mealie.feature.auth.ui.ServerUrlScreen
 import kotlinx.serialization.Serializable
 
 @Serializable object AuthGraph
 @Serializable object ServerUrlRoute
 @Serializable object HttpWarningCheckRoute
+@Serializable object CredentialRoute
 
 fun NavGraphBuilder.authGraph(navController: NavController) {
     navigation<AuthGraph>(startDestination = ServerUrlRoute) {
@@ -26,6 +28,15 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
             )
         }
         composable<HttpWarningCheckRoute> {
+            HttpWarningCheckScreen(
+                onNavigateToCredentials = {
+                    navController.navigate(CredentialRoute) {
+                        popUpTo(HttpWarningCheckRoute) { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable<CredentialRoute> {
             Box(modifier = Modifier.fillMaxSize())
         }
     }
