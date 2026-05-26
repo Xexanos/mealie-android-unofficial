@@ -298,16 +298,16 @@ E2E tests are true black-box tests. They have no knowledge of app internals - no
 
 ### Architecture
 
-```
-+------------------+       HTTP       +------------------+
-| Android Emulator | <--------------> | WireMock         |
-| (app under test) |  10.0.2.2:8080   | (host JVM)       |
-+------------------+                  +------------------+
-        ^                                      ^
-        |                                      |
-  Compose Test                          JSON stub files
-  (UI interaction)                    (src/androidTest/
-                                       resources/wiremock/)
+```mermaid
+graph LR
+    CT["Compose Test\n(UI interaction)"]
+    EMU["Android Emulator\n(app under test)"]
+    WM["WireMock\n(host JVM)"]
+    STUBS["JSON stub files\nsrc/androidTest/resources/wiremock/"]
+
+    CT -->|"Compose semantics\nonNodeWithTag / performClick"| EMU
+    EMU <-->|"HTTP\n10.0.2.2:8080"| WM
+    STUBS -->|"loaded at startup"| WM
 ```
 
 - **WireMock standalone** runs as a separate JVM process on the host machine
