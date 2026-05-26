@@ -365,11 +365,21 @@ val wiremockStop by tasks.registering {
     // Best-effort shutdown - ignore errors (WireMock may already be stopped by E2E-005)
     doLast {
         runCatching {
-            java.net.URL("http://localhost:8080/__admin/shutdown")
-                .openConnection()
-                .apply { connectTimeout = 2000 }
-                .getInputStream()
-                .close()
+            val connection = (java.net.URL("http://localhost:8080/__admin/shutdown")
+                .openConnection() as java.net.HttpURLConnection).apply {
+                requestMethod = "POST"
+                connectTimeout = 2000
+                readTimeout = 2000
+                doOutput = false
+            }
+            try {
+                val responseCode = connection.responseCode
+                check(responseCode in 200..299) {
+                    "WireMock shutdown failed with HTTP $responseCode"
+                }
+            } finally {
+                connection.disconnect()
+            }
         }
         wiremockProcess?.destroyForcibly()
     }
