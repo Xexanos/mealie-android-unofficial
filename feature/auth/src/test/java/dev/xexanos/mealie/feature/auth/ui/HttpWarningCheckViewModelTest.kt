@@ -24,7 +24,7 @@ class HttpWarningCheckViewModelTest {
     fun `init with HTTP URL already acknowledged emits NavigateToCredentials`() = runTest {
         val fake = FakeAuthRepository(
             storedUrl = "http://192.168.1.100:9925",
-            ackedUrls = mutableSetOf("http://192.168.1.100:9925"),
+            ackedUrls = setOf("http://192.168.1.100:9925"),
         )
         val vm = HttpWarningCheckViewModel(fake)
         vm.events.test {
@@ -59,7 +59,7 @@ class HttpWarningCheckViewModelTest {
     fun `different HTTP URL still shows warning even if previous URL was acked`() = runTest {
         val fake = FakeAuthRepository(
             storedUrl = "http://10.0.0.5:9000",
-            ackedUrls = mutableSetOf("http://192.168.1.100:9925"),
+            ackedUrls = setOf("http://192.168.1.100:9925"),
         )
         val vm = HttpWarningCheckViewModel(fake)
         val state = vm.uiState.value

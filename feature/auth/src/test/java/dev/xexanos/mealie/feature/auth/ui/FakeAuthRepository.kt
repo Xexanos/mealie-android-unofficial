@@ -8,8 +8,9 @@ import kotlinx.coroutines.flow.flowOf
 class FakeAuthRepository(
     private var storedUrl: String? = null,
     private var probeResult: UrlProbeResult = UrlProbeResult.Success,
-    private val ackedUrls: MutableSet<String> = mutableSetOf(),
+    ackedUrls: Set<String> = emptySet(),
 ) : AuthRepository {
+    private val _ackedUrls = ackedUrls.toMutableSet()
     var probeCallCount = 0
 
     override fun getStoredServerUrl(): Flow<String?> = flowOf(storedUrl)
@@ -23,9 +24,9 @@ class FakeAuthRepository(
         storedUrl = url
     }
 
-    override suspend fun isHttpWarningAcknowledged(url: String): Boolean = url in ackedUrls
+    override suspend fun isHttpWarningAcknowledged(url: String): Boolean = url in _ackedUrls
 
     override suspend fun acknowledgeHttpWarning(url: String) {
-        ackedUrls.add(url)
+        _ackedUrls.add(url)
     }
 }
