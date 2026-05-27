@@ -131,7 +131,7 @@ class ServerUrlViewModelTest {
     }
 
     @Test
-    fun `onConnect on NetworkError sets InputError with correct message`() = runTest {
+    fun `onConnect on NetworkError sets InputError with correct messageResId`() = runTest {
         val fake = FakeAuthRepository(probeResult = UrlProbeResult.NetworkError)
         val vm = ServerUrlViewModel(fake)
         vm.onConnect("https://mealie.example.com")
@@ -140,7 +140,7 @@ class ServerUrlViewModelTest {
     }
 
     @Test
-    fun `onConnect on NotMealieServer sets InputError with correct message`() = runTest {
+    fun `onConnect on NotMealieServer sets InputError with correct messageResId`() = runTest {
         val fake = FakeAuthRepository(probeResult = UrlProbeResult.NotMealieServer)
         val vm = ServerUrlViewModel(fake)
         vm.onConnect("https://mealie.example.com")

@@ -285,6 +285,7 @@ No issues encountered during implementation.
 ### Review Findings
 
 - [x] [Review][Patch] `app_name` string should be marked `translatable="false"` [core/ui/src/main/res/values/strings.xml]
+- [x] [Review][Patch] Stale test display names after field rename: "message" -> "messageResId" [feature/auth/src/test/.../ServerUrlViewModelTest.kt:134,143]
 - [x] [Review][Defer] E2E tests use hardcoded English strings - locale-sensitive after German translations added [app/src/androidTest/java/.../ServerUrlE2eTest.kt] - deferred, pre-existing
 - [x] [Review][Defer] `when` on `UrlProbeResult` is a statement, not exhaustive expression [feature/auth/src/main/java/.../ServerUrlViewModel.kt] - deferred, pre-existing
 
