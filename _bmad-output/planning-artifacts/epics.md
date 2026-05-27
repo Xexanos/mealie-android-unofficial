@@ -90,6 +90,8 @@ NFR-18 (Observability): Debug builds only: verbose API call logging to logcat wi
 
 NFR-19 (Accessibility): WCAG AA minimum contrast (4.5:1 body text, 3:1 large text); all interactive element tap targets minimum 48dp x 48dp; TalkBack support; Reduce Motion support.
 
+NFR-20 (Localization): All user-facing strings externalized to Android string resources in :core:ui. v1 ships with English (default) and German. App follows system locale; no in-app language toggle. Additional languages contributable via locale-qualified resource directories without code changes.
+
 ### Additional Requirements
 
 - **Starter/Template**: Project created via Android Studio → New Project → Empty Activity (Min SDK: API 26, Language: Kotlin, Build config: Kotlin DSL). No Android CLI scaffold - the 7-module structure is established manually in the first implementation stories.
@@ -137,6 +139,8 @@ NFR-19 (Accessibility): WCAG AA minimum contrast (4.5:1 body text, 3:1 large tex
 - **Single `MealieApplication.kt`**: `DebugApplication.kt` in `debug/` sourceset is redundant; Timber `DebugTree` and `HttpLoggingInterceptor` are gated on `BuildConfig.DEBUG` in `MealieApplication` (GAP-4 resolution).
 
 - **Distribution**: v1 direct APK via GitHub Releases; architecture is F-Droid compatible from day one. Release keystore as GitHub Actions secrets (never committed to repo).
+
+- **Localization**: All user-facing strings centralized in `:core:ui` module's `res/values/strings.xml` (English) and `res/values-de/strings.xml` (German). Feature modules reference strings via `stringResource(R.string.xyz)`. String names use snake_case prefixed by screen/component. No hardcoded user-facing text in Kotlin/Compose code. App follows system locale.
 
 ### UX Design Requirements
 
@@ -222,6 +226,7 @@ Users can install the app, connect it to their Mealie instance, stay signed in a
 - Scaffold story split: wiring (no tests, CI green = done) vs. testable components (NavigationManager has unit tests)
 - TokenManager AC must include: "given N simultaneous 401s, refreshToken() called exactly once, all N requests retried"
 - Clock injection in any time-dependent component from day one
+- All stories from 1-5 onward: user-facing strings must use `stringResource(R.string.xyz)` from `:core:ui`; English and German entries required in acceptance criteria
 
 ### Epic 2: Offline-First Shopping List
 
@@ -252,6 +257,7 @@ Users can view and manage their household shopping list from anywhere - includin
 - SyncWorker lives in `:core:sync`; tested via TestListenableWorkerBuilder
 - Clock injection for ShoppingModePrefs auto-reset
 - Phase 1 is demoable independently (online-only); Phase 2 adds the offline promise
+- All stories: user-facing strings must use `stringResource(R.string.xyz)` from `:core:ui`; English and German entries required in acceptance criteria
 
 ## Module Boundary Rules
 
@@ -421,6 +427,42 @@ So that I can proceed confidently without being scared off by unnecessary warnin
 **Given** the server URL changes to a different `http://` URL
 **When** the new URL is validated
 **Then** the one-time warning is shown again (new URL, no prior acknowledgement)
+
+---
+
+### Story 1.4a: Externalize UI Strings to Centralized Resources
+
+As a developer,
+I want all existing user-facing strings extracted to `:core:ui` string resources with German translations,
+So that the i18n pattern is established before further UI stories are implemented.
+
+**Acceptance Criteria:**
+
+**Given** stories 1-2, 1-3, and 1-4 contain hardcoded English strings in Compose code
+**When** this story is completed
+**Then** all user-facing strings are replaced with `stringResource(R.string.xyz)` references
+**And** no hardcoded user-facing text remains in `:feature:auth` or `:core:ui` Compose code
+
+**Given** `:core:ui` module's `src/main/res/` directory
+**When** string resource files are created
+**Then** `values/strings.xml` contains all English strings
+**And** `values-de/strings.xml` contains German translations for all entries
+
+**Given** string resource names are created
+**When** naming is reviewed
+**Then** all names use snake_case prefixed by screen or component (e.g., `setup_url_label`, `setup_button_connect`, `http_warning_message`)
+
+**Given** the HTTP warning copy contains dynamic content (server URL)
+**When** the string is externalized
+**Then** a parameterized string is used (`%1$s`) rather than concatenation
+
+**Given** the app is launched with the device locale set to German
+**When** any screen from stories 1-2 through 1-4 is displayed
+**Then** all UI chrome appears in German
+
+**Given** the app is launched with a locale other than English or German
+**When** any screen is displayed
+**Then** the app falls back to English (default resource)
 
 ---
 

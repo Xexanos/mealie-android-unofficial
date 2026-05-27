@@ -486,6 +486,25 @@ viewModelScope.launch {
 }
 ```
 
+### String Resources & Localization
+
+All user-facing strings are centralized in `:core:ui` module's resource directories:
+
+```
+core/ui/src/main/res/
+  values/strings.xml          (English - default)
+  values-de/strings.xml       (German)
+```
+
+**Rules:**
+- Feature modules access strings via `stringResource(R.string.xyz)` - the dependency on `:core:ui` already exists
+- No hardcoded user-facing text in Kotlin/Compose code
+- Dynamic content uses parameterized strings: `<string name="error_server">Could not reach %1$s</string>`
+- Plurals use `<plurals>` resources where applicable
+- String resource names use snake_case prefixed by screen/component: `setup_button_connect`, `offline_indicator_message`, `shopping_item_add_placeholder`
+
+**Locale resolution:** Handled entirely by Android's resource system. The app follows the system locale with no runtime override. No additional libraries required.
+
 ### Package Structure Within Modules
 
 **`:feature:*` (generic pattern - all feature modules follow this structure):**
