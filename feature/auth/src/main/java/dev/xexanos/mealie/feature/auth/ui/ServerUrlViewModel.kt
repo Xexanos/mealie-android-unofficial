@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.xexanos.mealie.core.data.domain.UrlProbeResult
 import dev.xexanos.mealie.core.data.repository.AuthRepository
+import dev.xexanos.mealie.core.ui.R
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,7 +38,7 @@ class ServerUrlViewModel(private val authRepository: AuthRepository) : ViewModel
         val normalized = normalizeUrl(rawUrl)
         if (normalized == null) {
             _uiState.value = ServerUrlUiState.InputError(
-                message = "Enter a valid URL (e.g. https://mealie.example.com)",
+                messageResId = R.string.setup_url_error_invalid,
                 lastUrl = rawUrl,
             )
             return
@@ -51,13 +52,13 @@ class ServerUrlViewModel(private val authRepository: AuthRepository) : ViewModel
                 }
                 UrlProbeResult.NetworkError -> {
                     _uiState.value = ServerUrlUiState.InputError(
-                        message = "Could not reach server",
+                        messageResId = R.string.setup_url_error_unreachable,
                         lastUrl = normalized,
                     )
                 }
                 UrlProbeResult.NotMealieServer -> {
                     _uiState.value = ServerUrlUiState.InputError(
-                        message = "Not a Mealie server",
+                        messageResId = R.string.setup_url_error_not_mealie,
                         lastUrl = normalized,
                     )
                 }

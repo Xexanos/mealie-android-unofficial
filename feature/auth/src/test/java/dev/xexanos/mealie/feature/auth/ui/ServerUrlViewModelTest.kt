@@ -2,6 +2,7 @@ package dev.xexanos.mealie.feature.auth.ui
 
 import app.cash.turbine.test
 import dev.xexanos.mealie.core.data.domain.UrlProbeResult
+import dev.xexanos.mealie.core.ui.R
 import dev.xexanos.mealie.feature.auth.testutil.MainDispatcherExtension
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -135,7 +136,7 @@ class ServerUrlViewModelTest {
         val vm = ServerUrlViewModel(fake)
         vm.onConnect("https://mealie.example.com")
         val state = vm.uiState.value as ServerUrlUiState.InputError
-        assertEquals("Could not reach server", state.message)
+        assertEquals(R.string.setup_url_error_unreachable, state.messageResId)
     }
 
     @Test
@@ -144,7 +145,7 @@ class ServerUrlViewModelTest {
         val vm = ServerUrlViewModel(fake)
         vm.onConnect("https://mealie.example.com")
         val state = vm.uiState.value as ServerUrlUiState.InputError
-        assertEquals("Not a Mealie server", state.message)
+        assertEquals(R.string.setup_url_error_not_mealie, state.messageResId)
     }
 
     // --- init with stored URL ---

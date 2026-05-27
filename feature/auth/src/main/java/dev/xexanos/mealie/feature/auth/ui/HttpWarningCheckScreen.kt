@@ -17,10 +17,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
+import dev.xexanos.mealie.core.ui.R
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -80,7 +82,7 @@ private fun HttpWarningContent(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Connecting over your local network - this is common for self-hosted setups.",
+                text = stringResource(R.string.http_warning_message),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
@@ -97,7 +99,7 @@ private fun HttpWarningContent(
                     .height(48.dp)
                     .testTag(HttpWarningCheckTestTags.CONTINUE_BUTTON),
             ) {
-                Text("Continue")
+                Text(stringResource(R.string.http_warning_button_continue))
             }
         }
     }

@@ -1,6 +1,6 @@
 # Story 1.4a: Externalize UI Strings to Centralized Resources
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -38,47 +38,47 @@ so that the i18n pattern is established before further UI stories are implemente
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create string resource files in `:core:ui` (AC: 2, 3)
-  - [ ] Create `core/ui/src/main/res/values/strings.xml` with all English strings
-  - [ ] Create `core/ui/src/main/res/values-de/strings.xml` with German translations
-  - [ ] Verify naming follows `screen_component_purpose` snake_case convention
+- [x] Task 1: Create string resource files in `:core:ui` (AC: 2, 3)
+  - [x] Create `core/ui/src/main/res/values/strings.xml` with all English strings
+  - [x] Create `core/ui/src/main/res/values-de/strings.xml` with German translations
+  - [x] Verify naming follows `screen_component_purpose` snake_case convention
 
-- [ ] Task 2: Refactor `ServerUrlUiState` to use `@StringRes` for error messages (AC: 1)
-  - [ ] Change `InputError(message: String, ...)` to `InputError(@StringRes messageResId: Int, ...)`
-  - [ ] Add `import androidx.annotation.StringRes` to the file
+- [x] Task 2: Refactor `ServerUrlUiState` to use `@StringRes` for error messages (AC: 1)
+  - [x] Change `InputError(message: String, ...)` to `InputError(@StringRes messageResId: Int, ...)`
+  - [x] Add `import androidx.annotation.StringRes` to the file
 
-- [ ] Task 3: Update `ServerUrlViewModel` to emit resource IDs instead of literal strings (AC: 1)
-  - [ ] Replace `"Enter a valid URL (e.g. https://mealie.example.com)"` with `R.string.setup_url_error_invalid`
-  - [ ] Replace `"Could not reach server"` with `R.string.setup_url_error_unreachable`
-  - [ ] Replace `"Not a Mealie server"` with `R.string.setup_url_error_not_mealie`
-  - [ ] Add `import dev.xexanos.mealie.core.ui.R` to imports
+- [x] Task 3: Update `ServerUrlViewModel` to emit resource IDs instead of literal strings (AC: 1)
+  - [x] Replace `"Enter a valid URL (e.g. https://mealie.example.com)"` with `R.string.setup_url_error_invalid`
+  - [x] Replace `"Could not reach server"` with `R.string.setup_url_error_unreachable`
+  - [x] Replace `"Not a Mealie server"` with `R.string.setup_url_error_not_mealie`
+  - [x] Add `import dev.xexanos.mealie.core.ui.R` to imports
 
-- [ ] Task 4: Update `ServerUrlScreen` composable to use `stringResource()` (AC: 1)
-  - [ ] Replace `"Server URL"` with `stringResource(R.string.setup_url_label)`
-  - [ ] Replace `"Connect"` with `stringResource(R.string.setup_button_connect)`
-  - [ ] Resolve `inputError.messageResId` via `stringResource(inputError.messageResId)`
-  - [ ] Add `import androidx.compose.ui.res.stringResource` and `import dev.xexanos.mealie.core.ui.R`
+- [x] Task 4: Update `ServerUrlScreen` composable to use `stringResource()` (AC: 1)
+  - [x] Replace `"Server URL"` with `stringResource(R.string.setup_url_label)`
+  - [x] Replace `"Connect"` with `stringResource(R.string.setup_button_connect)`
+  - [x] Resolve `inputError.messageResId` via `stringResource(inputError.messageResId)`
+  - [x] Add `import androidx.compose.ui.res.stringResource` and `import dev.xexanos.mealie.core.ui.R`
 
-- [ ] Task 5: Update `HttpWarningCheckScreen` composable to use `stringResource()` (AC: 1, 4)
-  - [ ] Replace `"Connecting over your local network..."` with `stringResource(R.string.http_warning_message)`
-  - [ ] Replace `"Continue"` with `stringResource(R.string.http_warning_button_continue)`
-  - [ ] Add `import androidx.compose.ui.res.stringResource` and `import dev.xexanos.mealie.core.ui.R`
+- [x] Task 5: Update `HttpWarningCheckScreen` composable to use `stringResource()` (AC: 1, 4)
+  - [x] Replace `"Connecting over your local network..."` with `stringResource(R.string.http_warning_message)`
+  - [x] Replace `"Continue"` with `stringResource(R.string.http_warning_button_continue)`
+  - [x] Add `import androidx.compose.ui.res.stringResource` and `import dev.xexanos.mealie.core.ui.R`
 
-- [ ] Task 6: Externalize app name in manifest (AC: 1)
-  - [ ] Add `app_name` string to `core/ui/src/main/res/values/strings.xml`
-  - [ ] Add German translation for app name in `values-de/strings.xml`
-  - [ ] Update `app/src/main/AndroidManifest.xml` to use `android:label="@string/app_name"`
+- [x] Task 6: Externalize app name in manifest (AC: 1)
+  - [x] Add `app_name` string to `core/ui/src/main/res/values/strings.xml`
+  - [x] Add German translation for app name in `values-de/strings.xml`
+  - [x] Update `app/src/main/AndroidManifest.xml` to use `android:label="@string/app_name"`
 
-- [ ] Task 7: Update unit tests for `ServerUrlViewModel` (AC: 1)
-  - [ ] Change assertions from string equality to resource ID equality
-  - [ ] `assertEquals(R.string.setup_url_error_unreachable, state.messageResId)`
-  - [ ] `assertEquals(R.string.setup_url_error_not_mealie, state.messageResId)`
-  - [ ] Add `import dev.xexanos.mealie.core.ui.R` to test file
+- [x] Task 7: Update unit tests for `ServerUrlViewModel` (AC: 1)
+  - [x] Change assertions from string equality to resource ID equality
+  - [x] `assertEquals(R.string.setup_url_error_unreachable, state.messageResId)`
+  - [x] `assertEquals(R.string.setup_url_error_not_mealie, state.messageResId)`
+  - [x] Add `import dev.xexanos.mealie.core.ui.R` to test file
 
-- [ ] Task 8: Verify build, tests, and lint pass
-  - [ ] `./gradlew assembleDebug` - BUILD SUCCESSFUL
-  - [ ] `./gradlew :feature:auth:test` - all tests pass
-  - [ ] `./gradlew ktlintCheck detekt lint` - all pass
+- [x] Task 8: Verify build, tests, and lint pass
+  - [x] `./gradlew assembleDebug` - BUILD SUCCESSFUL
+  - [x] `./gradlew :feature:auth:test` - all tests pass
+  - [x] `./gradlew ktlintCheck detekt lint` - all pass
 
 ## Dev Notes
 
@@ -264,9 +264,30 @@ From Story 1-4 review findings:
 ## Dev Agent Record
 
 ### Agent Model Used
+Claude Opus 4.6
 
 ### Debug Log References
+No issues encountered during implementation.
 
 ### Completion Notes List
+- Created English and German string resource files in `:core:ui` with proper UTF-8 umlauts
+- Refactored `ServerUrlUiState.InputError` from `message: String` to `@StringRes messageResId: Int`
+- Updated `ServerUrlViewModel` to emit resource IDs via `R.string.*` constants
+- Updated `ServerUrlScreen` and `HttpWarningCheckScreen` to resolve strings via `stringResource()`
+- Externalized app name in `AndroidManifest.xml` to use `@string/app_name`
+- Updated unit tests to assert on resource IDs instead of literal strings
+- All naming follows `screen_component_purpose` snake_case convention
+- Build, tests, detekt, and ktlintCheck all pass
+
+### Change Log
+- 2026-05-27: Externalized all hardcoded UI strings to `:core:ui` resources with German translations
 
 ### File List
+- core/ui/src/main/res/values/strings.xml (new)
+- core/ui/src/main/res/values-de/strings.xml (new)
+- feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlUiState.kt (modified)
+- feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlViewModel.kt (modified)
+- feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlScreen.kt (modified)
+- feature/auth/src/main/java/dev/xexanos/mealie/feature/auth/ui/HttpWarningCheckScreen.kt (modified)
+- app/src/main/AndroidManifest.xml (modified)
+- feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/ServerUrlViewModelTest.kt (modified)
