@@ -1,6 +1,6 @@
 # Story 1.4a: Externalize UI Strings to Centralized Resources
 
-Status: review
+Status: done
 
 ## Story
 
@@ -281,6 +281,12 @@ No issues encountered during implementation.
 
 ### Change Log
 - 2026-05-27: Externalized all hardcoded UI strings to `:core:ui` resources with German translations
+
+### Review Findings
+
+- [x] [Review][Patch] `app_name` string should be marked `translatable="false"` [core/ui/src/main/res/values/strings.xml]
+- [x] [Review][Defer] E2E tests use hardcoded English strings - locale-sensitive after German translations added [app/src/androidTest/java/.../ServerUrlE2eTest.kt] - deferred, pre-existing
+- [x] [Review][Defer] `when` on `UrlProbeResult` is a statement, not exhaustive expression [feature/auth/src/main/java/.../ServerUrlViewModel.kt] - deferred, pre-existing
 
 ### File List
 - core/ui/src/main/res/values/strings.xml (new)

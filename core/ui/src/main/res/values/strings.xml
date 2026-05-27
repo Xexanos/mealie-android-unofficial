@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Mealie</string>
+    <string name="app_name" translatable="false">Mealie</string>
 
     <!-- Server URL Setup Screen -->
     <string name="setup_url_label">Server URL</string>
