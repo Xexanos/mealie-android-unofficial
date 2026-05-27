@@ -112,8 +112,8 @@ class ServerUrlViewModelTest {
         val fake = FakeAuthRepository()
         val vm = ServerUrlViewModel(fake)
         vm.onConnect("")
-        val state = vm.uiState.value
-        assert(state is ServerUrlUiState.InputError)
+        val state = vm.uiState.value as ServerUrlUiState.InputError
+        assertEquals(R.string.setup_url_error_invalid, state.messageResId)
         assertEquals(0, fake.probeCallCount)
     }
 
