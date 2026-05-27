@@ -16,3 +16,8 @@
 
 - Hard-coded UI strings instead of string resources - Warning message and button label are inline English strings rather than Android string resources. Address when adding localization support.
 - Unbounded growth of acknowledged URLs set - The DataStore set of acked URLs grows indefinitely with no pruning mechanism. Realistically bounded (1-3 servers) but could be capped if multi-server usage patterns emerge.
+
+## Deferred from: code review of 1-4a-externalize-ui-strings-to-centralized-resources (2026-05-27)
+
+- E2E tests use hardcoded English strings - `ServerUrlE2eTest.kt` matches rendered text by literal English content (e.g., `onNodeWithText("Not a Mealie server")`). Now that German translations exist, these tests are locale-sensitive and will fail on non-English devices. Use `activity.getString(R.string.*)` or match by test tag instead.
+- `when` on `UrlProbeResult` is a statement, not exhaustive - The `when` block in `ServerUrlViewModel.onConnect()` is a statement, so Kotlin does not enforce exhaustiveness. If a new case is added to `UrlProbeResult`, the UI would silently remain in `Probing` state. Convert to expression (`val _ = when(...)`) or add an `else` branch with a clear crash.

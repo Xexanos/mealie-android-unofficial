@@ -2,6 +2,7 @@ package dev.xexanos.mealie.feature.auth.ui
 
 import app.cash.turbine.test
 import dev.xexanos.mealie.core.data.domain.UrlProbeResult
+import dev.xexanos.mealie.core.ui.R
 import dev.xexanos.mealie.feature.auth.testutil.MainDispatcherExtension
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -111,8 +112,8 @@ class ServerUrlViewModelTest {
         val fake = FakeAuthRepository()
         val vm = ServerUrlViewModel(fake)
         vm.onConnect("")
-        val state = vm.uiState.value
-        assert(state is ServerUrlUiState.InputError)
+        val state = vm.uiState.value as ServerUrlUiState.InputError
+        assertEquals(R.string.setup_url_error_invalid, state.messageResId)
         assertEquals(0, fake.probeCallCount)
     }
 
@@ -130,21 +131,21 @@ class ServerUrlViewModelTest {
     }
 
     @Test
-    fun `onConnect on NetworkError sets InputError with correct message`() = runTest {
+    fun `onConnect on NetworkError sets InputError with correct messageResId`() = runTest {
         val fake = FakeAuthRepository(probeResult = UrlProbeResult.NetworkError)
         val vm = ServerUrlViewModel(fake)
         vm.onConnect("https://mealie.example.com")
         val state = vm.uiState.value as ServerUrlUiState.InputError
-        assertEquals("Could not reach server", state.message)
+        assertEquals(R.string.setup_url_error_unreachable, state.messageResId)
     }
 
     @Test
-    fun `onConnect on NotMealieServer sets InputError with correct message`() = runTest {
+    fun `onConnect on NotMealieServer sets InputError with correct messageResId`() = runTest {
         val fake = FakeAuthRepository(probeResult = UrlProbeResult.NotMealieServer)
         val vm = ServerUrlViewModel(fake)
         vm.onConnect("https://mealie.example.com")
         val state = vm.uiState.value as ServerUrlUiState.InputError
-        assertEquals("Not a Mealie server", state.message)
+        assertEquals(R.string.setup_url_error_not_mealie, state.messageResId)
     }
 
     // --- init with stored URL ---

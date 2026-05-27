@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Server URL Setup Screen -->
+    <string name="setup_url_label">Server-URL</string>
+    <string name="setup_button_connect">Verbinden</string>
+    <string name="setup_url_error_invalid">Gib eine gültige URL ein (z.B. https://mealie.example.com)</string>
+    <string name="setup_url_error_unreachable">Server nicht erreichbar</string>
+    <string name="setup_url_error_not_mealie">Kein Mealie-Server</string>
+
+    <!-- HTTP Warning Screen -->
+    <string name="http_warning_message">Verbindung über das lokale Netzwerk - das ist bei selbst gehosteten Setups üblich.</string>
+    <string name="http_warning_button_continue">Weiter</string>
+</resources>
