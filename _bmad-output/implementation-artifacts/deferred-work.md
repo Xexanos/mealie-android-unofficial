@@ -11,3 +11,8 @@
 
 - `applicationScope` not registered in Koin DI - the CoroutineScope in MealieApplication is a local property not exposed through DI. Expose via Koin when a consumer needs it in later stories.
 - `core:ui` no explicit coroutines main dependency - NavigationManager uses MutableSharedFlow but only gets kotlinx.coroutines transitively through koin.android. Make explicit in a dependency cleanup pass.
+
+## Deferred from: code review of 1-4-http-security-warning-for-non-https-urls (2026-05-26)
+
+- Hard-coded UI strings instead of string resources - Warning message and button label are inline English strings rather than Android string resources. Address when adding localization support.
+- Unbounded growth of acknowledged URLs set - The DataStore set of acked URLs grows indefinitely with no pruning mechanism. Realistically bounded (1-3 servers) but could be capped if multi-server usage patterns emerge.

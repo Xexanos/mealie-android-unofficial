@@ -25,4 +25,14 @@ class AppPreferencesStore(private val context: Context) {
     suspend fun setServerUrl(url: String) {
         context.appPreferencesDataStore.edit { it[SERVER_URL_KEY] = url }
     }
+
+    fun getHttpWarningAckedUrls(): Flow<Set<String>> =
+        context.appPreferencesDataStore.data.map { it[HTTP_WARNING_ACK_URLS_KEY] ?: emptySet() }
+
+    suspend fun acknowledgeHttpWarning(url: String) {
+        context.appPreferencesDataStore.edit { prefs ->
+            val current = prefs[HTTP_WARNING_ACK_URLS_KEY] ?: emptySet()
+            prefs[HTTP_WARNING_ACK_URLS_KEY] = current + url
+        }
+    }
 }

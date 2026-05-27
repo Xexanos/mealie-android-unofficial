@@ -2,6 +2,8 @@ package dev.xexanos.mealie.core.data.repository
 
 import dev.xexanos.mealie.core.data.datastore.AppPreferencesStore
 import dev.xexanos.mealie.core.data.domain.UrlProbeResult
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
@@ -16,6 +18,8 @@ import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @Tag("integration")
 class AuthRepositoryImplTest {
@@ -142,5 +146,28 @@ class AuthRepositoryImplTest {
 
         val request = mockServer.takeRequest()
         assertEquals("GET", request.method)
+    }
+
+    @Test
+    fun `when isHttpWarningAcknowledged called with unknown URL then returns false`() = runTest {
+        every { appPreferencesStore.getHttpWarningAckedUrls() } returns flowOf(emptySet())
+
+        val result = repository.isHttpWarningAcknowledged("http://192.168.1.100:9925")
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun `when acknowledgeHttpWarning called then subsequent check returns true`() = runTest {
+        val ackedUrls = mutableSetOf<String>()
+        every { appPreferencesStore.getHttpWarningAckedUrls() } answers { flowOf(ackedUrls.toSet()) }
+        coEvery { appPreferencesStore.acknowledgeHttpWarning(any()) } answers {
+            ackedUrls.add(firstArg())
+        }
+
+        repository.acknowledgeHttpWarning("http://192.168.1.100:9925")
+
+        coVerify { appPreferencesStore.acknowledgeHttpWarning("http://192.168.1.100:9925") }
+        assertTrue(repository.isHttpWarningAcknowledged("http://192.168.1.100:9925"))
     }
 }

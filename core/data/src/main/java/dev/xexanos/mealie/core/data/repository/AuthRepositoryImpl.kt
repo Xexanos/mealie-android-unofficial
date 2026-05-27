@@ -5,6 +5,7 @@ import dev.xexanos.mealie.core.data.domain.UrlProbeResult
 import dev.xexanos.mealie.core.network.api.AppService
 import dev.xexanos.mealie.core.network.dto.AppAboutDto
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -43,5 +44,14 @@ class AuthRepositoryImpl(
             if (e is kotlin.coroutines.cancellation.CancellationException) throw e
             UrlProbeResult.NotMealieServer
         }
+    }
+
+    override suspend fun isHttpWarningAcknowledged(url: String): Boolean {
+        val ackedUrls = appPreferencesStore.getHttpWarningAckedUrls().first()
+        return url in ackedUrls
+    }
+
+    override suspend fun acknowledgeHttpWarning(url: String) {
+        appPreferencesStore.acknowledgeHttpWarning(url)
     }
 }
