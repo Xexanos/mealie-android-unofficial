@@ -397,6 +397,7 @@ The user can update the server URL and/or credentials from Settings without rein
 - **No meal planning** - out of scope for v1 and not currently planned.
 - **No push notifications** - the app does not notify users of Shopping List changes made by other household members in real time.
 - **No iOS support** - native Android only.
+- **No in-app language selector** - the app follows the system locale. Users change language via Android Settings. Per-app language preferences (API 33+) are supported automatically by the resource system.
 - **No server administration** - the app does not expose Mealie server configuration.
 - **No API token authentication** - API tokens require Mealie admin privilege and are unsuitable for Passengers; the standard JWT flow is the only supported authentication method.
 - **No analytics, telemetry, or automatic crash reporting** - no data is ever transmitted to any third party without explicit user action.
@@ -485,6 +486,12 @@ All assumptions have been resolved. No open assumptions remain.
 ### Observability
 - Debug builds only: verbose API call logging to logcat (token values and passwords excluded).
 - No analytics, telemetry, or crash reporting sent to third parties (hard constraint - see Security above).
+
+### Localization
+- All user-facing strings are externalized to Android string resources. No hardcoded UI text in Kotlin/Compose code.
+- v1 ships with English (default locale) and German.
+- The app follows the Android system locale; no in-app language toggle.
+- Additional languages can be contributed via standard Android locale-qualified resource directories (`values-XX/strings.xml`) without code changes.
 
 ---
 
