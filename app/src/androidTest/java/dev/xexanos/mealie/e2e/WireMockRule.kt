@@ -84,6 +84,38 @@ class WireMockRule(
         """.trimIndent())
     }
 
+    fun stubAuthSuccess() {
+        stubFor("""
+            {
+              "request": {
+                "method": "POST",
+                "urlPath": "/api/auth/token"
+              },
+              "response": {
+                "status": 200,
+                "jsonBody": {"access_token": "test-token-abc123", "token_type": "bearer"},
+                "headers": {"Content-Type": "application/json"}
+              }
+            }
+        """.trimIndent())
+    }
+
+    fun stubAuthUnauthorized() {
+        stubFor("""
+            {
+              "request": {
+                "method": "POST",
+                "urlPath": "/api/auth/token"
+              },
+              "response": {
+                "status": 401,
+                "jsonBody": {"detail": "Unauthorized"},
+                "headers": {"Content-Type": "application/json"}
+              }
+            }
+        """.trimIndent())
+    }
+
     private fun post(url: String, body: String) {
         val connection = URL(url).openConnection() as HttpURLConnection
         connection.requestMethod = "POST"

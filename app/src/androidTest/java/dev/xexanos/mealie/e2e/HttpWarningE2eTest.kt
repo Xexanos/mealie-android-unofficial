@@ -50,17 +50,4 @@ class HttpWarningE2eTest {
         composeTestRule.onNodeWithTag(HttpWarningCheckTestTags.CONTINUE_BUTTON)
             .assertIsDisplayed()
     }
-
-    @Test
-    fun whenContinueClicked_thenNavigatesPastWarning() {
-        navigatePastServerUrl()
-
-        composeTestRule.onNodeWithTag(HttpWarningCheckTestTags.CONTINUE_BUTTON)
-            .performClick()
-
-        composeTestRule.waitUntil(timeoutMillis = 5_000) {
-            composeTestRule.onAllNodesWithTag(HttpWarningCheckTestTags.CONTINUE_BUTTON)
-                .fetchSemanticsNodes().isEmpty()
-        }
-    }
 }

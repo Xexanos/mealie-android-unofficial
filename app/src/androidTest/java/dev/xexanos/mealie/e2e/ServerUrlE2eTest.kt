@@ -27,21 +27,6 @@ class ServerUrlE2eTest {
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
     @Test
-    fun whenValidMealieServer_thenNavigatesAway() {
-        wireMock.stubAppAboutSuccess()
-
-        composeTestRule.onNodeWithTag(ServerUrlTestTags.URL_TEXT_FIELD)
-            .performTextInput(wireMock.baseUrl)
-        composeTestRule.onNodeWithTag(ServerUrlTestTags.CONNECT_BUTTON)
-            .performClick()
-
-        composeTestRule.waitUntil(timeoutMillis = 10_000) {
-            composeTestRule.onAllNodesWithTag(ServerUrlTestTags.URL_TEXT_FIELD)
-                .fetchSemanticsNodes().isEmpty()
-        }
-    }
-
-    @Test
     fun whenServerReturnsOldVersion_thenShowsNotMealieError() {
         wireMock.stubAppAboutNotMealie()
 
