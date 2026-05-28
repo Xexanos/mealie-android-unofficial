@@ -69,12 +69,12 @@ class AuthRepositoryImplTest {
     }
 
     @Test
-    fun `when probe receives version without 3 prefix then returns NotMealieServer`() = runTest {
+    fun `when probe receives version with v1 prefix then returns NotMealieServer`() = runTest {
         mockServer.enqueue(
             MockResponse.Builder()
                 .code(200)
                 .addHeader("Content-Type", "application/json")
-                .body("""{"version": "2.0.0", "production": true}""")
+                .body("""{"version": "v1.2.0", "production": true}""")
                 .build(),
         )
 
@@ -84,7 +84,22 @@ class AuthRepositoryImplTest {
     }
 
     @Test
-    fun `when probe receives null version then returns NotMealieServer`() = runTest {
+    fun `when probe receives nightly version then returns Success`() = runTest {
+        mockServer.enqueue(
+            MockResponse.Builder()
+                .code(200)
+                .addHeader("Content-Type", "application/json")
+                .body("""{"version": "nightly", "production": true}""")
+                .build(),
+        )
+
+        val result = repository.probeServerUrl(baseUrl())
+
+        assertEquals(UrlProbeResult.Success, result)
+    }
+
+    @Test
+    fun `when probe receives null version then returns Success`() = runTest {
         mockServer.enqueue(
             MockResponse.Builder()
                 .code(200)
@@ -95,7 +110,7 @@ class AuthRepositoryImplTest {
 
         val result = repository.probeServerUrl(baseUrl())
 
-        assertEquals(UrlProbeResult.NotMealieServer, result)
+        assertEquals(UrlProbeResult.Success, result)
     }
 
     @Test

@@ -60,7 +60,7 @@ class WireMockRule(
               },
               "response": {
                 "status": 200,
-                "jsonBody": {"version": "v2.0.0"},
+                "jsonBody": {"version": "v1.2.0"},
                 "headers": {"Content-Type": "application/json"}
               }
             }

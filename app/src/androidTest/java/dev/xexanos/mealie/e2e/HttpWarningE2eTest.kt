@@ -12,19 +12,25 @@ import androidx.test.filters.LargeTest
 import dev.xexanos.mealie.MainActivity
 import dev.xexanos.mealie.feature.auth.ui.HttpWarningCheckTestTags
 import dev.xexanos.mealie.feature.auth.ui.ServerUrlTestTags
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class HttpWarningE2eTest {
+class HttpWarningE2eTest : E2ETestBase() {
 
     @get:Rule(order = 0)
     val wireMock = WireMockRule()
 
     @get:Rule(order = 1)
     val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    @Before
+    fun skipInLiveMode() {
+        assumeWireMockOnly()
+    }
 
     private fun navigatePastServerUrl() {
         wireMock.stubAppAboutSuccess()
