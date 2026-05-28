@@ -463,6 +463,12 @@ From Story 1-4a:
 - [Source: story 1-4 Review Findings] - Double-tap guard, CancellationException handling, rememberSaveable
 - [Source: story 1-4a] - @StringRes pattern for error messages, string resource naming conventions
 
+### ATDD Artifacts
+
+- Checklist: `_bmad-output/test-artifacts/atdd-checklist-1-5-credential-entry-and-encrypted-storage.md`
+- Unit tests (ViewModel): `feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/CredentialViewModelTest.kt`
+- Integration tests (API contract): `core/network/src/test/java/dev/xexanos/mealie/core/network/api/AuthServiceContractTest.kt`
+
 ## Dev Agent Record
 
 ### Agent Model Used
