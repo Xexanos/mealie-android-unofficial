@@ -1,8 +1,14 @@
 package dev.xexanos.mealie.core.data.repository
 
 import dev.xexanos.mealie.core.data.datastore.AppPreferencesStore
+import dev.xexanos.mealie.core.data.datastore.CredentialsStore
+import dev.xexanos.mealie.core.data.datastore.StoredCredentials
+import dev.xexanos.mealie.core.data.datastore.StoredToken
+import dev.xexanos.mealie.core.data.datastore.TokenStore
+import dev.xexanos.mealie.core.data.domain.AuthResult
 import dev.xexanos.mealie.core.data.domain.UrlProbeResult
 import dev.xexanos.mealie.core.network.api.AppService
+import dev.xexanos.mealie.core.network.api.AuthService
 import dev.xexanos.mealie.core.network.dto.AppAboutDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -17,6 +23,8 @@ class AuthRepositoryImpl(
     private val appPreferencesStore: AppPreferencesStore,
     private val okHttpClient: OkHttpClient,
     private val json: Json,
+    private val tokenStore: TokenStore,
+    private val credentialsStore: CredentialsStore,
 ) : AuthRepository {
 
     override fun getStoredServerUrl(): Flow<String?> =
@@ -53,5 +61,48 @@ class AuthRepositoryImpl(
 
     override suspend fun acknowledgeHttpWarning(url: String) {
         appPreferencesStore.acknowledgeHttpWarning(url)
+    }
+
+    override suspend fun authenticate(username: String, password: String): AuthResult {
+        return try {
+            val serverUrl = appPreferencesStore.getServerUrl().first()
+                ?: return AuthResult.NetworkError
+            val authService = createAuthService(serverUrl)
+            val response = authService.login(username = username, password = password)
+            if (response.isSuccessful) {
+                val body = response.body()!!
+                tokenStore.saveToken(body.accessToken)
+                credentialsStore.saveCredentials(username, password)
+                AuthResult.Success
+            } else if (response.code() == HTTP_UNAUTHORIZED) {
+                AuthResult.InvalidCredentials
+            } else {
+                AuthResult.NetworkError
+            }
+        } catch (_: IOException) {
+            AuthResult.NetworkError
+        } catch (e: Exception) {
+            if (e is kotlin.coroutines.cancellation.CancellationException) throw e
+            AuthResult.NetworkError
+        }
+    }
+
+    override fun getStoredCredentials(): Flow<StoredCredentials> =
+        credentialsStore.getCredentials()
+
+    override fun getStoredToken(): Flow<StoredToken> =
+        tokenStore.getToken()
+
+    private fun createAuthService(baseUrl: String): AuthService {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("$baseUrl/")
+            .client(okHttpClient)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+        return retrofit.create(AuthService::class.java)
+    }
+
+    companion object {
+        private const val HTTP_UNAUTHORIZED = 401
     }
 }

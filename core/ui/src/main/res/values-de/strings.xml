@@ -10,4 +10,12 @@
     <!-- HTTP Warning Screen -->
     <string name="http_warning_message">Verbindung über das lokale Netzwerk - das ist bei selbst gehosteten Setups üblich.</string>
     <string name="http_warning_button_continue">Weiter</string>
+
+    <!-- Credential Screen -->
+    <string name="credential_label_username">Benutzername</string>
+    <string name="credential_label_password">Passwort</string>
+    <string name="credential_button_sign_in">Anmelden</string>
+    <string name="credential_error_empty">Benutzername und Passwort erforderlich</string>
+    <string name="credential_error_invalid">Benutzername oder Passwort falsch</string>
+    <string name="credential_error_network">Server nicht erreichbar</string>
 </resources>

@@ -3,6 +3,7 @@ package dev.xexanos.mealie.core.network.api
 import dev.xexanos.mealie.core.network.dto.AuthTokenDto
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -10,11 +11,11 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
 @DisplayName("AuthService API Contract Tests")
 class AuthServiceContractTest {
@@ -27,9 +28,11 @@ class AuthServiceContractTest {
         mockWebServer = MockWebServer()
         mockWebServer.start()
 
+        val json = Json { ignoreUnknownKeys = true }
         val retrofit = Retrofit.Builder()
             .baseUrl(mockWebServer.url("/"))
             .client(OkHttpClient())
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
 
         authService = retrofit.create(AuthService::class.java)
@@ -47,7 +50,6 @@ class AuthServiceContractTest {
     inner class LoginRequestFormat {
 
         @Test
-        @Disabled("Red phase - AuthService not yet implemented")
         @DisplayName("login sends form-encoded body with username, password, remember_me")
         fun `login sends form-encoded body with correct fields`() = runTest {
             mockWebServer.enqueue(
@@ -73,7 +75,6 @@ class AuthServiceContractTest {
         }
 
         @Test
-        @Disabled("Red phase - AuthService not yet implemented")
         @DisplayName("login request does NOT use JSON body")
         fun `login request is not JSON encoded`() = runTest {
             mockWebServer.enqueue(
@@ -98,7 +99,6 @@ class AuthServiceContractTest {
     inner class SuccessResponse {
 
         @Test
-        @Disabled("Red phase - AuthService not yet implemented")
         @DisplayName("200 response parses access_token and token_type")
         fun `successful response parses access token`() = runTest {
             mockWebServer.enqueue(
@@ -124,7 +124,6 @@ class AuthServiceContractTest {
     inner class UnauthorizedResponse {
 
         @Test
-        @Disabled("Red phase - AuthService not yet implemented")
         @DisplayName("401 response returns unsuccessful response")
         fun `unauthorized response returns 401 status`() = runTest {
             mockWebServer.enqueue(
@@ -148,7 +147,6 @@ class AuthServiceContractTest {
     inner class RememberMe {
 
         @Test
-        @Disabled("Red phase - AuthService not yet implemented")
         @DisplayName("login includes remember_me=true by default")
         fun `login includes remember_me true by default`() = runTest {
             mockWebServer.enqueue(

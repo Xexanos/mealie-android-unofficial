@@ -1,12 +1,10 @@
 package dev.xexanos.mealie.feature.auth.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import dev.xexanos.mealie.feature.auth.ui.CredentialScreen
 import dev.xexanos.mealie.feature.auth.ui.HttpWarningCheckScreen
 import dev.xexanos.mealie.feature.auth.ui.ServerUrlScreen
 import kotlinx.serialization.Serializable
@@ -16,7 +14,7 @@ import kotlinx.serialization.Serializable
 @Serializable object HttpWarningCheckRoute
 @Serializable object CredentialRoute
 
-fun NavGraphBuilder.authGraph(navController: NavController) {
+fun NavGraphBuilder.authGraph(navController: NavController, onAuthComplete: () -> Unit) {
     navigation<AuthGraph>(startDestination = ServerUrlRoute) {
         composable<ServerUrlRoute> {
             ServerUrlScreen(
@@ -37,7 +35,9 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
             )
         }
         composable<CredentialRoute> {
-            Box(modifier = Modifier.fillMaxSize())
+            CredentialScreen(
+                onNavigateToMain = onAuthComplete,
+            )
         }
     }
 }

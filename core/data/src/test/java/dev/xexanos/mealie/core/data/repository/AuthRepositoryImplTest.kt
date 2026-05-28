@@ -1,6 +1,8 @@
 package dev.xexanos.mealie.core.data.repository
 
 import dev.xexanos.mealie.core.data.datastore.AppPreferencesStore
+import dev.xexanos.mealie.core.data.datastore.CredentialsStore
+import dev.xexanos.mealie.core.data.datastore.TokenStore
 import dev.xexanos.mealie.core.data.domain.UrlProbeResult
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -26,6 +28,8 @@ class AuthRepositoryImplTest {
 
     private val mockServer = MockWebServer()
     private val appPreferencesStore = mockk<AppPreferencesStore>(relaxed = true)
+    private val tokenStore = mockk<TokenStore>(relaxed = true)
+    private val credentialsStore = mockk<CredentialsStore>(relaxed = true)
     private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
     private val okHttpClient = OkHttpClient.Builder()
         .connectTimeout(500, TimeUnit.MILLISECONDS)
@@ -39,7 +43,7 @@ class AuthRepositoryImplTest {
     fun setup() {
         mockServer.start()
         every { appPreferencesStore.getServerUrl() } returns flowOf(null)
-        repository = AuthRepositoryImpl(appPreferencesStore, okHttpClient, json)
+        repository = AuthRepositoryImpl(appPreferencesStore, okHttpClient, json, tokenStore, credentialsStore)
     }
 
     @AfterEach
