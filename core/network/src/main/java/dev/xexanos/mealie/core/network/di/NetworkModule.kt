@@ -21,14 +21,27 @@ private const val CONNECT_TIMEOUT_SECONDS = 10L
 private const val READ_TIMEOUT_SECONDS = 30L
 private const val WRITE_TIMEOUT_SECONDS = 15L
 
+private val SENSITIVE_BODY_PATTERNS = listOf(
+    Regex("""password=[^&\s]+""") to "password=<redacted>",
+    Regex(""""access_token"\s*:\s*"[^"]+"""") to """"access_token":"<redacted>"""",
+)
+
+internal fun redactSensitiveContent(message: String): String =
+    SENSITIVE_BODY_PATTERNS.fold(message) { acc, (pattern, replacement) ->
+        acc.replace(pattern, replacement)
+    }
+
 private fun buildOkHttpClient(): OkHttpClient {
     val builder = OkHttpClient.Builder()
         .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .writeTimeout(WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
     if (BuildConfig.DEBUG) {
+        val redactingLogger = HttpLoggingInterceptor.Logger { message ->
+            HttpLoggingInterceptor.Logger.DEFAULT.log(redactSensitiveContent(message))
+        }
         builder.addInterceptor(
-            HttpLoggingInterceptor().apply {
+            HttpLoggingInterceptor(redactingLogger).apply {
                 level = HttpLoggingInterceptor.Level.BODY
                 redactHeader("Authorization")
             }
