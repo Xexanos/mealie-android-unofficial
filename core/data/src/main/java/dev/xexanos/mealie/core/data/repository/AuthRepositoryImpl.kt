@@ -70,7 +70,7 @@ class AuthRepositoryImpl(
             val authService = createAuthService(serverUrl)
             val response = authService.login(username = username, password = password)
             if (response.isSuccessful) {
-                val body = response.body()!!
+                val body = response.body() ?: return AuthResult.NetworkError
                 tokenStore.saveToken(body.accessToken)
                 credentialsStore.saveCredentials(username, password)
                 AuthResult.Success

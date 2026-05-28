@@ -4,7 +4,7 @@ baseline_commit: 6b1d1ee58c8a27dfe11450b8212bdd80f136ca83
 
 # Story 1.5: Credential Entry and Encrypted Storage
 
-Status: review
+Status: done
 
 ## Story
 
@@ -101,6 +101,23 @@ so that I can authenticate with the Mealie server without re-entering credential
   - [x] `./gradlew assembleDebug` - BUILD SUCCESSFUL
   - [x] `./gradlew :feature:auth:test :core:data:test :core:network:test` - all tests pass
   - [x] `./gradlew ktlintCheck detekt lint` - all pass
+
+### Review Findings
+
+- [x] [Review][Decision] Username whitespace trimming - resolved: trim username before validation and API call, persist only trimmed variant [CredentialViewModel.kt:38]
+- [x] [Review][Decision] Button enabled state during loading - resolved: button stays enabled, ViewModel guard prevents double-tap [CredentialScreen.kt:158]
+- [x] [Review][Patch] response.body()!! force unwrap - replaced with null-safe check [AuthRepositoryImpl.kt:73]
+- [x] [Review][Patch] Stale state snapshot after suspend point - by design: captured `submitted` state represents the values sent to backend; added explicit test [CredentialViewModel.kt:46]
+- [x] [Review][Patch] Unused `Loading` sealed class variant - kept as placeholder for Story 1-6 pre-loading [CredentialUiState.kt:6]
+- [x] [Review][Patch] No CorruptionHandler for encrypted DataStore - added ReplaceFileCorruptionHandler to both stores [TokenStore.kt:46, CredentialsStore.kt:47]
+- [x] [Review][Defer] DataStore delegate inside class risks IllegalStateException on multiple instantiation - mitigated by Koin `single{}` scope; move to top-level when adding instrumented tests [TokenStore.kt:46, CredentialsStore.kt:47]
+- [x] [Review][Defer] Retrofit instance created per authenticate() call - low perf impact; same pattern as existing probeServerUrl [AuthRepositoryImpl.kt:96]
+- [x] [Review][Defer] AeadConfig.register() called redundantly in both stores - idempotent but scattered; centralize in app-level init when adding more Tink consumers [TokenStore.kt:36, CredentialsStore.kt:37]
+- [x] [Review][Defer] No error handling for KeyStoreException when Android Keystore unavailable - requires app-level recovery strategy; address in Story 1-8 [TokenStore.kt:35, CredentialsStore.kt:36]
+- [x] [Review][Defer] HTTP 403/429/5xx not differentiated from NetworkError - spec only defines 401 and network error cases; expand when real-world usage demands it [AuthRepositoryImpl.kt:77]
+- [x] [Review][Defer] No concurrency guard in AuthRepositoryImpl.authenticate() - currently single-caller via ViewModel guard; add Mutex when Story 1-6 adds second caller [AuthRepositoryImpl.kt:66]
+- [x] [Review][Defer] Process death during isSubmitting loses typed credentials - SavedStateHandle integration is nice-to-have, not required by AC [CredentialViewModel.kt]
+- [x] [Review][Defer] Raw dp/sp literals instead of Spacing design tokens - pre-existing debt from earlier stories; same pattern in ServerUrlScreen and HttpWarningCheckScreen [CredentialScreen.kt:82]
 
 ## Dev Notes
 

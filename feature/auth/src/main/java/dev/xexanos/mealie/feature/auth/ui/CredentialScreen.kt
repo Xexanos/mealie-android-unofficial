@@ -161,7 +161,6 @@ private fun CredentialContent(
                     .fillMaxWidth()
                     .height(48.dp)
                     .testTag(CredentialTestTags.SIGN_IN_BUTTON),
-                enabled = !state.isSubmitting,
             ) {
                 if (state.isSubmitting) {
                     CircularProgressIndicator(

@@ -35,28 +35,34 @@ class CredentialViewModel(private val authRepository: AuthRepository) : ViewMode
         val current = _uiState.value as? CredentialUiState.AwaitingInput ?: return
         if (current.isSubmitting) return
 
-        if (current.username.isBlank() || current.password.isBlank()) {
+        val trimmedUsername = current.username.trim()
+        if (trimmedUsername.isBlank() || current.password.isBlank()) {
             _uiState.value = current.copy(errorResId = R.string.credential_error_empty)
             return
         }
 
-        _uiState.value = current.copy(isSubmitting = true, errorResId = null)
+        val submitted = current.copy(
+            username = trimmedUsername,
+            isSubmitting = true,
+            errorResId = null,
+        )
+        _uiState.value = submitted
 
         viewModelScope.launch {
-            when (authRepository.authenticate(current.username, current.password)) {
+            when (authRepository.authenticate(trimmedUsername, current.password)) {
                 AuthResult.Success -> {
-                    _uiState.value = current.copy(isSubmitting = false)
+                    _uiState.value = submitted.copy(isSubmitting = false)
                     _events.send(CredentialUiEvent.NavigateToMain)
                 }
                 AuthResult.InvalidCredentials -> {
-                    _uiState.value = current.copy(
+                    _uiState.value = submitted.copy(
                         password = "",
                         isSubmitting = false,
                         errorResId = R.string.credential_error_invalid,
                     )
                 }
                 AuthResult.NetworkError -> {
-                    _uiState.value = current.copy(
+                    _uiState.value = submitted.copy(
                         isSubmitting = false,
                         errorResId = R.string.credential_error_network,
                     )

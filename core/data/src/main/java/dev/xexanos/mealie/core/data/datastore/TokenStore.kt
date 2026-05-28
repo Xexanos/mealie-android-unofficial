@@ -3,6 +3,7 @@ package dev.xexanos.mealie.core.data.datastore
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.dataStore
 import androidx.datastore.tink.AeadSerializer
 import com.google.crypto.tink.Aead
@@ -49,6 +50,7 @@ class TokenStore(private val context: Context) {
             aead = aead,
             wrappedSerializer = StoredTokenSerializer,
         ),
+        corruptionHandler = ReplaceFileCorruptionHandler { StoredToken() },
     )
 
     fun getToken(): Flow<StoredToken> =

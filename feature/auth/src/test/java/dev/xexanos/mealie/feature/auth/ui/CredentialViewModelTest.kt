@@ -206,4 +206,55 @@ class CredentialViewModelTest {
             assertEquals(R.string.credential_error_invalid, state.errorResId)
         }
     }
+
+    // --- Edge Case: Username whitespace trimming ---
+
+    @Nested
+    @DisplayName("Edge: Username whitespace is trimmed before submission")
+    inner class UsernameTrimming {
+
+        @Test
+        @DisplayName("leading and trailing whitespace is trimmed from username")
+        fun `leading and trailing whitespace is trimmed from username`() = runTest {
+            val fake = FakeAuthRepository(authResult = AuthResult.Success)
+            val vm = CredentialViewModel(fake)
+            vm.onUsernameChanged("  user@example.com  ")
+            vm.onPasswordChanged("secret")
+            vm.onSignIn()
+            val state = vm.uiState.value as CredentialUiState.AwaitingInput
+            assertEquals("user@example.com", state.username)
+        }
+
+        @Test
+        @DisplayName("whitespace-only username shows validation error")
+        fun `whitespace-only username shows validation error`() = runTest {
+            val fake = FakeAuthRepository()
+            val vm = CredentialViewModel(fake)
+            vm.onUsernameChanged("   ")
+            vm.onPasswordChanged("secret")
+            vm.onSignIn()
+            val state = vm.uiState.value as CredentialUiState.AwaitingInput
+            assertEquals(R.string.credential_error_empty, state.errorResId)
+            assertEquals(0, fake.authenticateCallCount)
+        }
+    }
+
+    // --- Design: State snapshot captures submitted values ---
+
+    @Nested
+    @DisplayName("Design: Error state reflects the values that were submitted")
+    inner class SubmittedValueCapture {
+
+        @Test
+        @DisplayName("invalid credentials error retains the username that was submitted")
+        fun `invalid credentials error retains submitted username`() = runTest {
+            val fake = FakeAuthRepository(authResult = AuthResult.InvalidCredentials)
+            val vm = CredentialViewModel(fake)
+            vm.onUsernameChanged("original@example.com")
+            vm.onPasswordChanged("wrong")
+            vm.onSignIn()
+            val state = vm.uiState.value as CredentialUiState.AwaitingInput
+            assertEquals("original@example.com", state.username)
+        }
+    }
 }
