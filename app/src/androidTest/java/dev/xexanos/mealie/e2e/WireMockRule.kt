@@ -44,7 +44,7 @@ class WireMockRule(
               },
               "response": {
                 "status": 200,
-                "jsonBody": {"version": "3.0.0"},
+                "jsonBody": {"version": "v3.0.0"},
                 "headers": {"Content-Type": "application/json"}
               }
             }
@@ -60,7 +60,7 @@ class WireMockRule(
               },
               "response": {
                 "status": 200,
-                "jsonBody": {"version": "2.0.0"},
+                "jsonBody": {"version": "v2.0.0"},
                 "headers": {"Content-Type": "application/json"}
               }
             }

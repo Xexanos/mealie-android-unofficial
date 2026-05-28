@@ -59,7 +59,7 @@ class AuthRepositoryImplTest {
             MockResponse.Builder()
                 .code(200)
                 .addHeader("Content-Type", "application/json")
-                .body("""{"version": "3.18.0", "production": true}""")
+                .body("""{"version": "v3.18.0", "production": true}""")
                 .build(),
         )
 
