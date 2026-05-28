@@ -17,6 +17,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import android.util.Log
 import java.io.IOException
 
 class AuthRepositoryImpl(
@@ -83,6 +84,7 @@ class AuthRepositoryImpl(
             AuthResult.NetworkError
         } catch (e: Exception) {
             if (e is kotlin.coroutines.cancellation.CancellationException) throw e
+            Log.e("AuthRepository", "Unexpected exception during authenticate", e)
             AuthResult.NetworkError
         }
     }
