@@ -31,7 +31,7 @@ inputDocuments:
 
 **Risk Summary:**
 
-- Total Risks: 8 (2 high-priority score >= 6, 5 medium, 1 low)
+- Total Risks: 9 (2 high-priority score >= 6, 5 medium, 2 low)
 - Critical Categories: SEC (encrypted storage), TECH (connectivity)
 
 **Coverage Summary:**
@@ -49,7 +49,6 @@ inputDocuments:
 | **Recipe browsing (FR-7, FR-8, FR-9)** | Explicitly deferred to v2 in PRD | No testing needed until v2 |
 | **Multi-server support** | Not in v1 architecture | Single-instance assumption documented |
 | **Screenshot/visual regression tests** | Small UI surface; solo developer | Manual visual check before release |
-| **E2E tests against live Mealie instance** | Requires server infrastructure | MockWebServer covers API contract |
 
 ---
 
@@ -78,11 +77,14 @@ inputDocuments:
    - `FakeConnectivityMonitor` - controllable `StateFlow<ConnectivityState>`
    - MockWebServer base class with fixture loading helpers
 
-3. **E2E Infrastructure (WireMock)**
+3. **E2E Infrastructure (WireMock + Live)**
    - WireMock standalone JAR added to a dedicated Gradle runner configuration (host-side only, not `androidTestImplementation`)
    - Gradle start/stop tasks use that host-side dependency to manage the WireMock lifecycle
    - JSON stub mappings under `src/androidTest/resources/wiremock/`
-   - Emulator accesses host via `http://10.0.2.2:8080`
+   - Emulator accesses WireMock host via `http://10.0.2.2:8080`
+   - Live backend: `https://demo.mealie.io` accessed via standard HTTPS
+   - `E2EBackend` sealed class + `E2ETestBase` base class for backend-agnostic tests
+   - CI secrets for live credentials (`E2E_LIVE_USERNAME`, `E2E_LIVE_PASSWORD`)
 
 **Example test pattern (Kotlin + JUnit 5 + MockK + Turbine):**
 
@@ -149,7 +151,8 @@ class EncryptedDataStoreTest {
 | R-05 | PERF | 500+ items UI jank | 4 | Scroll benchmark |
 | R-06 | OPS | No instrumented CI | 4 | Mitigated by local pass requirement |
 | R-07 | TECH | Room auto-migration failure | 3 | Additive schema migration test |
-| R-08 | BUS | Mealie API changes | 2 | MockWebServer fixture contract test |
+| R-08 | BUS | Mealie API changes | 2 | MockWebServer fixture contract test + live E2E drift detection |
+| R-09 | OPS | demo.mealie.io unavailable | 2 | Nightly cron hard-fail; PR pipeline skip with annotation |
 
 ---
 
@@ -278,23 +281,28 @@ Tests are organized by feature area. All tests carry equal weight - any failure 
 
 ### End-to-End (Black-Box)
 
-| Test ID | Scenario | Test Level | Risk Link | Notes |
-| --- | --- | --- | --- | --- |
-| **E2E-001** | Setup flow: valid server URL + credentials lands on shopping list | E2E | - | Full happy path through UI |
-| **E2E-002** | Setup flow: invalid credentials shows error | E2E | - | WireMock returns 401 |
-| **E2E-003** | Shopping list: check/uncheck item syncs to server | E2E | - | WireMock verifies PATCH received |
-| **E2E-004** | Shopping list: add item appears in list | E2E | - | WireMock returns updated list |
-| **E2E-005** | Offline: indicator shown when server unreachable | E2E | - | WireMock stopped mid-test |
+| Test ID | Scenario | Test Level | Risk Link | WireMock | Live | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| **E2E-001** | Setup flow: valid server URL + credentials lands on shopping list | E2E | - | Yes | Yes | Full happy path through UI |
+| **E2E-002** | Setup flow: invalid credentials shows error | E2E | - | Yes | Yes | 401 response from both backends |
+| **E2E-003** | Shopping list: check/uncheck item syncs to server | E2E | - | Yes | Yes | Live: cleanup in @After |
+| **E2E-004** | Shopping list: add item appears in list | E2E | - | Yes | Yes | Live: cleanup in @After |
+| **E2E-005** | Offline: indicator shown when server unreachable | E2E | - | Yes | No | Requires stopping server (WireMock only) |
 
 **Total:** ~53 tests
 
 ---
 
-## E2E Testing Strategy: WireMock Black-Box
+## E2E Testing Strategy: Dual-Backend Black-Box
 
 ### Philosophy
 
 E2E tests are true black-box tests from the **app's perspective** - no DI modification, no awareness of libraries used internally, no test-only build variants. The app runs exactly as it would for a real user.
+
+Tests run against **two backends** to cover both deterministic scenarios and real-world API validation:
+
+- **WireMock** (local, deterministic): Full scenario control, request verification, offline simulation
+- **Live** (demo.mealie.io): Real API validation, drift detection, integration confidence
 
 The **test harness** may use WireMock's admin API (`/__admin/requests`, `/__admin/scenarios`) to set up scenarios and verify server-side state. This is not a violation of the black-box principle: the admin API is a test infrastructure concern, not knowledge of app internals.
 
@@ -312,16 +320,110 @@ graph LR
         STUBS["JSON stubs\n/wiremock/mappings/"]:::artifact --> WM["WireMock :8080"]
     end
 
+    subgraph cloud["External"]
+        DEMO["demo.mealie.io\n(Live backend)"]
+    end
+
     device <-->|"HTTP\n10.0.2.2:8080"| host
+    device <-->|"HTTPS\ndemo.mealie.io"| cloud
 
     classDef artifact fill:#f0f0f0,stroke:#aaa,stroke-dasharray:4 4,color:#666
 ```
 
 - **WireMock standalone** runs as a separate JVM process on the host machine
 - The Android emulator reaches the host via `10.0.2.2` (standard Android emulator loopback)
+- The Android emulator reaches demo.mealie.io via standard HTTPS (no special routing)
 - The app is driven only through Compose test semantics (`onNodeWithTag`, `performClick`, etc.)
 - Test code may call WireMock's admin API for scenario control and request verification
 - No test-only Koin modules, no fake implementations injected at runtime
+
+### Backend Selection
+
+Backend is selected via instrumentation arguments at test launch time:
+
+```bash
+# WireMock mode (default)
+./gradlew connectedDebugAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e \
+  -Pandroid.testInstrumentationRunnerArguments.e2eBackend=wiremock
+
+# Live mode
+./gradlew connectedDebugAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e \
+  -Pandroid.testInstrumentationRunnerArguments.e2eBackend=live \
+  -Pandroid.testInstrumentationRunnerArguments.e2eBaseUrl=https://demo.mealie.io \
+  -Pandroid.testInstrumentationRunnerArguments.e2eUsername=$E2E_LIVE_USERNAME \
+  -Pandroid.testInstrumentationRunnerArguments.e2ePassword=$E2E_LIVE_PASSWORD
+```
+
+### E2E Base Class
+
+```kotlin
+sealed class E2EBackend {
+    abstract val baseUrl: String
+    abstract val username: String
+    abstract val password: String
+
+    data class WireMock(
+        override val baseUrl: String = "http://10.0.2.2:8080",
+        override val username: String = "test@example.com",
+        override val password: String = "password123"
+    ) : E2EBackend()
+
+    data class Live(
+        override val baseUrl: String,
+        override val username: String,
+        override val password: String
+    ) : E2EBackend()
+
+    suspend fun healthCheck(): Boolean = runCatching {
+        val url = URL("$baseUrl/api/app/about")
+        withContext(Dispatchers.IO) {
+            (url.openConnection() as HttpURLConnection).apply {
+                connectTimeout = 5000
+                readTimeout = 5000
+            }.responseCode == 200
+        }
+    }.getOrDefault(false)
+
+    companion object {
+        fun from(args: Bundle): E2EBackend {
+            val mode = args.getString("e2eBackend", "wiremock")
+            return when (mode) {
+                "live" -> Live(
+                    baseUrl = args.getString("e2eBaseUrl")!!,
+                    username = args.getString("e2eUsername")!!,
+                    password = args.getString("e2ePassword")!!
+                )
+                else -> WireMock()
+            }
+        }
+    }
+}
+
+abstract class E2ETestBase {
+    protected val backend: E2EBackend by lazy {
+        E2EBackend.from(InstrumentationRegistry.getArguments())
+    }
+
+    @Before
+    fun assumeBackendReachable() {
+        if (backend is E2EBackend.Live) {
+            val reachable = runBlocking { backend.healthCheck() }
+            Assume.assumeTrue("Live backend unreachable - skipping", reachable)
+        }
+    }
+}
+```
+
+### Data Isolation (Live Mode)
+
+Tests that mutate data on demo.mealie.io must self-clean:
+
+1. Created items use a prefix: `[E2E-<epochMillis>]`
+2. `@After` deletes all prefixed items via Mealie API
+3. If cleanup fails, items remain identifiable for manual removal
+4. E2E-001 and E2E-002 are read-only and need no cleanup
 
 ### WireMock Setup
 
@@ -557,14 +659,74 @@ Tests that require Android Keystore, Compose UI runtime, or WireMock:
 - APP-005: Intent test
 - SHOP-010, APP-004: Benchmarks (scroll + cold start)
 - E2E-001 through E2E-005: Black-box WireMock tests (setup flow, shopping, offline)
+- E2E-001 through E2E-004: Live tests against demo.mealie.io (excludes E2E-005 offline test)
 
 **Why defer:** Requires physical device or emulator + WireMock process; no emulator CI in v1
 
-**Run E2E tests:**
+**Run E2E tests (WireMock mode):**
 
 ```bash
-./gradlew connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e
+./gradlew connectedDebugAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e \
+  -Pandroid.testInstrumentationRunnerArguments.e2eBackend=wiremock
 ```
+
+**Run E2E tests (Live mode):**
+
+```bash
+./gradlew connectedDebugAndroidTest \
+  -Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e \
+  -Pandroid.testInstrumentationRunnerArguments.e2eBackend=live \
+  -Pandroid.testInstrumentationRunnerArguments.e2eBaseUrl=https://demo.mealie.io \
+  -Pandroid.testInstrumentationRunnerArguments.e2eUsername=$E2E_LIVE_USERNAME \
+  -Pandroid.testInstrumentationRunnerArguments.e2ePassword=$E2E_LIVE_PASSWORD
+```
+
+### Nightly Cron Job (erosion guard)
+
+A nightly GitHub Actions workflow prevents silent coverage loss:
+
+```yaml
+name: Nightly Live E2E
+on:
+  schedule:
+    - cron: '23 2 * * *'  # 02:23 UTC
+
+jobs:
+  live-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Guard - check for recent commits
+        id: guard
+        run: |
+          if [ -z "$(git log --since='24 hours ago' --oneline)" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Health check - demo.mealie.io
+        if: steps.guard.outputs.skip == 'false'
+        run: |
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://demo.mealie.io/api/app/about)
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "::error::demo.mealie.io unreachable (HTTP $HTTP_STATUS) - live E2E coverage at risk!"
+            exit 1
+          fi
+
+      - name: Run Live E2E tests
+        if: steps.guard.outputs.skip == 'false'
+        # ... emulator setup + connectedDebugAndroidTest with live backend args
+```
+
+**Key behaviors:**
+- No commits in 24h: job exits cleanly (no noise)
+- demo.mealie.io unreachable: **hard fail** - developer is notified
+- Tests fail: **hard fail** - regression detected against real API
 
 ---
 
@@ -599,6 +761,9 @@ Tests that require Android Keystore, Compose UI runtime, or WireMock:
 | MockWebServer base class + fixtures | Dev | After `:core:network` API services defined |
 | Room test factory functions | Dev | After entity classes defined |
 | WireMock stub files + Gradle tasks | Dev | After Story 1.3 (Server URL Entry); first E2E target |
+| `E2EBackend` sealed class + `E2ETestBase` | Dev | After WireMock E2E infrastructure exists; enables dual-mode |
+| Live E2E credentials setup (CI secrets) | Dev | After first live-compatible E2E test written |
+| Nightly cron workflow (`.github/workflows/nightly-e2e.yml`) | Dev | After live E2E tests are functional |
 | JaCoCo CI integration | Dev | After first tests exist; add to `test` CI job |
 
 ---

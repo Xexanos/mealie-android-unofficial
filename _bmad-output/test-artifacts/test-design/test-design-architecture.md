@@ -38,7 +38,7 @@ inputDocuments:
 
 **Risk Summary:**
 
-- **Total risks**: 8
+- **Total risks**: 9
 - **High-priority (score >= 6)**: 2 risks (R-01, R-02) - both in encrypted storage
 - **Test effort**: ~53 tests (~1-1.5 weeks for 1 developer)
 
@@ -81,7 +81,7 @@ inputDocuments:
 
 ## Risk Assessment
 
-**Total risks identified**: 8 (2 high-priority >= 6, 5 medium, 1 low)
+**Total risks identified**: 9 (2 high-priority >= 6, 5 medium, 2 low)
 
 ### High-Priority Risks (Score >= 6)
 
@@ -105,6 +105,7 @@ inputDocuments:
 | Risk ID | Category | Description | P | I | Score | Action |
 | --- | --- | --- | --- | --- | --- | --- |
 | R-08 | BUS | Mealie API changes break client silently | 1 | 2 | 2 | MockWebServer fixtures versioned; update on Mealie version bump |
+| R-09 | OPS | demo.mealie.io unavailable causes silent E2E coverage loss | 2 | 1 | 2 | Nightly cron hard-fails if unreachable; PR pipeline skips with annotation |
 
 ---
 
@@ -158,6 +159,7 @@ inputDocuments:
 - **No instrumented CI in v1** - acceptable for solo developer; local pass required before merge
 - **No screenshot tests for v1** - acceptable given small UI surface; add with contributors
 - **datastore-tink alpha dependency** - accepted risk; interface abstraction provides escape hatch
+- **E2E Live tests skip gracefully in PR pipeline** - when demo.mealie.io is unreachable, PR pipeline skips live E2E with a warning annotation (not a failure). Nightly cron job hard-fails to prevent silent erosion.
 
 ---
 
@@ -199,17 +201,140 @@ inputDocuments:
 1. Solo developer workflow - no parallel test development; one person writes both code and tests
 2. Mealie API remains backward-compatible within v3.18.x for shopping list endpoints
 3. `datastore-tink` alpha API surface remains stable through v1 development (3-4 months)
+4. demo.mealie.io remains publicly accessible with a demo account for E2E testing
 
 #### Dependencies
 
 1. `CredentialStore` interface - required before auth unit tests can be written
 2. MockWebServer JSON fixtures derived from Mealie v3.18.0 OpenAPI spec - required before API contract tests
+3. demo.mealie.io demo account credentials - required for live E2E tests (stored as CI secrets)
 
 #### Risks to Plan
 
 - **Risk**: Mealie ships breaking API change mid-development
   - **Impact**: MockWebServer fixtures and DTO classes need update
   - **Contingency**: Fixtures are small and isolated; update is < 1 hour of work
+- **Risk**: demo.mealie.io goes permanently offline or removes demo accounts
+  - **Impact**: Live E2E tests cannot run; coverage limited to WireMock-only
+  - **Contingency**: Self-hosted Mealie instance as fallback (Docker); nightly cron detects within 24h
+
+---
+
+## Dual-Backend E2E Architecture
+
+### Overview
+
+E2E tests run in two modes against two different backends:
+
+| Mode | Backend | Purpose | Deterministic | CI Trigger |
+| --- | --- | --- | --- | --- |
+| **WireMock** | Local WireMock (host:8080) | Fast, deterministic, full scenario control | Yes | Every PR |
+| **Live** | demo.mealie.io | Real API validation, drift detection | No | Every PR (skip if unreachable) + Nightly hard-fail |
+
+Both modes exercise the same UI-driven test flows. The app binary is identical - no test-only build variants or DI overrides.
+
+### Configuration Mechanism
+
+Backend selection via **instrumentation arguments** passed at test launch:
+
+```
+-Pandroid.testInstrumentationRunnerArguments.e2eBackend=wiremock|live
+-Pandroid.testInstrumentationRunnerArguments.e2eBaseUrl=http://10.0.2.2:8080|https://demo.mealie.io
+-Pandroid.testInstrumentationRunnerArguments.e2eUsername=<demo-user>
+-Pandroid.testInstrumentationRunnerArguments.e2ePassword=<demo-password>
+```
+
+A shared base class reads these arguments and exposes them to test methods:
+
+```kotlin
+abstract class E2ETestBase {
+    protected val backend: E2EBackend by lazy {
+        val args = InstrumentationRegistry.getArguments()
+        val mode = args.getString("e2eBackend", "wiremock")
+        E2EBackend.from(mode, args)
+    }
+
+    @Before
+    fun assumeBackendReachable() {
+        if (backend is E2EBackend.Live) {
+            val reachable = runBlocking { backend.healthCheck() }
+            Assume.assumeTrue("Live backend unreachable", reachable)
+        }
+    }
+}
+```
+
+### Test Categorization
+
+Not all E2E tests can run in both modes:
+
+| Test ID | WireMock | Live | Reason |
+| --- | --- | --- | --- |
+| E2E-001 | Yes | Yes | Happy path - works against any backend |
+| E2E-002 | Yes | Yes | Invalid credentials - universal behavior |
+| E2E-003 | Yes | Yes* | Check/uncheck - requires test item cleanup on live |
+| E2E-004 | Yes | Yes* | Add item - requires cleanup on live |
+| E2E-005 | Yes | **No** | Offline test - requires stopping the server |
+
+*Live-mode tests that mutate data must clean up after themselves (delete created items in `@After`).
+
+### CI/CD Execution Strategy
+
+#### PR Pipeline (on every push)
+
+```
+1. Run WireMock E2E tests (always, deterministic)
+2. Health-check: curl https://demo.mealie.io/api/app/about
+3. If reachable: run Live E2E tests
+4. If unreachable: skip with annotation warning ("Live E2E skipped: demo.mealie.io unreachable")
+```
+
+PR result is green if WireMock tests pass, regardless of live skip. The skip annotation ensures visibility.
+
+#### Nightly Cron Job
+
+```yaml
+schedule:
+  - cron: '23 2 * * *'   # 02:23 UTC nightly
+
+steps:
+  - Guard: check for commits in last 24h (git log --since="24 hours ago")
+    - No commits: skip entire job (exit 0, no failure)
+    - Commits found: continue
+
+  - Health-check: curl https://demo.mealie.io/api/app/about
+    - Unreachable: HARD FAIL (not skip) - prevents silent erosion
+    - Reachable: continue
+
+  - Run Live E2E tests against demo.mealie.io
+    - Failure: HARD FAIL - real regression detected
+```
+
+The nightly cron is the **erosion guard**: it ensures that live E2E coverage is validated at least daily during active development. If demo.mealie.io is persistently down, the developer is notified within 24 hours via a failed nightly run.
+
+### Credentials Management
+
+- **WireMock mode**: Hardcoded test credentials (`test@example.com` / `password123`) - stubs accept anything
+- **Live mode**: Real demo.mealie.io credentials stored as **CI secrets** (`E2E_LIVE_USERNAME`, `E2E_LIVE_PASSWORD`)
+- Local development: `.env.e2e.local` file (gitignored) for running live tests manually
+
+### Data Isolation on Live Backend
+
+Tests that create or modify data on demo.mealie.io must be self-cleaning:
+
+1. **Test setup**: Create test-specific items with a recognizable prefix (e.g., `[E2E-<timestamp>]`)
+2. **Test teardown** (`@After`): Delete all items with the test prefix via API
+3. **Fallback**: If teardown fails (network issue), prefixed items are identifiable for manual cleanup
+4. **Read-only tests** (E2E-001, E2E-002): No cleanup needed
+
+### Timeout Configuration
+
+| Mode | Connect Timeout | Read Timeout | UI waitUntil |
+| --- | --- | --- | --- |
+| WireMock | 5s | 5s | 5s |
+| Live | 10s | 30s | 15s |
+
+Live mode uses more generous timeouts to account for network latency and server load.
 
 ---
 
