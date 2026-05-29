@@ -491,6 +491,13 @@ From Story 1-5 deferred items to address:
 - [Source: story 1-5 Review Findings] - Deferred Mutex for concurrent access, applicationScope exposure
 - [Source: deferred-work.md] - applicationScope not in Koin (1-2), no concurrency guard (1-5)
 
+### ATDD Artifacts
+
+- Checklist: `_bmad-output/test-artifacts/atdd-checklist-1-6-silent-token-refresh-on-app-launch.md`
+- Contract tests: `core/network/src/test/java/dev/xexanos/mealie/core/network/api/AuthServiceRefreshContractTest.kt`
+- Unit tests (UseCase): `core/data/src/test/java/dev/xexanos/mealie/core/data/domain/StartupAuthUseCaseTest.kt`
+- Unit tests (ViewModel): `feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/StartupAuthViewModelTest.kt`
+
 ## Dev Agent Record
 
 ### Agent Model Used
