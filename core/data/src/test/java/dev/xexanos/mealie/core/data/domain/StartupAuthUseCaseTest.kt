@@ -1,14 +1,13 @@
 package dev.xexanos.mealie.core.data.domain
 
+import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-@Disabled("Red phase - StartupAuthUseCase not implemented yet")
 @DisplayName("StartupAuthUseCase Tests")
 class StartupAuthUseCaseTest {
 
@@ -42,15 +41,15 @@ class StartupAuthUseCaseTest {
         }
 
         @Test
-        @DisplayName("[P0] refresh success persists new token")
-        fun `whenRefreshSucceeds thenNewTokenIsSaved`() = runTest {
+        @DisplayName("[P0] refresh success calls refreshToken on repository")
+        fun `whenRefreshSucceeds thenRepositoryRefreshCalled`() = runTest {
             fakeTokenStore.storedToken = "old-token"
             fakeCredentialStore.storedCredentials = "user" to "pass"
             fakeAuthRepository.refreshResult = AuthResult.Success
 
             useCase.execute()
 
-            assertEquals(1, fakeTokenStore.saveTokenCallCount)
+            assertEquals(1, fakeAuthRepository.refreshCallCount)
         }
     }
 
@@ -72,8 +71,8 @@ class StartupAuthUseCaseTest {
         }
 
         @Test
-        @DisplayName("[P0] re-auth success persists new token")
-        fun `whenReAuthSucceeds thenNewTokenIsSaved`() = runTest {
+        @DisplayName("[P0] re-auth success calls reAuthenticate on repository")
+        fun `whenReAuthSucceeds thenRepositoryReAuthCalled`() = runTest {
             fakeTokenStore.storedToken = "expired-token"
             fakeCredentialStore.storedCredentials = "user" to "pass"
             fakeAuthRepository.refreshResult = AuthResult.InvalidCredentials
@@ -81,7 +80,7 @@ class StartupAuthUseCaseTest {
 
             useCase.execute()
 
-            assertEquals(1, fakeTokenStore.saveTokenCallCount)
+            assertEquals(1, fakeAuthRepository.reAuthCallCount)
         }
     }
 
@@ -162,11 +161,11 @@ class StartupAuthUseCaseTest {
     inner class Offline {
 
         @Test
-        @DisplayName("[P1] refresh throws IOException - returns Offline")
-        fun `whenRefreshThrowsIOException thenReturnsOffline`() = runTest {
+        @DisplayName("[P1] refresh returns NetworkError - returns Offline")
+        fun `whenRefreshReturnsNetworkError thenReturnsOffline`() = runTest {
             fakeTokenStore.storedToken = "valid-token"
             fakeCredentialStore.storedCredentials = "user" to "pass"
-            fakeAuthRepository.refreshThrowsIOException = true
+            fakeAuthRepository.refreshResult = AuthResult.NetworkError
 
             val result = useCase.execute()
 
@@ -178,7 +177,7 @@ class StartupAuthUseCaseTest {
         fun `whenOffline thenSkipsReAuth`() = runTest {
             fakeTokenStore.storedToken = "valid-token"
             fakeCredentialStore.storedCredentials = "user" to "pass"
-            fakeAuthRepository.refreshThrowsIOException = true
+            fakeAuthRepository.refreshResult = AuthResult.NetworkError
 
             useCase.execute()
 
@@ -197,9 +196,8 @@ class StartupAuthUseCaseTest {
             fakeCredentialStore.storedCredentials = "user" to "pass"
             fakeAuthRepository.refreshResult = AuthResult.Success
 
-            // Launch two concurrent calls
             val results = (1..2).map {
-                kotlinx.coroutines.async { useCase.execute() }
+                async { useCase.execute() }
             }.map { it.await() }
 
             assertEquals(1, fakeAuthRepository.refreshCallCount)

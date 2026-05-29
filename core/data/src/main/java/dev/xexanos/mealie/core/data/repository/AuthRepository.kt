@@ -13,6 +13,8 @@ interface AuthRepository {
     suspend fun isHttpWarningAcknowledged(url: String): Boolean
     suspend fun acknowledgeHttpWarning(url: String)
     suspend fun authenticate(username: String, password: String): AuthResult
+    suspend fun refreshToken(token: String): AuthResult
+    suspend fun reAuthenticateWithStoredCredentials(): AuthResult
     fun getStoredCredentials(): Flow<StoredCredentials>
     fun getStoredToken(): Flow<StoredToken>
 }

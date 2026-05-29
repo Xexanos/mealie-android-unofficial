@@ -4,6 +4,8 @@ import dev.xexanos.mealie.core.network.dto.AuthTokenDto
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
+import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface AuthService {
@@ -13,5 +15,10 @@ interface AuthService {
         @Field("username") username: String,
         @Field("password") password: String,
         @Field("remember_me") rememberMe: Boolean = true,
+    ): Response<AuthTokenDto>
+
+    @GET("api/auth/refresh")
+    suspend fun refreshToken(
+        @Header("Authorization") bearerToken: String,
     ): Response<AuthTokenDto>
 }

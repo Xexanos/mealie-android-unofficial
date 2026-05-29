@@ -5,13 +5,11 @@ import dev.xexanos.mealie.core.data.domain.StartupAuthResult
 import dev.xexanos.mealie.feature.auth.testutil.MainDispatcherExtension
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@Disabled("Red phase - StartupAuthViewModel not implemented yet")
 @ExtendWith(MainDispatcherExtension::class)
 @DisplayName("StartupAuthViewModel Tests")
 class StartupAuthViewModelTest {

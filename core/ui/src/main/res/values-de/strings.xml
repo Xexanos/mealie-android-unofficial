@@ -18,4 +18,7 @@
     <string name="credential_error_empty">Benutzername und Passwort erforderlich</string>
     <string name="credential_error_invalid">Benutzername oder Passwort falsch</string>
     <string name="credential_error_network">Server nicht erreichbar</string>
+
+    <!-- Startup Screen -->
+    <string name="startup_loading">Anmeldung\u2026</string>
 </resources>
