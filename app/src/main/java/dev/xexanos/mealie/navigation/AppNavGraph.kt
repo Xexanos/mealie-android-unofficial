@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -61,7 +62,7 @@ fun AppNavGraph(navController: NavHostController) {
             },
         )
         composable<PostAuthRoute> {
-            Box(modifier = Modifier.fillMaxSize())
+            Box(modifier = Modifier.fillMaxSize().testTag(PostAuthTestTags.CONTAINER))
         }
         // shoppingGraph(navController) added in Story 2.1
     }

@@ -116,6 +116,55 @@ class WireMockRule(
         """.trimIndent())
     }
 
+    fun stubRefreshSuccess() {
+        stubFor("""
+            {
+              "request": {
+                "method": "GET",
+                "urlPath": "/api/auth/refresh"
+              },
+              "response": {
+                "status": 200,
+                "jsonBody": {"access_token": "refreshed-token-abc123", "token_type": "bearer"},
+                "headers": {"Content-Type": "application/json"}
+              }
+            }
+        """.trimIndent())
+    }
+
+    fun stubRefreshUnauthorized() {
+        stubFor("""
+            {
+              "request": {
+                "method": "GET",
+                "urlPath": "/api/auth/refresh"
+              },
+              "response": {
+                "status": 401,
+                "jsonBody": {"detail": "Could not validate credentials"},
+                "headers": {"Content-Type": "application/json"}
+              }
+            }
+        """.trimIndent())
+    }
+
+    fun stubRefreshWithDelay(delayMs: Int) {
+        stubFor("""
+            {
+              "request": {
+                "method": "GET",
+                "urlPath": "/api/auth/refresh"
+              },
+              "response": {
+                "status": 200,
+                "jsonBody": {"access_token": "refreshed-token-abc123", "token_type": "bearer"},
+                "headers": {"Content-Type": "application/json"},
+                "fixedDelayMilliseconds": $delayMs
+              }
+            }
+        """.trimIndent())
+    }
+
     private fun post(url: String, body: String) {
         val connection = URL(url).openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
