@@ -118,6 +118,9 @@ so that I can authenticate with the Mealie server without re-entering credential
 - [x] [Review][Defer] No concurrency guard in AuthRepositoryImpl.authenticate() - currently single-caller via ViewModel guard; add Mutex when Story 1-6 adds second caller [AuthRepositoryImpl.kt:66]
 - [x] [Review][Defer] Process death during isSubmitting loses typed credentials - SavedStateHandle integration is nice-to-have, not required by AC [CredentialViewModel.kt]
 - [x] [Review][Defer] Raw dp/sp literals instead of Spacing design tokens - pre-existing debt from earlier stories; same pattern in ServerUrlScreen and HttpWarningCheckScreen [CredentialScreen.kt:82]
+- [x] [Review][Defer] Redaction regex bypassed by URL-encoded special chars in passwords - DEBUG-only logging; regex stops at `&` or whitespace so a password containing literal `%26` would truncate the match [NetworkModule.kt:21]
+- [x] [Review][Defer] Empty access_token string accepted and stored without validation - if Mealie returns `{"access_token":""}` on 200, empty string is persisted; extremely unlikely from real server [AuthRepositoryImpl.kt:74]
+- [x] [Review][Defer] Silent credential/token wipe on DataStore file corruption - ReplaceFileCorruptionHandler resets to empty with no user notification; user appears logged out with no explanation [CredentialsStore.kt:54, TokenStore.kt:53]
 
 ## Dev Notes
 
