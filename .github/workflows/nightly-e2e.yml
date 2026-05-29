@@ -1,0 +1,93 @@
+name: Nightly Live E2E
+
+on:
+  schedule:
+    - cron: '23 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  live-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Guard - check for recent commits
+        id: guard
+        run: |
+          if [ -z "$(git log --since='24 hours ago' --oneline)" ]; then
+            echo "No commits in the last 24 hours - skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Health check - demo.mealie.io
+        if: steps.guard.outputs.skip == 'false'
+        run: |
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://demo.mealie.io/api/app/about)
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "::error::demo.mealie.io unreachable (HTTP $HTTP_STATUS) - live E2E coverage at risk!"
+            exit 1
+          fi
+          echo "demo.mealie.io is healthy (HTTP $HTTP_STATUS)"
+
+      - uses: actions/setup-java@v5
+        if: steps.guard.outputs.skip == 'false'
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v6
+        if: steps.guard.outputs.skip == 'false'
+
+      - name: Enable KVM
+        if: steps.guard.outputs.skip == 'false'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Cache AVD
+        if: steps.guard.outputs.skip == 'false'
+        uses: actions/cache@v4
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-34-x86_64
+
+      - name: Create AVD snapshot for caching
+        if: steps.guard.outputs.skip == 'false' && steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "AVD snapshot created."
+
+      - name: Run Live E2E tests
+        if: steps.guard.outputs.skip == 'false'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: >-
+            ./gradlew :app:connectedDebugAndroidTest
+            "-Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e"
+            "-Pandroid.testInstrumentationRunnerArguments.e2eBackend=live"
+
+      - name: Upload test results
+        if: steps.guard.outputs.skip == 'false' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-e2e-results
+          path: app/build/reports/androidTests/connected/
+          retention-days: 14

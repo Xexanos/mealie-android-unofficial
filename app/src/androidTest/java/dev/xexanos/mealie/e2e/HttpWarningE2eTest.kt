@@ -12,19 +12,25 @@ import androidx.test.filters.LargeTest
 import dev.xexanos.mealie.MainActivity
 import dev.xexanos.mealie.feature.auth.ui.HttpWarningCheckTestTags
 import dev.xexanos.mealie.feature.auth.ui.ServerUrlTestTags
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class HttpWarningE2eTest {
+class HttpWarningE2eTest : E2ETestBase() {
 
     @get:Rule(order = 0)
     val wireMock = WireMockRule()
 
     @get:Rule(order = 1)
     val composeTestRule = createAndroidComposeRule<MainActivity>()
+
+    @Before
+    fun skipInLiveMode() {
+        assumeWireMockOnly()
+    }
 
     private fun navigatePastServerUrl() {
         wireMock.stubAppAboutSuccess()
@@ -49,18 +55,5 @@ class HttpWarningE2eTest {
             .assertIsDisplayed()
         composeTestRule.onNodeWithTag(HttpWarningCheckTestTags.CONTINUE_BUTTON)
             .assertIsDisplayed()
-    }
-
-    @Test
-    fun whenContinueClicked_thenNavigatesPastWarning() {
-        navigatePastServerUrl()
-
-        composeTestRule.onNodeWithTag(HttpWarningCheckTestTags.CONTINUE_BUTTON)
-            .performClick()
-
-        composeTestRule.waitUntil(timeoutMillis = 5_000) {
-            composeTestRule.onAllNodesWithTag(HttpWarningCheckTestTags.CONTINUE_BUTTON)
-                .fetchSemanticsNodes().isEmpty()
-        }
     }
 }

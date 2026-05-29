@@ -44,7 +44,7 @@ class WireMockRule(
               },
               "response": {
                 "status": 200,
-                "jsonBody": {"version": "3.0.0"},
+                "jsonBody": {"version": "v3.0.0"},
                 "headers": {"Content-Type": "application/json"}
               }
             }
@@ -60,7 +60,7 @@ class WireMockRule(
               },
               "response": {
                 "status": 200,
-                "jsonBody": {"version": "2.0.0"},
+                "jsonBody": {"version": "v1.2.0"},
                 "headers": {"Content-Type": "application/json"}
               }
             }
@@ -79,6 +79,38 @@ class WireMockRule(
                 "jsonBody": {"version": "3.0.0"},
                 "headers": {"Content-Type": "application/json"},
                 "fixedDelayMilliseconds": $delayMs
+              }
+            }
+        """.trimIndent())
+    }
+
+    fun stubAuthSuccess() {
+        stubFor("""
+            {
+              "request": {
+                "method": "POST",
+                "urlPath": "/api/auth/token"
+              },
+              "response": {
+                "status": 200,
+                "jsonBody": {"access_token": "test-token-abc123", "token_type": "bearer"},
+                "headers": {"Content-Type": "application/json"}
+              }
+            }
+        """.trimIndent())
+    }
+
+    fun stubAuthUnauthorized() {
+        stubFor("""
+            {
+              "request": {
+                "method": "POST",
+                "urlPath": "/api/auth/token"
+              },
+              "response": {
+                "status": 401,
+                "jsonBody": {"detail": "Unauthorized"},
+                "headers": {"Content-Type": "application/json"}
               }
             }
         """.trimIndent())

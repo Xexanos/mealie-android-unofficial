@@ -1,6 +1,8 @@
 package dev.xexanos.mealie.core.data.repository
 
 import dev.xexanos.mealie.core.data.datastore.AppPreferencesStore
+import dev.xexanos.mealie.core.data.datastore.CredentialsStore
+import dev.xexanos.mealie.core.data.datastore.TokenStore
 import dev.xexanos.mealie.core.data.domain.UrlProbeResult
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -26,6 +28,8 @@ class AuthRepositoryImplTest {
 
     private val mockServer = MockWebServer()
     private val appPreferencesStore = mockk<AppPreferencesStore>(relaxed = true)
+    private val tokenStore = mockk<TokenStore>(relaxed = true)
+    private val credentialsStore = mockk<CredentialsStore>(relaxed = true)
     private val json = Json { ignoreUnknownKeys = true; coerceInputValues = true }
     private val okHttpClient = OkHttpClient.Builder()
         .connectTimeout(500, TimeUnit.MILLISECONDS)
@@ -39,7 +43,7 @@ class AuthRepositoryImplTest {
     fun setup() {
         mockServer.start()
         every { appPreferencesStore.getServerUrl() } returns flowOf(null)
-        repository = AuthRepositoryImpl(appPreferencesStore, okHttpClient, json)
+        repository = AuthRepositoryImpl(appPreferencesStore, okHttpClient, json, tokenStore, credentialsStore)
     }
 
     @AfterEach
@@ -55,7 +59,7 @@ class AuthRepositoryImplTest {
             MockResponse.Builder()
                 .code(200)
                 .addHeader("Content-Type", "application/json")
-                .body("""{"version": "3.18.0", "production": true}""")
+                .body("""{"version": "v3.18.0", "production": true}""")
                 .build(),
         )
 
@@ -65,12 +69,12 @@ class AuthRepositoryImplTest {
     }
 
     @Test
-    fun `when probe receives version without 3 prefix then returns NotMealieServer`() = runTest {
+    fun `when probe receives version with v1 prefix then returns NotMealieServer`() = runTest {
         mockServer.enqueue(
             MockResponse.Builder()
                 .code(200)
                 .addHeader("Content-Type", "application/json")
-                .body("""{"version": "2.0.0", "production": true}""")
+                .body("""{"version": "v1.2.0", "production": true}""")
                 .build(),
         )
 
@@ -80,7 +84,22 @@ class AuthRepositoryImplTest {
     }
 
     @Test
-    fun `when probe receives null version then returns NotMealieServer`() = runTest {
+    fun `when probe receives nightly version then returns Success`() = runTest {
+        mockServer.enqueue(
+            MockResponse.Builder()
+                .code(200)
+                .addHeader("Content-Type", "application/json")
+                .body("""{"version": "nightly", "production": true}""")
+                .build(),
+        )
+
+        val result = repository.probeServerUrl(baseUrl())
+
+        assertEquals(UrlProbeResult.Success, result)
+    }
+
+    @Test
+    fun `when probe receives null version then returns Success`() = runTest {
         mockServer.enqueue(
             MockResponse.Builder()
                 .code(200)
@@ -91,7 +110,7 @@ class AuthRepositoryImplTest {
 
         val result = repository.probeServerUrl(baseUrl())
 
-        assertEquals(UrlProbeResult.NotMealieServer, result)
+        assertEquals(UrlProbeResult.Success, result)
     }
 
     @Test

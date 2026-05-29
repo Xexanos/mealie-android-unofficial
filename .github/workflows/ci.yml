@@ -74,7 +74,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
           script: echo "AVD snapshot created."
-      - name: Run E2E tests
+      - name: Run WireMock E2E tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
@@ -83,3 +83,26 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: ./gradlew :app:connectedDebugAndroidTest
+      - name: Health check - demo.mealie.io
+        id: live-health
+        run: |
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://demo.mealie.io/api/app/about)
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "::warning::demo.mealie.io unreachable (HTTP $HTTP_STATUS) - skipping live E2E tests"
+            echo "reachable=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "reachable=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Run Live E2E tests
+        if: steps.live-health.outputs.reachable == 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: >-
+            ./gradlew :app:connectedDebugAndroidTest
+            "-Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e"
+            "-Pandroid.testInstrumentationRunnerArguments.e2eBackend=live"

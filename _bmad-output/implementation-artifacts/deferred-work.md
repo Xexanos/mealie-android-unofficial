@@ -21,3 +21,14 @@
 
 - E2E tests use hardcoded English strings - `ServerUrlE2eTest.kt` matches rendered text by literal English content (e.g., `onNodeWithText("Not a Mealie server")`). Now that German translations exist, these tests are locale-sensitive and will fail on non-English devices. Use `activity.getString(R.string.*)` or match by test tag instead.
 - `when` on `UrlProbeResult` is a statement, not exhaustive - The `when` block in `ServerUrlViewModel.onConnect()` is a statement, so Kotlin does not enforce exhaustiveness. If a new case is added to `UrlProbeResult`, the UI would silently remain in `Probing` state. Convert to expression (`val _ = when(...)`) or add an `else` branch with a clear crash.
+
+## Deferred from: code review of 1-5-credential-entry-and-encrypted-storage (2026-05-28)
+
+- DataStore delegate inside class risks IllegalStateException on multiple instantiation - `by dataStore(...)` declared as member extension property; creating a second instance of TokenStore/CredentialsStore throws. Mitigated by Koin `single{}` scope; move to top-level file scope when adding instrumented tests.
+- Retrofit instance created per authenticate() call - `createAuthService()` builds fresh Retrofit on each call. Low performance impact; same pattern exists in `probeServerUrl`. Cache when auth frequency increases.
+- AeadConfig.register() called redundantly in both stores - Tink's register() is idempotent but scattered across lazy blocks. Centralize in Application.onCreate or a Koin initializer when adding more Tink consumers.
+- No error handling for KeyStoreException when Android Keystore unavailable - `AndroidKeysetManager.Builder().build()` can throw on biometric reset, hardware failure, or key invalidation. Requires app-level recovery strategy (clear data + re-auth); address in Story 1-8.
+- HTTP 403/429/5xx not differentiated from NetworkError - spec only defines 401 and network error cases. All non-401 errors map to "Could not reach server". Expand AuthResult when real-world Mealie deployments reveal additional error scenarios.
+- No concurrency guard in AuthRepositoryImpl.authenticate() - currently single-caller via ViewModel's isSubmitting guard. Add Mutex or similar when Story 1-6 (silent token refresh) introduces a second caller.
+- Process death during isSubmitting loses typed credentials - ViewModel uses MutableStateFlow without SavedStateHandle; process death resets to empty fields. SavedStateHandle integration is nice-to-have for credential screen.
+- Raw dp/sp literals instead of Spacing design tokens - `CredentialScreen.kt` uses `.padding(16.dp)` and `.widthIn(max = 600.dp)` as raw literals. Pre-existing debt from earlier stories (same pattern in ServerUrlScreen, HttpWarningCheckScreen). Address in a design-tokens cleanup pass.
