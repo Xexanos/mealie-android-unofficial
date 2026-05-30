@@ -12,7 +12,7 @@ jobs:
       matrix:
         api-level: [30, 34, 36]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -65,7 +65,7 @@ jobs:
 
       - name: Upload test results
         if: steps.guard.outputs.skip == 'false' && always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: live-e2e-results-api${{ matrix.api-level }}
           path: app/build/reports/androidTests/connected/
