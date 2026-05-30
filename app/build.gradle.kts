@@ -12,7 +12,7 @@ val wiremockRunner: Configuration by configurations.creating
 
 android {
     namespace = "dev.xexanos.mealie"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "dev.xexanos.mealie"
@@ -32,6 +32,7 @@ android {
         }
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             val keystorePath = System.getenv("KEYSTORE_PATH")
             val keystorePassword = System.getenv("KEYSTORE_PASSWORD")
@@ -58,18 +59,18 @@ android {
 
         managedDevices {
             localDevices {
-                create("pixel6Api28") {
-                    device = "Pixel 6"
+                create("mediumPhoneApi28") {
+                    device = "Medium Phone"
                     apiLevel = 28
-                    systemImageSource = "google"
+                    systemImageSource = "aosp"
                 }
-                create("pixel6Api34") {
-                    device = "Pixel 6"
+                create("mediumPhoneApi34") {
+                    device = "Medium Phone"
                     apiLevel = 34
                     systemImageSource = "aosp"
                 }
-                create("pixel6Api35") {
-                    device = "Pixel 6"
+                create("mediumPhoneApi35") {
+                    device = "Medium Phone"
                     apiLevel = 35
                     systemImageSource = "aosp"
                 }

@@ -59,7 +59,7 @@ jobs:
       - name: Run Live E2E tests
         if: steps.guard.outputs.skip == 'false'
         run: >-
-          ./gradlew pixel6Api${{ matrix.api-level }}DebugAndroidTest
+          ./gradlew mediumPhoneApi${{ matrix.api-level }}DebugAndroidTest
           "-Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e"
           "-Pandroid.testInstrumentationRunnerArguments.e2eBackend=live"
 

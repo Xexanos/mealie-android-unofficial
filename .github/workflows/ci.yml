@@ -62,7 +62,7 @@ jobs:
       - name: Accept SDK licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
       - name: Run WireMock E2E tests
-        run: ./gradlew pixel6Api${{ matrix.api-level }}DebugAndroidTest
+        run: ./gradlew mediumPhoneApi${{ matrix.api-level }}DebugAndroidTest
       - name: Health check - demo.mealie.io
         id: live-health
         run: |
@@ -76,6 +76,6 @@ jobs:
       - name: Run Live E2E tests
         if: steps.live-health.outputs.reachable == 'true'
         run: >-
-          ./gradlew pixel6Api${{ matrix.api-level }}DebugAndroidTest
+          ./gradlew mediumPhoneApi${{ matrix.api-level }}DebugAndroidTest
           "-Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e"
           "-Pandroid.testInstrumentationRunnerArguments.e2eBackend=live"
