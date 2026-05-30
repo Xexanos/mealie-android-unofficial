@@ -43,6 +43,10 @@ class FakeAuthRepository(
         return authResult
     }
 
+    override suspend fun refreshToken(token: String): AuthResult = authResult
+
+    override suspend fun reAuthenticateWithStoredCredentials(): AuthResult = authResult
+
     override fun getStoredCredentials(): Flow<StoredCredentials> =
         flowOf(StoredCredentials())
 

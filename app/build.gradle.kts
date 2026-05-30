@@ -55,6 +55,24 @@ android {
 
     testOptions {
         execution = "ANDROIDX_TEST_ORCHESTRATOR"
+
+        managedDevices {
+            localDevices {
+                create("pixel6Api34") {
+                    device = "Pixel 6"
+                    apiLevel = 34
+                    systemImageSource = "aosp"
+                }
+            }
+            groups {
+                create("wiremock") {
+                    targetDevices.add(localDevices["pixel6Api34"])
+                }
+                create("live") {
+                    targetDevices.add(localDevices["pixel6Api34"])
+                }
+            }
+        }
     }
 
     splits {
@@ -160,6 +178,14 @@ val wiremockStop by tasks.registering {
 
 afterEvaluate {
     tasks.matching { it.name == "connectedDebugAndroidTest" }.configureEach {
+        dependsOn(wiremockStart)
+        finalizedBy(wiremockStop)
+    }
+    tasks.matching { it.name == "pixel6Api34DebugAndroidTest" }.configureEach {
+        dependsOn(wiremockStart)
+        finalizedBy(wiremockStop)
+    }
+    tasks.matching { it.name == "wiremockGroupDebugAndroidTest" }.configureEach {
         dependsOn(wiremockStart)
         finalizedBy(wiremockStop)
     }

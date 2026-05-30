@@ -20,4 +20,7 @@
     <string name="credential_error_empty">Username and password required</string>
     <string name="credential_error_invalid">Incorrect username or password</string>
     <string name="credential_error_network">Could not reach server</string>
+
+    <!-- Startup Screen -->
+    <string name="startup_loading">Signing in\u2026</string>
 </resources>

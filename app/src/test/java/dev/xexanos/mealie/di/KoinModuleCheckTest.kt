@@ -1,6 +1,7 @@
 package dev.xexanos.mealie.di
 
 import dev.xexanos.mealie.core.data.di.dataModule
+import dev.xexanos.mealie.core.data.domain.StartupAuthUseCase
 import dev.xexanos.mealie.core.data.repository.AuthRepository
 import dev.xexanos.mealie.core.network.di.networkModule
 import dev.xexanos.mealie.core.sync.di.syncModule
@@ -46,6 +47,7 @@ class KoinModuleCheckTest {
         authFeatureModule.verify(
             extraTypes = listOf(
                 AuthRepository::class,
+                StartupAuthUseCase::class,
             ),
         )
     }

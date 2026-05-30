@@ -36,7 +36,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-24T00:00:00Z
-last_updated: 2026-05-28T00:00:00Z
+last_updated: 2026-05-30T00:00:00Z
 
 project: mealie-android-unofficial
 project_key: NOKEY
@@ -52,7 +52,7 @@ development_status:
   1-4-http-security-warning-for-non-https-urls: done
   1-4a-externalize-ui-strings-to-centralized-resources: done
   1-5-credential-entry-and-encrypted-storage: done
-  1-6-silent-token-refresh-on-app-launch: backlog
+  1-6-silent-token-refresh-on-app-launch: done
   1-7-automatic-mid-session-401-recovery: backlog
   1-8-last-resort-re-authentication-screen: backlog
   1-9-credential-and-server-url-update-in-settings: backlog

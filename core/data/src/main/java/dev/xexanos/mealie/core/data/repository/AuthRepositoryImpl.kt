@@ -12,6 +12,8 @@ import dev.xexanos.mealie.core.network.api.AuthService
 import dev.xexanos.mealie.core.network.dto.AppAboutDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -27,6 +29,8 @@ class AuthRepositoryImpl(
     private val tokenStore: TokenStore,
     private val credentialsStore: CredentialsStore,
 ) : AuthRepository {
+
+    private val networkMutex = Mutex()
 
     override fun getStoredServerUrl(): Flow<String?> =
         appPreferencesStore.getServerUrl()
@@ -64,16 +68,41 @@ class AuthRepositoryImpl(
         appPreferencesStore.acknowledgeHttpWarning(url)
     }
 
-    override suspend fun authenticate(username: String, password: String): AuthResult {
-        return try {
+    override suspend fun authenticate(username: String, password: String): AuthResult =
+        networkMutex.withLock {
+            try {
+                val serverUrl = appPreferencesStore.getServerUrl().first()
+                    ?: return AuthResult.NetworkError
+                val authService = createAuthService(serverUrl)
+                val response = authService.login(username = username, password = password)
+                if (response.isSuccessful) {
+                    val body = response.body() ?: return AuthResult.NetworkError
+                    tokenStore.saveToken(body.accessToken)
+                    credentialsStore.saveCredentials(username, password)
+                    AuthResult.Success
+                } else if (response.code() == HTTP_UNAUTHORIZED) {
+                    AuthResult.InvalidCredentials
+                } else {
+                    AuthResult.NetworkError
+                }
+            } catch (_: IOException) {
+                AuthResult.NetworkError
+            } catch (e: Exception) {
+                if (e is kotlin.coroutines.cancellation.CancellationException) throw e
+                Log.e("AuthRepository", "Unexpected exception during authenticate", e)
+                AuthResult.NetworkError
+            }
+        }
+
+    override suspend fun refreshToken(token: String): AuthResult = networkMutex.withLock {
+        try {
             val serverUrl = appPreferencesStore.getServerUrl().first()
                 ?: return AuthResult.NetworkError
             val authService = createAuthService(serverUrl)
-            val response = authService.login(username = username, password = password)
+            val response = authService.refreshToken("Bearer $token")
             if (response.isSuccessful) {
                 val body = response.body() ?: return AuthResult.NetworkError
                 tokenStore.saveToken(body.accessToken)
-                credentialsStore.saveCredentials(username, password)
                 AuthResult.Success
             } else if (response.code() == HTTP_UNAUTHORIZED) {
                 AuthResult.InvalidCredentials
@@ -84,10 +113,40 @@ class AuthRepositoryImpl(
             AuthResult.NetworkError
         } catch (e: Exception) {
             if (e is kotlin.coroutines.cancellation.CancellationException) throw e
-            Log.e("AuthRepository", "Unexpected exception during authenticate", e)
+            Log.e("AuthRepository", "Unexpected exception during refreshToken", e)
             AuthResult.NetworkError
         }
     }
+
+    override suspend fun reAuthenticateWithStoredCredentials(): AuthResult =
+        networkMutex.withLock {
+            try {
+                val credentials = credentialsStore.getCredentials().first()
+                if (credentials.username.isEmpty()) return AuthResult.NetworkError
+                val serverUrl = appPreferencesStore.getServerUrl().first()
+                    ?: return AuthResult.NetworkError
+                val authService = createAuthService(serverUrl)
+                val response = authService.login(
+                    username = credentials.username,
+                    password = credentials.password,
+                )
+                if (response.isSuccessful) {
+                    val body = response.body() ?: return AuthResult.NetworkError
+                    tokenStore.saveToken(body.accessToken)
+                    AuthResult.Success
+                } else if (response.code() == HTTP_UNAUTHORIZED) {
+                    AuthResult.InvalidCredentials
+                } else {
+                    AuthResult.NetworkError
+                }
+            } catch (_: IOException) {
+                AuthResult.NetworkError
+            } catch (e: Exception) {
+                if (e is kotlin.coroutines.cancellation.CancellationException) throw e
+                Log.e("AuthRepository", "Unexpected exception during reAuthenticate", e)
+                AuthResult.NetworkError
+            }
+        }
 
     override fun getStoredCredentials(): Flow<StoredCredentials> =
         credentialsStore.getCredentials()

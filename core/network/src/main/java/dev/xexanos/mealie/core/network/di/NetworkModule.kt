@@ -1,6 +1,7 @@
 package dev.xexanos.mealie.core.network.di
 
 import dev.xexanos.mealie.core.network.BuildConfig
+import dev.xexanos.mealie.core.network.auth.TokenManager
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -15,6 +16,7 @@ val networkModule = module {
         }
     }
     single { buildOkHttpClient() }
+    single { TokenManager() }
 }
 
 private const val CONNECT_TIMEOUT_SECONDS = 10L
