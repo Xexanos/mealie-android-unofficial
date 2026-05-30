@@ -1,5 +1,5 @@
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 import java.util.concurrent.TimeUnit
 
 plugins {
@@ -141,7 +141,7 @@ val wiremockStart by tasks.registering {
         while (System.nanoTime() < deadlineNanos && !ready) {
             check(wiremockProcess?.isAlive != false) { "WireMock process terminated unexpectedly" }
             ready = runCatching {
-                val conn = URL("http://localhost:8080/__admin/mappings").openConnection() as HttpURLConnection
+                val conn = URI("http://localhost:8080/__admin/mappings").toURL().openConnection() as HttpURLConnection
                 conn.requestMethod = "GET"
                 conn.connectTimeout = 500
                 conn.readTimeout = 500
@@ -161,7 +161,7 @@ val wiremockStart by tasks.registering {
 val wiremockStop by tasks.registering {
     doLast {
         runCatching {
-            val conn = URL("http://localhost:8080/__admin/shutdown")
+            val conn = URI("http://localhost:8080/__admin/shutdown").toURL()
                 .openConnection() as HttpURLConnection
             conn.requestMethod = "POST"
             conn.connectTimeout = 2000
