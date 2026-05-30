@@ -44,6 +44,9 @@ jobs:
   e2e:
     needs: build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        api-level: [27, 34, 35]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v5
@@ -57,7 +60,7 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - name: Run WireMock E2E tests
-        run: ./gradlew pixel6Api34DebugAndroidTest
+        run: ./gradlew pixel6Api${{ matrix.api-level }}DebugAndroidTest
       - name: Health check - demo.mealie.io
         id: live-health
         run: |
@@ -71,6 +74,6 @@ jobs:
       - name: Run Live E2E tests
         if: steps.live-health.outputs.reachable == 'true'
         run: >-
-          ./gradlew pixel6Api34DebugAndroidTest
+          ./gradlew pixel6Api${{ matrix.api-level }}DebugAndroidTest
           "-Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e"
           "-Pandroid.testInstrumentationRunnerArguments.e2eBackend=live"

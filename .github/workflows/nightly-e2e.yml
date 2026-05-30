@@ -8,6 +8,9 @@ on:
 jobs:
   live-e2e:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        api-level: [27, 34, 35]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,7 +55,7 @@ jobs:
       - name: Run Live E2E tests
         if: steps.guard.outputs.skip == 'false'
         run: >-
-          ./gradlew pixel6Api34DebugAndroidTest
+          ./gradlew pixel6Api${{ matrix.api-level }}DebugAndroidTest
           "-Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e"
           "-Pandroid.testInstrumentationRunnerArguments.e2eBackend=live"
 
@@ -60,6 +63,6 @@ jobs:
         if: steps.guard.outputs.skip == 'false' && always()
         uses: actions/upload-artifact@v4
         with:
-          name: live-e2e-results
+          name: live-e2e-results-api${{ matrix.api-level }}
           path: app/build/reports/androidTests/connected/
           retention-days: 14

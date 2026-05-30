@@ -58,18 +58,20 @@ android {
 
         managedDevices {
             localDevices {
+                create("pixel6Api27") {
+                    device = "Pixel 6"
+                    apiLevel = 27
+                    systemImageSource = "aosp"
+                }
                 create("pixel6Api34") {
                     device = "Pixel 6"
                     apiLevel = 34
                     systemImageSource = "aosp"
                 }
-            }
-            groups {
-                create("wiremock") {
-                    targetDevices.add(localDevices["pixel6Api34"])
-                }
-                create("live") {
-                    targetDevices.add(localDevices["pixel6Api34"])
+                create("pixel6Api35") {
+                    device = "Pixel 6"
+                    apiLevel = 35
+                    systemImageSource = "aosp"
                 }
             }
         }
@@ -177,7 +179,7 @@ val wiremockStop by tasks.registering {
 }
 
 afterEvaluate {
-    tasks.matching { it.name == "connectedDebugAndroidTest" }.configureEach {
+    tasks.matching { it.name.endsWith("DebugAndroidTest") }.configureEach {
         dependsOn(wiremockStart)
         finalizedBy(wiremockStop)
     }
