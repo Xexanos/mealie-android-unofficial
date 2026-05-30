@@ -10,7 +10,7 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value=":app:pixel6Api34DebugAndroidTest" />
+          <option value=":app:mediumPhoneApi34DebugAndroidTest" />
         </list>
       </option>
       <option name="vmOptions" />

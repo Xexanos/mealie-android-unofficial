@@ -8,8 +8,11 @@ on:
 jobs:
   live-e2e:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        api-level: [30, 34, 36]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -49,17 +52,21 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Accept SDK licenses
+        if: steps.guard.outputs.skip == 'false'
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+
       - name: Run Live E2E tests
         if: steps.guard.outputs.skip == 'false'
         run: >-
-          ./gradlew pixel6Api34DebugAndroidTest
+          ./gradlew mediumPhoneApi${{ matrix.api-level }}DebugAndroidTest
           "-Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e"
           "-Pandroid.testInstrumentationRunnerArguments.e2eBackend=live"
 
       - name: Upload test results
         if: steps.guard.outputs.skip == 'false' && always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: live-e2e-results
+          name: live-e2e-results-api${{ matrix.api-level }}
           path: app/build/reports/androidTests/connected/
           retention-days: 14

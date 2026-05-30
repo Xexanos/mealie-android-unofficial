@@ -1,9 +1,6 @@
 package dev.xexanos.mealie.e2e
 
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithTag
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import dev.xexanos.mealie.MainActivity
@@ -36,12 +33,7 @@ class StartupAuthE2eTest : E2ETestBase() {
 
     @Test
     fun whenNoCredentialsStored_thenNavigatesToServerUrlScreen() {
-        composeTestRule.waitUntil(timeoutMillis = 15_000) {
-            composeTestRule.onAllNodesWithTag(ServerUrlTestTags.URL_TEXT_FIELD)
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-        composeTestRule.onNodeWithTag(ServerUrlTestTags.URL_TEXT_FIELD)
-            .assertIsDisplayed()
+        composeTestRule.waitForNodeAndAssert(ServerUrlTestTags.URL_TEXT_FIELD, TIMEOUT_LONG)
     }
 
     @Test
@@ -53,12 +45,7 @@ class StartupAuthE2eTest : E2ETestBase() {
         refreshStatus = 200,
     )
     fun whenRefreshSucceeds_thenNavigatesToMain() {
-        composeTestRule.waitUntil(timeoutMillis = 15_000) {
-            composeTestRule.onAllNodesWithTag(PostAuthTestTags.CONTAINER)
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-        composeTestRule.onNodeWithTag(PostAuthTestTags.CONTAINER)
-            .assertIsDisplayed()
+        composeTestRule.waitForNodeAndAssert(PostAuthTestTags.CONTAINER, TIMEOUT_LONG)
     }
 
     @Test
@@ -71,12 +58,7 @@ class StartupAuthE2eTest : E2ETestBase() {
         authStatus = 200,
     )
     fun whenRefreshFailsAndReAuthSucceeds_thenNavigatesToMain() {
-        composeTestRule.waitUntil(timeoutMillis = 15_000) {
-            composeTestRule.onAllNodesWithTag(PostAuthTestTags.CONTAINER)
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-        composeTestRule.onNodeWithTag(PostAuthTestTags.CONTAINER)
-            .assertIsDisplayed()
+        composeTestRule.waitForNodeAndAssert(PostAuthTestTags.CONTAINER, TIMEOUT_LONG)
     }
 
     @Test
@@ -89,12 +71,7 @@ class StartupAuthE2eTest : E2ETestBase() {
         authStatus = 401,
     )
     fun whenBothFail_thenNavigatesToCredentialScreen() {
-        composeTestRule.waitUntil(timeoutMillis = 15_000) {
-            composeTestRule.onAllNodesWithTag(CredentialTestTags.USERNAME_TEXT_FIELD)
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-        composeTestRule.onNodeWithTag(CredentialTestTags.USERNAME_TEXT_FIELD)
-            .assertIsDisplayed()
+        composeTestRule.waitForNodeAndAssert(CredentialTestTags.USERNAME_TEXT_FIELD, TIMEOUT_LONG)
     }
 
     @Test
@@ -107,11 +84,6 @@ class StartupAuthE2eTest : E2ETestBase() {
         refreshDelayMs = 3000,
     )
     fun whenRefreshInProgress_thenShowsLoadingIndicator() {
-        composeTestRule.waitUntil(timeoutMillis = 2_000) {
-            composeTestRule.onAllNodesWithTag(StartupTestTags.PROGRESS_INDICATOR)
-                .fetchSemanticsNodes().isNotEmpty()
-        }
-        composeTestRule.onNodeWithTag(StartupTestTags.PROGRESS_INDICATOR)
-            .assertIsDisplayed()
+        composeTestRule.waitForNodeAndAssert(StartupTestTags.PROGRESS_INDICATOR, TIMEOUT_SHORT)
     }
 }

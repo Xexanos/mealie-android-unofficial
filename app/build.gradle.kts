@@ -1,5 +1,5 @@
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 import java.util.concurrent.TimeUnit
 
 plugins {
@@ -12,7 +12,7 @@ val wiremockRunner: Configuration by configurations.creating
 
 android {
     namespace = "dev.xexanos.mealie"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "dev.xexanos.mealie"
@@ -32,6 +32,7 @@ android {
         }
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             val keystorePath = System.getenv("KEYSTORE_PATH")
             val keystorePassword = System.getenv("KEYSTORE_PASSWORD")
@@ -58,18 +59,20 @@ android {
 
         managedDevices {
             localDevices {
-                create("pixel6Api34") {
-                    device = "Pixel 6"
+                create("mediumPhoneApi30") {
+                    device = "Medium Phone"
+                    apiLevel = 30
+                    systemImageSource = "aosp"
+                }
+                create("mediumPhoneApi34") {
+                    device = "Medium Phone"
                     apiLevel = 34
                     systemImageSource = "aosp"
                 }
-            }
-            groups {
-                create("wiremock") {
-                    targetDevices.add(localDevices["pixel6Api34"])
-                }
-                create("live") {
-                    targetDevices.add(localDevices["pixel6Api34"])
+                create("mediumPhoneApi36") {
+                    device = "Medium Phone"
+                    apiLevel = 36
+                    systemImageSource = "google"
                 }
             }
         }
@@ -138,7 +141,7 @@ val wiremockStart by tasks.registering {
         while (System.nanoTime() < deadlineNanos && !ready) {
             check(wiremockProcess?.isAlive != false) { "WireMock process terminated unexpectedly" }
             ready = runCatching {
-                val conn = URL("http://localhost:8080/__admin/mappings").openConnection() as HttpURLConnection
+                val conn = URI("http://localhost:8080/__admin/mappings").toURL().openConnection() as HttpURLConnection
                 conn.requestMethod = "GET"
                 conn.connectTimeout = 500
                 conn.readTimeout = 500
@@ -158,7 +161,7 @@ val wiremockStart by tasks.registering {
 val wiremockStop by tasks.registering {
     doLast {
         runCatching {
-            val conn = URL("http://localhost:8080/__admin/shutdown")
+            val conn = URI("http://localhost:8080/__admin/shutdown").toURL()
                 .openConnection() as HttpURLConnection
             conn.requestMethod = "POST"
             conn.connectTimeout = 2000
@@ -177,15 +180,7 @@ val wiremockStop by tasks.registering {
 }
 
 afterEvaluate {
-    tasks.matching { it.name == "connectedDebugAndroidTest" }.configureEach {
-        dependsOn(wiremockStart)
-        finalizedBy(wiremockStop)
-    }
-    tasks.matching { it.name == "pixel6Api34DebugAndroidTest" }.configureEach {
-        dependsOn(wiremockStart)
-        finalizedBy(wiremockStop)
-    }
-    tasks.matching { it.name == "wiremockGroupDebugAndroidTest" }.configureEach {
+    tasks.matching { it.name.endsWith("DebugAndroidTest") }.configureEach {
         dependsOn(wiremockStart)
         finalizedBy(wiremockStop)
     }
