@@ -58,9 +58,9 @@ android {
 
         managedDevices {
             localDevices {
-                create("pixel6Api27") {
+                create("pixel6Api28") {
                     device = "Pixel 6"
-                    apiLevel = 27
+                    apiLevel = 28
                     systemImageSource = "aosp"
                 }
                 create("pixel6Api34") {
