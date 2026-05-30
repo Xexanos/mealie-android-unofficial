@@ -5,6 +5,7 @@ import dev.xexanos.mealie.core.data.datastore.StoredToken
 import dev.xexanos.mealie.core.data.domain.AuthResult
 import dev.xexanos.mealie.core.data.domain.UrlProbeResult
 import dev.xexanos.mealie.core.data.repository.AuthRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import java.io.IOException
@@ -15,9 +16,11 @@ class FakeStartupAuthRepository : AuthRepository {
     var refreshCallCount = 0
     var reAuthCallCount = 0
     var refreshThrowsIOException = false
+    var refreshDelay: Long = 0L
 
     override suspend fun refreshToken(token: String): AuthResult {
         refreshCallCount++
+        if (refreshDelay > 0) delay(refreshDelay)
         if (refreshThrowsIOException) throw IOException("No network")
         return refreshResult
     }

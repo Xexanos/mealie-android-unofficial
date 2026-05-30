@@ -28,7 +28,6 @@ class FakeTokenProvider : TokenProvider {
 
 class FakeCredentialProvider : CredentialProvider {
     var storedCredentials: Pair<String, String>? = null
-    var clearCredentialsCallCount = 0
 
     override fun getCredentials(): Flow<StoredCredentialData> {
         val creds = storedCredentials

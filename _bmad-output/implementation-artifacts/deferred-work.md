@@ -35,3 +35,7 @@
 - Redaction regex bypassed by URL-encoded special chars in passwords - `NetworkModule.kt` regex `password=[^&\s]+` stops at `&` or whitespace; encoded `%26` in password truncates the redacted segment. DEBUG-only, low risk.
 - Empty access_token string accepted and stored without validation - `AuthRepositoryImpl.kt` saves `body.accessToken` without checking for blank. Extremely unlikely from real Mealie server; add guard when hardening for production.
 - Silent credential/token wipe on DataStore file corruption - `ReplaceFileCorruptionHandler` resets both stores to empty defaults with no user notification. User appears silently logged out. Add Timber/Crashlytics logging and surface a re-login prompt.
+
+## Deferred from: code review of 1-6-silent-token-refresh-on-app-launch (2026-05-29)
+
+- StartupAuthUseCase cachedResult has no production reset path - once execute() runs, result is permanently cached with no public reset method. Tests use reflection. Add a proper reset() when Story 1-9 (credential/server URL update in settings) requires re-running startup auth after config change.

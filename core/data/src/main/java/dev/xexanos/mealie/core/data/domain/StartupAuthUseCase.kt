@@ -34,7 +34,8 @@ open class StartupAuthUseCase(
 
         when (authRepository.reAuthenticateWithStoredCredentials()) {
             AuthResult.Success -> return cacheAndReturn(StartupAuthResult.Success)
-            else -> {
+            AuthResult.NetworkError -> return cacheAndReturn(StartupAuthResult.Offline)
+            AuthResult.InvalidCredentials -> {
                 tokenProvider.clearToken()
                 return cacheAndReturn(StartupAuthResult.CredentialsInvalid)
             }

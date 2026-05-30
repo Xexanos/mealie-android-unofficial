@@ -4,7 +4,7 @@ baseline_commit: 08a0fb3b17b7c49fd61e7da72aa96f13e4f7a995
 
 # Story 1.6: Silent Token Refresh on App Launch
 
-Status: complete
+Status: done
 
 ## Story
 
@@ -501,6 +501,14 @@ From Story 1-5 deferred items to address:
 - Contract tests: `core/network/src/test/java/dev/xexanos/mealie/core/network/api/AuthServiceRefreshContractTest.kt`
 - Unit tests (UseCase): `core/data/src/test/java/dev/xexanos/mealie/core/data/domain/StartupAuthUseCaseTest.kt`
 - Unit tests (ViewModel): `feature/auth/src/test/java/dev/xexanos/mealie/feature/auth/ui/StartupAuthViewModelTest.kt`
+
+### Review Findings
+
+- [x] [Review][Defer] cachedResult one-shot singleton with no production reset path - deferred to Story 1-9 (config editing requires re-running startup auth after changes) [StartupAuthUseCase.kt]
+- [x] [Review][Patch] Re-auth NetworkError misclassified as CredentialsInvalid - else branch treats NetworkError same as InvalidCredentials, navigating to credential screen instead of offline mode; also missing test for "no token, credentials exist, offline" path [StartupAuthUseCase.kt:35-41]
+- [x] [Review][Patch] Concurrency test does not actually test concurrency - fake returns instantly so coroutines execute sequentially; add delay to fake [StartupAuthUseCaseTest.kt:194-205]
+- [x] [Review][Patch] CircularProgressIndicator lacks contentDescription - startup_loading string exists but is unused; add semantics for TalkBack [StartupScreen.kt]
+- [x] [Review][Patch] FakeCredentialProvider.clearCredentialsCallCount is dead code - counter can never be incremented through CredentialProvider interface [FakeProviders.kt]
 
 ## Dev Agent Record
 

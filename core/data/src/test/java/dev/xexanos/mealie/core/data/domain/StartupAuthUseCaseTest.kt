@@ -113,19 +113,6 @@ class StartupAuthUseCaseTest {
 
             assertEquals(1, fakeTokenStore.clearTokenCallCount)
         }
-
-        @Test
-        @DisplayName("[P1] both fail - does NOT clear credentials")
-        fun `whenBothFail thenDoesNotClearCredentials`() = runTest {
-            fakeTokenStore.storedToken = "expired-token"
-            fakeCredentialStore.storedCredentials = "user" to "pass"
-            fakeAuthRepository.refreshResult = AuthResult.InvalidCredentials
-            fakeAuthRepository.reAuthResult = AuthResult.InvalidCredentials
-
-            useCase.execute()
-
-            assertEquals(0, fakeCredentialStore.clearCredentialsCallCount)
-        }
     }
 
     @Nested
@@ -183,6 +170,18 @@ class StartupAuthUseCaseTest {
 
             assertEquals(0, fakeAuthRepository.reAuthCallCount)
         }
+
+        @Test
+        @DisplayName("[P1] no stored token, credentials exist, re-auth NetworkError - returns Offline")
+        fun `whenNoTokenAndReAuthNetworkError thenReturnsOffline`() = runTest {
+            fakeTokenStore.storedToken = ""
+            fakeCredentialStore.storedCredentials = "user" to "pass"
+            fakeAuthRepository.reAuthResult = AuthResult.NetworkError
+
+            val result = useCase.execute()
+
+            assertEquals(StartupAuthResult.Offline, result)
+        }
     }
 
     @Nested
@@ -195,6 +194,7 @@ class StartupAuthUseCaseTest {
             fakeTokenStore.storedToken = "token"
             fakeCredentialStore.storedCredentials = "user" to "pass"
             fakeAuthRepository.refreshResult = AuthResult.Success
+            fakeAuthRepository.refreshDelay = 100L
 
             val results = (1..2).map {
                 async { useCase.execute() }
