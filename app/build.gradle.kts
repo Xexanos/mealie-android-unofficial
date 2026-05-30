@@ -59,9 +59,9 @@ android {
 
         managedDevices {
             localDevices {
-                create("mediumPhoneApi28") {
+                create("mediumPhoneApi30") {
                     device = "Medium Phone"
-                    apiLevel = 28
+                    apiLevel = 30
                     systemImageSource = "aosp"
                 }
                 create("mediumPhoneApi34") {
@@ -181,14 +181,6 @@ val wiremockStop by tasks.registering {
 
 afterEvaluate {
     tasks.matching { it.name.endsWith("DebugAndroidTest") }.configureEach {
-        dependsOn(wiremockStart)
-        finalizedBy(wiremockStop)
-    }
-    tasks.matching { it.name == "pixel6Api34DebugAndroidTest" }.configureEach {
-        dependsOn(wiremockStart)
-        finalizedBy(wiremockStop)
-    }
-    tasks.matching { it.name == "wiremockGroupDebugAndroidTest" }.configureEach {
         dependsOn(wiremockStart)
         finalizedBy(wiremockStop)
     }
