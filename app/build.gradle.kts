@@ -69,10 +69,10 @@ android {
                     apiLevel = 34
                     systemImageSource = "aosp"
                 }
-                create("mediumPhoneApi35") {
+                create("mediumPhoneApi36") {
                     device = "Medium Phone"
-                    apiLevel = 35
-                    systemImageSource = "aosp"
+                    apiLevel = 36
+                    systemImageSource = "google"
                 }
             }
         }
