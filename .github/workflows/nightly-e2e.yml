@@ -49,40 +49,12 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Cache AVD
-        if: steps.guard.outputs.skip == 'false'
-        uses: actions/cache@v4
-        id: avd-cache
-        with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-          key: avd-34-x86_64
-
-      - name: Create AVD snapshot for caching
-        if: steps.guard.outputs.skip == 'false' && steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          arch: x86_64
-          force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: false
-          script: echo "AVD snapshot created."
-
       - name: Run Live E2E tests
         if: steps.guard.outputs.skip == 'false'
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          arch: x86_64
-          force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: true
-          script: >-
-            ./gradlew :app:connectedDebugAndroidTest
-            "-Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e"
-            "-Pandroid.testInstrumentationRunnerArguments.e2eBackend=live"
+        run: >-
+          ./gradlew pixel6Api34DebugAndroidTest
+          "-Pandroid.testInstrumentationRunnerArguments.package=dev.xexanos.mealie.e2e"
+          "-Pandroid.testInstrumentationRunnerArguments.e2eBackend=live"
 
       - name: Upload test results
         if: steps.guard.outputs.skip == 'false' && always()
