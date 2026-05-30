@@ -2,7 +2,6 @@ package dev.xexanos.mealie.e2e
 
 import dev.xexanos.mealie.core.data.datastore.AppPreferencesStore
 import dev.xexanos.mealie.core.data.datastore.CredentialsStore
-import dev.xexanos.mealie.core.data.domain.StartupAuthUseCase
 import dev.xexanos.mealie.core.network.auth.TokenProvider
 import kotlinx.coroutines.runBlocking
 import org.junit.rules.TestRule
@@ -33,12 +32,7 @@ class StartupStateRule(private val wireMock: WireMockRule) : TestRule {
                     setupWireMockStubs(auth)
                     runBlocking { prepopulate(auth) }
                 }
-                resetUseCaseCache()
-                try {
-                    base.evaluate()
-                } finally {
-                    runBlocking { cleanup() }
-                }
+                base.evaluate()
             }
         }
     }
@@ -76,24 +70,5 @@ class StartupStateRule(private val wireMock: WireMockRule) : TestRule {
         if (auth.ackHttpWarning && auth.serverUrl.isNotEmpty()) {
             appPrefs.acknowledgeHttpWarning(auth.serverUrl)
         }
-    }
-
-    private fun resetUseCaseCache() {
-        val koin = GlobalContext.get()
-        val useCase = koin.get<StartupAuthUseCase>()
-        try {
-            val field = StartupAuthUseCase::class.java.getDeclaredField("cachedResult")
-            field.isAccessible = true
-            field.set(useCase, null)
-        } catch (_: Exception) {
-            // If cache reset fails, test may still pass on fresh process (Orchestrator)
-        }
-    }
-
-    private suspend fun cleanup() {
-        val koin = GlobalContext.get()
-        koin.get<TokenProvider>().clearToken()
-        koin.get<CredentialsStore>().clearCredentials()
-        koin.get<AppPreferencesStore>().setServerUrl("")
     }
 }
