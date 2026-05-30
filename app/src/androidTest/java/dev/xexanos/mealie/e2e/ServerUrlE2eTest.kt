@@ -31,6 +31,11 @@ class ServerUrlE2eTest : E2ETestBase() {
         assumeWireMockOnly()
     }
 
+    @Before
+    fun waitForInitialUi() {
+        composeTestRule.waitForNode(ServerUrlTestTags.URL_TEXT_FIELD)
+    }
+
     @Test
     fun whenServerReturnsOldVersion_thenShowsNotMealieError() {
         wireMock.stubAppAboutNotMealie()

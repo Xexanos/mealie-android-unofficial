@@ -34,6 +34,7 @@ abstract class E2ETestBase {
         wireMock: WireMockRule,
     ) {
         wireMock.stubAppAboutSuccess()
+        composeTestRule.waitForNode(ServerUrlTestTags.URL_TEXT_FIELD)
         composeTestRule.onNodeWithTag(ServerUrlTestTags.URL_TEXT_FIELD)
             .performTextInput(wireMock.baseUrl)
         composeTestRule.onNodeWithTag(ServerUrlTestTags.CONNECT_BUTTON)

@@ -27,6 +27,7 @@ class CredentialE2eTest : E2ETestBase() {
         if (backend is E2EBackend.WireMock) {
             navigateToServerUrlScreen(composeTestRule, wireMock)
         } else {
+            composeTestRule.waitForNode(ServerUrlTestTags.URL_TEXT_FIELD)
             composeTestRule.onNodeWithTag(ServerUrlTestTags.URL_TEXT_FIELD)
                 .performTextInput(backend.baseUrl)
             composeTestRule.onNodeWithTag(ServerUrlTestTags.CONNECT_BUTTON)
