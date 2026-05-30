@@ -61,7 +61,7 @@ android {
                 create("pixel6Api28") {
                     device = "Pixel 6"
                     apiLevel = 28
-                    systemImageSource = "aosp"
+                    systemImageSource = "google"
                 }
                 create("pixel6Api34") {
                     device = "Pixel 6"

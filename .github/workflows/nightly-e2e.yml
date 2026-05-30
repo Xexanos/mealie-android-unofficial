@@ -52,6 +52,10 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      - name: Accept SDK licenses
+        if: steps.guard.outputs.skip == 'false'
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+
       - name: Run Live E2E tests
         if: steps.guard.outputs.skip == 'false'
         run: >-
