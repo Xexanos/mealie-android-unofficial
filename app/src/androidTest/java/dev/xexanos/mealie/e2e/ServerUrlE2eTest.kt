@@ -3,7 +3,6 @@ package dev.xexanos.mealie.e2e
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -41,10 +40,7 @@ class ServerUrlE2eTest : E2ETestBase() {
         composeTestRule.onNodeWithTag(ServerUrlTestTags.CONNECT_BUTTON)
             .performClick()
 
-        composeTestRule.waitUntil(timeoutMillis = 10_000) {
-            composeTestRule.onAllNodesWithTag(ServerUrlTestTags.ERROR_TEXT)
-                .fetchSemanticsNodes().isNotEmpty()
-        }
+        composeTestRule.waitForNode(ServerUrlTestTags.ERROR_TEXT)
         composeTestRule.onNodeWithText("Not a Mealie server")
             .assertIsDisplayed()
     }
@@ -56,10 +52,7 @@ class ServerUrlE2eTest : E2ETestBase() {
         composeTestRule.onNodeWithTag(ServerUrlTestTags.CONNECT_BUTTON)
             .performClick()
 
-        composeTestRule.waitUntil(timeoutMillis = 15_000) {
-            composeTestRule.onAllNodesWithTag(ServerUrlTestTags.ERROR_TEXT)
-                .fetchSemanticsNodes().isNotEmpty()
-        }
+        composeTestRule.waitForNode(ServerUrlTestTags.ERROR_TEXT, TIMEOUT_LONG)
         composeTestRule.onNodeWithText("Could not reach server")
             .assertIsDisplayed()
     }
@@ -69,10 +62,7 @@ class ServerUrlE2eTest : E2ETestBase() {
         composeTestRule.onNodeWithTag(ServerUrlTestTags.CONNECT_BUTTON)
             .performClick()
 
-        composeTestRule.waitUntil(timeoutMillis = 5_000) {
-            composeTestRule.onAllNodesWithTag(ServerUrlTestTags.ERROR_TEXT)
-                .fetchSemanticsNodes().isNotEmpty()
-        }
+        composeTestRule.waitForNode(ServerUrlTestTags.ERROR_TEXT, TIMEOUT_SHORT)
         composeTestRule.onNodeWithText("Enter a valid URL (e.g. https://mealie.example.com)")
             .assertIsDisplayed()
     }
@@ -86,10 +76,7 @@ class ServerUrlE2eTest : E2ETestBase() {
         composeTestRule.onNodeWithTag(ServerUrlTestTags.CONNECT_BUTTON)
             .performClick()
 
-        composeTestRule.waitUntil(timeoutMillis = 2_000) {
-            composeTestRule.onAllNodesWithTag(ServerUrlTestTags.PROGRESS_INDICATOR)
-                .fetchSemanticsNodes().isNotEmpty()
-        }
+        composeTestRule.waitForNode(ServerUrlTestTags.PROGRESS_INDICATOR, TIMEOUT_SHORT)
         composeTestRule.onNodeWithTag(ServerUrlTestTags.PROGRESS_INDICATOR)
             .assertIsDisplayed()
         composeTestRule.onNodeWithTag(ServerUrlTestTags.URL_TEXT_FIELD)
