@@ -13,6 +13,7 @@ import dev.xexanos.mealie.core.network.auth.AuthenticatorRefresher
 import dev.xexanos.mealie.core.network.auth.CredentialProvider
 import dev.xexanos.mealie.core.network.auth.TokenProvider
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val dataModule = module {
@@ -21,7 +22,7 @@ val dataModule = module {
     single { CredentialsStore(androidContext()) }
     single<TokenProvider> { TokenProviderAdapter(get()) }
     single<CredentialProvider> { CredentialProviderAdapter(get()) }
-    single<AuthRepository> { AuthRepositoryImpl(get(), get(), get(), get(), get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get(), get(named("plain")), get(), get(), get()) }
     single<AuthenticatorRefresher> { AuthenticatorRefresherImpl(get()) }
     single { StartupAuthUseCase(get(), get(), get()) }
 }

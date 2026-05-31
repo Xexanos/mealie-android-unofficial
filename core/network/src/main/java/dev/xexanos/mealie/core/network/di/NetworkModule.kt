@@ -8,6 +8,7 @@ import dev.xexanos.mealie.core.network.auth.TokenManager
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import java.util.concurrent.TimeUnit
 
@@ -21,7 +22,13 @@ val networkModule = module {
     single { TokenManager() }
     single { TokenInterceptor(get()) }
     single { MealieAuthenticator(get(), get()) }
-    single { buildOkHttpClient(get(), get()) }
+    single(named("plain")) { buildPlainOkHttpClient() }
+    single {
+        get<OkHttpClient>(named("plain")).newBuilder()
+            .addInterceptor(get<TokenInterceptor>())
+            .authenticator(get<MealieAuthenticator>())
+            .build()
+    }
 }
 
 private const val CONNECT_TIMEOUT_SECONDS = 10L
@@ -38,16 +45,11 @@ internal fun redactSensitiveContent(message: String): String =
         acc.replace(pattern, replacement)
     }
 
-private fun buildOkHttpClient(
-    tokenInterceptor: TokenInterceptor,
-    authenticator: MealieAuthenticator,
-): OkHttpClient {
+private fun buildPlainOkHttpClient(): OkHttpClient {
     val builder = OkHttpClient.Builder()
         .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .writeTimeout(WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .addInterceptor(tokenInterceptor)
-        .authenticator(authenticator)
     if (BuildConfig.DEBUG) {
         val redactingLogger = HttpLoggingInterceptor.Logger { message ->
             HttpLoggingInterceptor.Logger.DEFAULT.log(redactSensitiveContent(message))
