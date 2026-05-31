@@ -40,9 +40,9 @@ private class NoOpAuthRepository : AuthRepository {
     override suspend fun saveServerUrl(url: String) {}
     override suspend fun isHttpWarningAcknowledged(url: String): Boolean = false
     override suspend fun acknowledgeHttpWarning(url: String) {}
-    override suspend fun authenticate(username: String, password: String): AuthResult = AuthResult.Success
-    override suspend fun refreshToken(token: String): AuthResult = AuthResult.Success
-    override suspend fun reAuthenticateWithStoredCredentials(): AuthResult = AuthResult.Success
+    override suspend fun authenticate(username: String, password: String): AuthResult = AuthResult.Success("")
+    override suspend fun refreshToken(token: String): AuthResult = AuthResult.Success("")
+    override suspend fun reAuthenticateWithStoredCredentials(): AuthResult = AuthResult.Success("")
     override fun getStoredCredentials(): Flow<StoredCredentials> = flowOf(StoredCredentials())
     override fun getStoredToken(): Flow<StoredToken> = flowOf(StoredToken())
 }

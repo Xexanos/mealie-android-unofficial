@@ -28,6 +28,7 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.okhttp.mockwebserver)
+    testImplementation(kotlin("test"))
     testRuntimeOnly(libs.junit.platform.launcher)
 }
 

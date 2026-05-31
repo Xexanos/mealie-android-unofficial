@@ -1,5 +1,6 @@
 package dev.xexanos.mealie.core.data.di
 
+import dev.xexanos.mealie.core.data.auth.AuthenticatorRefresherImpl
 import dev.xexanos.mealie.core.data.datastore.AppPreferencesStore
 import dev.xexanos.mealie.core.data.datastore.CredentialProviderAdapter
 import dev.xexanos.mealie.core.data.datastore.CredentialsStore
@@ -8,6 +9,7 @@ import dev.xexanos.mealie.core.data.datastore.TokenStore
 import dev.xexanos.mealie.core.data.domain.StartupAuthUseCase
 import dev.xexanos.mealie.core.data.repository.AuthRepository
 import dev.xexanos.mealie.core.data.repository.AuthRepositoryImpl
+import dev.xexanos.mealie.core.network.auth.AuthenticatorRefresher
 import dev.xexanos.mealie.core.network.auth.CredentialProvider
 import dev.xexanos.mealie.core.network.auth.TokenProvider
 import org.koin.android.ext.koin.androidContext
@@ -20,5 +22,6 @@ val dataModule = module {
     single<TokenProvider> { TokenProviderAdapter(get()) }
     single<CredentialProvider> { CredentialProviderAdapter(get()) }
     single<AuthRepository> { AuthRepositoryImpl(get(), get(), get(), get(), get()) }
+    single<AuthenticatorRefresher> { AuthenticatorRefresherImpl(get()) }
     single { StartupAuthUseCase(get(), get(), get()) }
 }

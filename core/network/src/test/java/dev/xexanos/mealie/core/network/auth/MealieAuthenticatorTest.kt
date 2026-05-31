@@ -8,7 +8,6 @@ import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.Response
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -47,7 +46,6 @@ class MealieAuthenticatorTest {
     inner class ReAuthSuccess {
 
         @Test
-        @Disabled("RED PHASE: MealieAuthenticator not yet implemented")
         @DisplayName("[P0] When refresher returns new token then retries request with Bearer header")
         fun whenRefresherReturnsToken_thenRetriesWithNewBearer() = runTest {
             coEvery { refresher.refreshViaCredentials() } returns "new-access-token"
@@ -65,7 +63,6 @@ class MealieAuthenticatorTest {
         }
 
         @Test
-        @Disabled("RED PHASE: MealieAuthenticator not yet implemented")
         @DisplayName("[P0] When refresher returns new token then persists token via TokenManager")
         fun whenRefresherReturnsToken_thenPersistsViaTokenManager() = runTest {
             coEvery { refresher.refreshViaCredentials() } returns "new-access-token"
@@ -84,7 +81,6 @@ class MealieAuthenticatorTest {
     inner class ReAuthFailure {
 
         @Test
-        @Disabled("RED PHASE: MealieAuthenticator not yet implemented")
         @DisplayName("[P0] When refresher returns null then authenticate returns null")
         fun whenRefresherReturnsNull_thenReturnsNull() = runTest {
             coEvery { refresher.refreshViaCredentials() } returns null
@@ -98,7 +94,6 @@ class MealieAuthenticatorTest {
         }
 
         @Test
-        @Disabled("RED PHASE: MealieAuthenticator not yet implemented")
         @DisplayName("[P0] When refresher returns null then signals auth failure")
         fun whenRefresherReturnsNull_thenSignalsAuthFailure() = runTest {
             coEvery { refresher.refreshViaCredentials() } returns null
@@ -117,7 +112,6 @@ class MealieAuthenticatorTest {
     inner class InfiniteLoopPrevention {
 
         @Test
-        @Disabled("RED PHASE: MealieAuthenticator not yet implemented")
         @DisplayName("[P0] When response has prior response then returns null immediately")
         fun whenResponseHasPriorResponse_thenReturnsNullImmediately() = runTest {
             val request = buildRequest()

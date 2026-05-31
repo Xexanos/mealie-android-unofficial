@@ -26,14 +26,14 @@ open class StartupAuthUseCase(
         val storedToken = tokenProvider.getToken().first()
         if (storedToken.accessToken.isNotEmpty()) {
             when (authRepository.refreshToken(storedToken.accessToken)) {
-                AuthResult.Success -> return cacheAndReturn(StartupAuthResult.Success)
+                is AuthResult.Success -> return cacheAndReturn(StartupAuthResult.Success)
                 AuthResult.NetworkError -> return cacheAndReturn(StartupAuthResult.Offline)
                 AuthResult.InvalidCredentials -> { /* fall through to re-auth */ }
             }
         }
 
         when (authRepository.reAuthenticateWithStoredCredentials()) {
-            AuthResult.Success -> return cacheAndReturn(StartupAuthResult.Success)
+            is AuthResult.Success -> return cacheAndReturn(StartupAuthResult.Success)
             AuthResult.NetworkError -> return cacheAndReturn(StartupAuthResult.Offline)
             AuthResult.InvalidCredentials -> {
                 tokenProvider.clearToken()

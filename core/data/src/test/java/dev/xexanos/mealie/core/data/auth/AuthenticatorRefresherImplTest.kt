@@ -1,12 +1,11 @@
 package dev.xexanos.mealie.core.data.auth
 
 import dev.xexanos.mealie.core.data.repository.AuthRepository
-import dev.xexanos.mealie.core.data.repository.AuthResult
+import dev.xexanos.mealie.core.data.domain.AuthResult
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -29,7 +28,6 @@ class AuthenticatorRefresherImplTest {
     inner class SuccessCase {
 
         @Test
-        @Disabled("RED PHASE: AuthenticatorRefresherImpl not yet implemented")
         @DisplayName("[P1] When AuthRepository returns Success then returns access token")
         fun whenAuthRepositoryReturnsSuccess_thenReturnsAccessToken() = runTest {
             coEvery {
@@ -47,7 +45,6 @@ class AuthenticatorRefresherImplTest {
     inner class FailureCases {
 
         @Test
-        @Disabled("RED PHASE: AuthenticatorRefresherImpl not yet implemented")
         @DisplayName("[P1] When AuthRepository returns InvalidCredentials then returns null")
         fun whenAuthRepositoryReturnsInvalidCredentials_thenReturnsNull() = runTest {
             coEvery {
@@ -60,7 +57,6 @@ class AuthenticatorRefresherImplTest {
         }
 
         @Test
-        @Disabled("RED PHASE: AuthenticatorRefresherImpl not yet implemented")
         @DisplayName("[P1] When AuthRepository returns NetworkError then returns null")
         fun whenAuthRepositoryReturnsNetworkError_thenReturnsNull() = runTest {
             coEvery {

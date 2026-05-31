@@ -79,7 +79,7 @@ class AuthRepositoryImpl(
                     val body = response.body() ?: return AuthResult.NetworkError
                     tokenStore.saveToken(body.accessToken)
                     credentialsStore.saveCredentials(username, password)
-                    AuthResult.Success
+                    AuthResult.Success(body.accessToken)
                 } else if (response.code() == HTTP_UNAUTHORIZED) {
                     AuthResult.InvalidCredentials
                 } else {
@@ -103,7 +103,7 @@ class AuthRepositoryImpl(
             if (response.isSuccessful) {
                 val body = response.body() ?: return AuthResult.NetworkError
                 tokenStore.saveToken(body.accessToken)
-                AuthResult.Success
+                AuthResult.Success(body.accessToken)
             } else if (response.code() == HTTP_UNAUTHORIZED) {
                 AuthResult.InvalidCredentials
             } else {
@@ -133,7 +133,7 @@ class AuthRepositoryImpl(
                 if (response.isSuccessful) {
                     val body = response.body() ?: return AuthResult.NetworkError
                     tokenStore.saveToken(body.accessToken)
-                    AuthResult.Success
+                    AuthResult.Success(body.accessToken)
                 } else if (response.code() == HTTP_UNAUTHORIZED) {
                     AuthResult.InvalidCredentials
                 } else {
