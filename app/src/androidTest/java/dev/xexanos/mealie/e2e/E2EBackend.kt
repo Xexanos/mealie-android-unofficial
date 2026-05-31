@@ -5,7 +5,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 
 sealed class E2EBackend {
     abstract val baseUrl: String
@@ -28,7 +28,7 @@ sealed class E2EBackend {
 
     suspend fun healthCheck(): Boolean = runCatching {
         withContext(Dispatchers.IO) {
-            val conn = URL("$baseUrl/api/app/about").openConnection() as HttpURLConnection
+            val conn = URI("$baseUrl/api/app/about").toURL().openConnection() as HttpURLConnection
             conn.connectTimeout = 5_000
             conn.readTimeout = 5_000
             try {

@@ -4,7 +4,7 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 
 class WireMockRule(
     private val host: String = "10.0.2.2",
@@ -166,7 +166,7 @@ class WireMockRule(
     }
 
     private fun post(url: String, body: String) {
-        val connection = URL(url).openConnection() as HttpURLConnection
+        val connection = URI(url).toURL().openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
         connection.setRequestProperty("Content-Type", "application/json")
         connection.connectTimeout = 5000
