@@ -89,7 +89,7 @@ class CredentialViewModelTest {
         @Test
         @DisplayName("onSignIn with valid credentials emits NavigateToMain")
         fun `onSignIn with valid credentials emits NavigateToMain`() = runTest {
-            val fake = FakeAuthRepository(authResult = AuthResult.Success)
+            val fake = FakeAuthRepository(authResult = AuthResult.Success(""))
             val vm = CredentialViewModel(fake)
             vm.onUsernameChanged("user@example.com")
             vm.onPasswordChanged("secret")
@@ -102,7 +102,7 @@ class CredentialViewModelTest {
         @Test
         @DisplayName("onSignIn sets isSubmitting true during network call")
         fun `onSignIn sets isSubmitting true during network call`() = runTest {
-            val fake = FakeAuthRepository(authResult = AuthResult.Success)
+            val fake = FakeAuthRepository(authResult = AuthResult.Success(""))
             val vm = CredentialViewModel(fake)
             vm.onUsernameChanged("user@example.com")
             vm.onPasswordChanged("secret")
@@ -167,7 +167,7 @@ class CredentialViewModelTest {
         @Test
         @DisplayName("onSignIn while isSubmitting is a no-op")
         fun `onSignIn while isSubmitting is a no-op`() = runTest {
-            val fake = FakeAuthRepository(authResult = AuthResult.Success)
+            val fake = FakeAuthRepository(authResult = AuthResult.Success(""))
             fake.authGate = CompletableDeferred()
             val vm = CredentialViewModel(fake)
             vm.onUsernameChanged("user@example.com")
@@ -216,7 +216,7 @@ class CredentialViewModelTest {
         @Test
         @DisplayName("leading and trailing whitespace is trimmed from username")
         fun `leading and trailing whitespace is trimmed from username`() = runTest {
-            val fake = FakeAuthRepository(authResult = AuthResult.Success)
+            val fake = FakeAuthRepository(authResult = AuthResult.Success(""))
             val vm = CredentialViewModel(fake)
             vm.onUsernameChanged("  user@example.com  ")
             vm.onPasswordChanged("secret")

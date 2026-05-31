@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.flowOf
 import java.io.IOException
 
 class FakeStartupAuthRepository : AuthRepository {
-    var refreshResult: AuthResult = AuthResult.Success
-    var reAuthResult: AuthResult = AuthResult.Success
+    var refreshResult: AuthResult = AuthResult.Success("")
+    var reAuthResult: AuthResult = AuthResult.Success("")
     var refreshCallCount = 0
     var reAuthCallCount = 0
     var refreshThrowsIOException = false
@@ -35,7 +35,7 @@ class FakeStartupAuthRepository : AuthRepository {
     override suspend fun saveServerUrl(url: String) {}
     override suspend fun isHttpWarningAcknowledged(url: String): Boolean = false
     override suspend fun acknowledgeHttpWarning(url: String) {}
-    override suspend fun authenticate(username: String, password: String): AuthResult = AuthResult.Success
+    override suspend fun authenticate(username: String, password: String): AuthResult = AuthResult.Success("")
     override fun getStoredCredentials(): Flow<StoredCredentials> = flowOf(StoredCredentials())
     override fun getStoredToken(): Flow<StoredToken> = flowOf(StoredToken())
 }

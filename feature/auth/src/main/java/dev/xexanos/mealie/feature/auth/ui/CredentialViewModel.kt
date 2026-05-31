@@ -50,7 +50,7 @@ class CredentialViewModel(private val authRepository: AuthRepository) : ViewMode
 
         viewModelScope.launch {
             when (authRepository.authenticate(trimmedUsername, current.password)) {
-                AuthResult.Success -> {
+                is AuthResult.Success -> {
                     _uiState.value = submitted.copy(isSubmitting = false)
                     _events.send(CredentialUiEvent.NavigateToMain)
                 }

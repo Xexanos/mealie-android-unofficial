@@ -1,10 +1,14 @@
 package dev.xexanos.mealie.core.network.di
 
 import dev.xexanos.mealie.core.network.BuildConfig
+import dev.xexanos.mealie.core.network.auth.AuthenticatorRefresher
+import dev.xexanos.mealie.core.network.auth.MealieAuthenticator
+import dev.xexanos.mealie.core.network.auth.TokenInterceptor
 import dev.xexanos.mealie.core.network.auth.TokenManager
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import java.util.concurrent.TimeUnit
 
@@ -15,8 +19,16 @@ val networkModule = module {
             coerceInputValues = true
         }
     }
-    single { buildOkHttpClient() }
     single { TokenManager() }
+    single { TokenInterceptor(get()) }
+    single { MealieAuthenticator(get(), get()) }
+    single(named("plain")) { buildPlainOkHttpClient() }
+    single {
+        get<OkHttpClient>(named("plain")).newBuilder()
+            .addInterceptor(get<TokenInterceptor>())
+            .authenticator(get<MealieAuthenticator>())
+            .build()
+    }
 }
 
 private const val CONNECT_TIMEOUT_SECONDS = 10L
@@ -33,7 +45,7 @@ internal fun redactSensitiveContent(message: String): String =
         acc.replace(pattern, replacement)
     }
 
-private fun buildOkHttpClient(): OkHttpClient {
+private fun buildPlainOkHttpClient(): OkHttpClient {
     val builder = OkHttpClient.Builder()
         .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)

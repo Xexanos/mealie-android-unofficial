@@ -33,7 +33,7 @@ class StartupAuthUseCaseTest {
         fun `whenStoredTokenExistsAndRefreshSucceeds thenReturnsSuccess`() = runTest {
             fakeTokenStore.storedToken = "existing-token"
             fakeCredentialStore.storedCredentials = "user" to "pass"
-            fakeAuthRepository.refreshResult = AuthResult.Success
+            fakeAuthRepository.refreshResult = AuthResult.Success("")
 
             val result = useCase.execute()
 
@@ -45,7 +45,7 @@ class StartupAuthUseCaseTest {
         fun `whenRefreshSucceeds thenRepositoryRefreshCalled`() = runTest {
             fakeTokenStore.storedToken = "old-token"
             fakeCredentialStore.storedCredentials = "user" to "pass"
-            fakeAuthRepository.refreshResult = AuthResult.Success
+            fakeAuthRepository.refreshResult = AuthResult.Success("")
 
             useCase.execute()
 
@@ -63,7 +63,7 @@ class StartupAuthUseCaseTest {
             fakeTokenStore.storedToken = "expired-token"
             fakeCredentialStore.storedCredentials = "user" to "pass"
             fakeAuthRepository.refreshResult = AuthResult.InvalidCredentials
-            fakeAuthRepository.reAuthResult = AuthResult.Success
+            fakeAuthRepository.reAuthResult = AuthResult.Success("")
 
             val result = useCase.execute()
 
@@ -76,7 +76,7 @@ class StartupAuthUseCaseTest {
             fakeTokenStore.storedToken = "expired-token"
             fakeCredentialStore.storedCredentials = "user" to "pass"
             fakeAuthRepository.refreshResult = AuthResult.InvalidCredentials
-            fakeAuthRepository.reAuthResult = AuthResult.Success
+            fakeAuthRepository.reAuthResult = AuthResult.Success("")
 
             useCase.execute()
 
@@ -193,7 +193,7 @@ class StartupAuthUseCaseTest {
         fun `whenConcurrentCalls thenOnlyOneExecutes`() = runTest {
             fakeTokenStore.storedToken = "token"
             fakeCredentialStore.storedCredentials = "user" to "pass"
-            fakeAuthRepository.refreshResult = AuthResult.Success
+            fakeAuthRepository.refreshResult = AuthResult.Success("")
             fakeAuthRepository.refreshDelay = 100L
 
             val results = (1..2).map {

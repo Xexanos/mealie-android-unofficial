@@ -13,7 +13,7 @@ class FakeAuthRepository(
     private var storedUrl: String? = null,
     private var probeResult: UrlProbeResult = UrlProbeResult.Success,
     ackedUrls: Set<String> = emptySet(),
-    var authResult: AuthResult = AuthResult.Success,
+    var authResult: AuthResult = AuthResult.Success(""),
 ) : AuthRepository {
     private val _ackedUrls = ackedUrls.toMutableSet()
     var probeCallCount = 0
